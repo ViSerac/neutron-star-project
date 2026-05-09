@@ -515,6 +515,7 @@ let ppdotVisible = { ATNF: true, McGill: true };
 let isoVisible = { b12: true, b14: true, b15: true, t3: true, t6: true, t9: true, death: true };
 let heatmapMode = 'scatter';
 let heatmapTypes = { pulsar: true, magnetar: true, m7: true, cco: true };
+let milkywayImg = null;
 
 const TYPE_COLORS = {
   pulsar: '#60a5fa',
@@ -531,6 +532,15 @@ async function init() {
   allData = await res.json();
   document.getElementById('ppdot-loading').style.display = 'none';
   document.getElementById('heatmap-loading').style.display = 'none';
+
+  // Preload milkyway background
+  milkywayImg = new Image();
+  milkywayImg.src = 'milkyway-full.webp';
+  await new Promise(resolve => {
+    milkywayImg.onload = resolve;
+    milkywayImg.onerror = () => { milkywayImg = null; resolve(); };
+  });
+
   requestAnimationFrame(() => drawPPdot());
 }
 
@@ -762,6 +772,22 @@ function drawHeatmap() {
 
   ctx.fillStyle = '#05070f';
   ctx.fillRect(0, 0, W, H);
+
+  // Milky Way background image
+  if (milkywayImg) {
+    const kpcPerPx = 0.007461;
+    const gcOffsetX_kpc = 2808 * kpcPerPx;
+    const gcOffsetY_kpc = 2790 * kpcPerPx;
+    const imgW_kpc = milkywayImg.width * kpcPerPx;
+    const imgH_kpc = milkywayImg.height * kpcPerPx;
+    const px_left   = toX(-gcOffsetX_kpc);
+    const px_right  = toX(imgW_kpc - gcOffsetX_kpc);
+    const px_top    = toY(gcOffsetY_kpc);
+    const px_bottom = toY(-(imgH_kpc - gcOffsetY_kpc));
+    ctx.globalAlpha = 0.55;
+    ctx.drawImage(milkywayImg, px_left, px_top, px_right - px_left, px_bottom - px_top);
+    ctx.globalAlpha = 1;
+  }
 
   // Grid
   ctx.strokeStyle = 'rgba(0,212,255,0.05)';
