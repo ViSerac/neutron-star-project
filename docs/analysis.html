@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-WGGNJP9C4F");
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analysis | Neutron Star Project</title>
@@ -343,6 +351,57 @@
     letter-spacing: 0.08em;
     margin-top: 40px;
   }
+
+  /* ── COOKIE BANNER ── */
+  #cookie-banner {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10,14,26,0.97);
+    border-top: 1px solid rgba(0,212,255,0.2);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    z-index: 9999;
+    font-family: Space Mono, monospace;
+    font-size: 10px;
+    color: #7a8299;
+    flex-wrap: wrap;
+  }
+
+  #cookie-banner.hidden { display: none; }
+
+  #cookie-banner a { color: #00d4ff; text-decoration: none; }
+  #cookie-banner a:hover { text-decoration: underline; }
+
+  .cookie-btn {
+    font-family: Space Mono, monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .cookie-accept {
+    background: rgba(0,212,255,0.15);
+    border: 1px solid #00d4ff;
+    color: #00d4ff;
+  }
+
+  .cookie-accept:hover { background: rgba(0,212,255,0.3); }
+
+  .cookie-decline {
+    background: transparent;
+    border: 1px solid rgba(122,130,153,0.3);
+    color: #7a8299;
+  }
+
+  .cookie-decline:hover { color: #e8eaf2; border-color: #7a8299; }
+
 </style>
 </head>
 <body>
@@ -1018,6 +1077,51 @@ window.addEventListener('resize', () => {
 
 // ── START ─────────────────────────────────────────────────
 init();
+</script>
+<!-- Cookie Banner -->
+<div id="cookie-banner">
+  <span>
+    This site uses Google Analytics to collect anonymous usage data.
+    No personal information is stored. See our <a href="about.html">About</a> page for contact.
+  </span>
+  <div style="display:flex;gap:8px;flex-shrink:0">
+    <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
+    <button class="cookie-btn cookie-accept" onclick="cookieAccept()">Accept</button>
+  </div>
+</div>
+<script>
+  (function() {
+    const consent = localStorage.getItem("nsp_cookie_consent");
+    if (consent === "accepted") {
+      // Already accepted — GA runs normally
+    } else if (consent === "declined") {
+      // Declined — disable GA
+      window["ga-disable-G-WGGNJP9C4F"] = true;
+    } else {
+      // No choice yet — disable GA until accepted
+      window["ga-disable-G-WGGNJP9C4F"] = true;
+    }
+  })();
+
+  function cookieAccept() {
+    localStorage.setItem("nsp_cookie_consent", "accepted");
+    window["ga-disable-G-WGGNJP9C4F"] = false;
+    document.getElementById("cookie-banner").classList.add("hidden");
+    // Re-init GA
+    gtag("consent", "update", { analytics_storage: "granted" });
+  }
+
+  function cookieDecline() {
+    localStorage.setItem("nsp_cookie_consent", "declined");
+    window["ga-disable-G-WGGNJP9C4F"] = true;
+    document.getElementById("cookie-banner").classList.add("hidden");
+  }
+
+  // Hide banner if already decided
+  document.addEventListener("DOMContentLoaded", function() {
+    const consent = localStorage.getItem("nsp_cookie_consent");
+    if (consent) document.getElementById("cookie-banner").classList.add("hidden");
+  });
 </script>
 </body>
 </html>
