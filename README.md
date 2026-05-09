@@ -2,7 +2,7 @@
 
 An interactive 3D catalog visualizer for neutron stars, built with Python and Three.js.
 
-Live at: **https://viserac.github.io/neutron-star-project/site/**
+**https://viserac.github.io/neutron-star-project/index.html**
 
 ---
 
@@ -22,20 +22,12 @@ The Neutron Star Project aggregates data from multiple astronomical catalogs and
 
 ```
 neutron-star-project/
-├── pipeline/
-│   ├── fetch_atnf.py
-│   ├── fetch_mcgill.py
-│   ├── transform_coords_atnf.py
-│   ├── transform_coords_mcgill.py
-│   ├── m7andcco.py
-│   ├── concat_catalogs.py
-│   └── export_json.py
-├── analysis/
-│   ├── analysis_ppdot.py
-│   └── analysis_heatmap.py
-├── site/
+├── pipeline/          # Data pipeline (fetch, transform, concat, export)
+├── analysis/          # Python analysis scripts + Milky Way background image
+├── docs/              # Static site served by GitHub Pages
 │   ├── index.html
 │   ├── import-export.html
+│   ├── analysis.html
 │   ├── faq.html
 │   ├── about.html
 │   ├── data-sources.html
@@ -47,39 +39,13 @@ neutron-star-project/
 
 ---
 
-## Running the pipeline
+## Dependencies
 
-```bash
-pip install psrqpy astropy pandas scikit-learn pyarrow scipy matplotlib
-
-python pipeline/fetch_atnf.py
-python pipeline/fetch_mcgill.py
-python pipeline/transform_coords_atnf.py
-python pipeline/transform_coords_mcgill.py
-python pipeline/m7andcco.py
-python pipeline/concat_catalogs.py
-python pipeline/export_json.py
+```
+psrqpy astropy pandas scikit-learn pyarrow scipy matplotlib
 ```
 
----
-
-## Running the analyses
-
-```bash
-python analysis/analysis_ppdot.py
-python analysis/analysis_heatmap.py
-```
-
-The heatmap requires a Milky Way background image (`milkyway-full.webp`) in the project root, calibrated using the GLIMPSE survey image from NASA/JPL.
-
----
-
-## Running the site locally
-
-```bash
-cd site
-python -m http.server 8000
-```
+The heatmap analysis requires `analysis/milkyway-full.webp`, a top-down infrared illustration of the Milky Way based on GLIMPSE survey data (Spitzer Space Telescope, NASA/JPL-Caltech). Calibrated with two reference points: Galactic center at pixel (2808, 2790) and the Sun at (2793, 3879), yielding ~0.00746 kpc/pixel.
 
 ---
 
@@ -99,7 +65,7 @@ python -m http.server 8000
 If you use this project in your work, please cite:
 
 ```
-Seraco. Neutron Star Project (2025). https://github.com/ViSerac/neutron-star-project
+Victor Seraco. Neutron Star Project (2025). https://github.com/ViSerac/neutron-star-project
 ```
 
 ---
