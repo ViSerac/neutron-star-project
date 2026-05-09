@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ Neutron Star Project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #05070f;
+    --bg2: #0a0e1a;
+    --bg3: #0f1525;
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0,212,255,0.12);
+    --text: #e8eaf2;
+    --text-dim: #7a8299;
+    --border: rgba(0,212,255,0.12);
+    --top-h: 56px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+  }
+
+  /* topbar */
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--top-h);
+    background: rgba(5,7,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 100;
+    gap: 32px;
+  }
+
+  #logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  #logo span { color: var(--text-dim); font-weight: 400; }
+
+  nav { display: flex; gap: 4px; margin-left: auto; }
+
+  nav { flex-wrap: wrap; }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  nav a:hover, nav a.active { color: var(--cyan); background: var(--cyan-dim); }
+
+  /* content */
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: calc(var(--top-h) + 60px) 24px 80px;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .page-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 48px;
+    line-height: 1.6;
+  }
+
+  /* level tabs */
+  .level-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .tab-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn.active {
+    color: var(--cyan);
+    border-bottom-color: var(--cyan);
+  }
+
+  .tab-btn:hover { color: var(--text); }
+
+  /* faq sections */
+  .faq-section { display: none; }
+  .faq-section.active { display: block; }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .faq-item:hover { border-color: rgba(0,212,255,0.25); }
+  .faq-item.open { border-color: rgba(0,212,255,0.3); }
+
+  .faq-q {
+    padding: 18px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--text);
+    transition: background 0.2s;
+    user-select: none;
+  }
+
+  .faq-item.open .faq-q { background: var(--cyan-dim); }
+  .faq-q:hover { background: rgba(255,255,255,0.02); }
+
+  .faq-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--cyan);
+    transition: transform 0.3s;
+    line-height: 1;
+  }
+
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  .faq-item.open .faq-a { max-height: 600px; }
+
+  .faq-a-inner {
+    padding: 0 20px 20px;
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    margin-top: 0;
+  }
+
+  .faq-a-inner p { margin-bottom: 10px; }
+  .faq-a-inner p:last-child { margin-bottom: 0; }
+
+  .faq-a-inner a {
+    color: var(--cyan);
+    text-decoration: none;
+  }
+  .faq-a-inner a:hover { text-decoration: underline; }
+
+  .faq-a-inner code {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: var(--cyan);
+  }
+
+  .highlight-box {
+    background: var(--bg3);
+    border-left: 2px solid var(--cyan);
+    border-radius: 0 4px 4px 0;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* footer */
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 10px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.08em;
+  }
+
+  footer a { color: var(--text-dim); text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <nav>
+    <a href="index.html">Visualizer</a>
+    <a href="import-export.html">Import / Export</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="faq.html" class="active">FAQ</a>
+    <a href="about.html">About</a>
+    <a href="data-sources.html">Data Sources</a>
+  </nav>
+</div>
+
+<main>
+  <div class="page-title">FAQ</div>
+  <div class="page-sub">Frequently asked questions about neutron stars and this project.<br>Choose your level of familiarity with astrophysics below.</div>
+
+  <div class="level-tabs">
+    <button class="tab-btn active" onclick="switchTab('general', this)">General Audience</button>
+    <button class="tab-btn" onclick="switchTab('advanced', this)">For Astronomers</button>
+  </div>
+
+  <!-- GENERAL -->
+  <div class="faq-section active" id="tab-general">
+    <div class="section-label">General Questions</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What is a neutron star?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>A neutron star is what remains after a massive star roughly 8 to 20 times the mass of our Sun exhausts its nuclear fuel and collapses in a violent explosion called a supernova.</p>
+        <p>The result is an incredibly dense object: a sphere roughly 20 kilometers in diameter that packs more mass than the Sun. To put that in perspective, a teaspoon of neutron star material would weigh about a billion tons on Earth.</p>
+        <p>At such densities, protons and electrons merge to form neutrons hence the name. Neutron stars represent one of the most extreme environments in the known universe, where the laws of physics are pushed to their limits.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What is a pulsar?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>A pulsar is a rotating neutron star that emits beams of electromagnetic radiation usually radio waves from its magnetic poles. Because the star spins and the beam sweeps through space like a lighthouse, we detect it as regular pulses of radiation.</p>
+        <p>Some pulsars rotate hundreds of times per second with such precision that they rival atomic clocks in accuracy. The first pulsar was discovered in 1967 by Jocelyn Bell Burnell, and today we know of over 4,300 of them, most catalogued by the <a href="https://www.atnf.csiro.au/research/pulsar/psrcat/" target="_blank">ATNF Pulsar Catalogue</a>.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What is a magnetar?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>A magnetar is a rare type of neutron star with an extraordinarily powerful magnetic field roughly a thousand times stronger than that of an ordinary pulsar, and about a quadrillion times stronger than Earth's magnetic field.</p>
+        <p>These extreme fields power violent X-ray and gamma-ray bursts. A magnetar located within about 10 light-years of Earth would strip away our atmosphere. Fortunately, the closest known magnetar is thousands of light-years away.</p>
+        <p>Only about 30 magnetars are confirmed or suspected in the Milky Way and nearby galaxies. They are catalogued by the <a href="https://www.physics.mcgill.ca/~pulsar/magnetar/main.html" target="_blank">McGill Magnetar Catalogue</a>.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What is a blitzar?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>A blitzar is a theoretical object proposed to explain fast radio bursts (FRBs), extremely brief but enormously powerful bursts of radio waves lasting only milliseconds that originate from billions of light-years away.</p>
+        <p>The leading hypothesis is that a blitzar begins as a massive, rapidly spinning neutron star that is temporarily held up against gravitational collapse by its own rotation. As the star gradually loses rotational energy through electromagnetic emission, it slows down, and at a critical threshold, it can no longer support its own mass and collapses into a black hole in an instant.</p>
+        <div class="highlight-box">
+          This catastrophic collapse releases a final, intense burst of radio waves before the event horizon forms and severs all contact with the outside universe. That burst is what we detect as a fast radio burst.
+        </div>
+        <p>Blitzars have not been directly confirmed, and other explanations for FRBs exist. They are not included in this visualizer because no confirmed blitzar has been observed. By definition, they vanish the moment they form. They represent one of the most dramatic endpoints a neutron star can reach, second only to a collision with another neutron star or black hole.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What are the Magnificent Seven?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>The Magnificent Seven (M7) is the informal name for a group of seven nearby, thermally-emitting isolated neutron stars discovered by the ROSAT X-ray satellite. Unlike pulsars, they are radio-quiet they don't emit detectable radio pulses.</p>
+        <p>They are among the closest neutron stars to Earth, lying within a few hundred parsecs, and they glow in X-rays simply because they are still cooling down from their violent birth. Their proximity makes them valuable laboratories for studying neutron star surface properties.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What is a Central Compact Object (CCO)?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Central Compact Objects are neutron stars found at the centers of supernova remnants the expanding shells of gas left behind after a stellar explosion. They are young, X-ray-emitting, and unusually quiet: no detected radio pulses, no strong magnetic activity.</p>
+        <p>Their weak magnetic fields and thermal X-ray emission make them a distinct and poorly understood class of neutron star. Only about 10 confirmed CCOs are known, making them among the rarest objects in this catalog.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        Why are only some neutron stars shown in the visualizer?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>To place a neutron star in three-dimensional space, we need three pieces of information: its right ascension, declination, and distance. Many known neutron stars have not had their distances measured with sufficient precision.</p>
+        <div class="highlight-box">
+          Only neutron stars with all three coordinates available right ascension, declination, and distance are included in this visualizer. Objects lacking any of these measurements are excluded, regardless of how well-studied they are.
+        </div>
+        <p>This is especially common for pulsars in the ATNF catalogue, where distance estimates can be uncertain or absent, and for magnetar candidates in the McGill catalogue that lack confirmed optical or X-ray counterparts.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What do the colors in the visualizer mean?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Each color represents a different class of neutron star:</p>
+        <div class="highlight-box">
+          <span style="color:#60a5fa">■</span> Blue Pulsar (ATNF)<br>
+          <span style="color:#ff4d1a">■</span> Red Magnetar (McGill)<br>
+          <span style="color:#ffa040">■</span> Orange Magnetar Candidate<br>
+          <span style="color:#d4f542">■</span> Yellow-green Pulsar with 2006 magnetar-like outburst<br>
+          <span style="color:#00d4ff">■</span> Cyan Magnificent Seven isolated neutron star<br>
+          <span style="color:#b06dff">■</span> Purple Central Compact Object (CCO)<br>
+          <span style="color:#FFD700">■</span> Gold The Sun (reference point)
+        </div>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        Can I actually see these neutron stars with a telescope?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Most neutron stars cannot be observed with optical telescopes because they are extremely small and faint in visible light. However, the Magnificent Seven are notable exceptions several have been detected optically with the Hubble Space Telescope, though they are extremely faint.</p>
+        <p>For radio amateur astronomers, some bright pulsars particularly the Vela Pulsar and the Crab Pulsar can be detected with modest radio setups. The coordinates shown in this visualizer are precise enough to point a telescope at the correct location in the sky.</p>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- ADVANCED -->
+  <div class="faq-section" id="tab-advanced">
+    <div class="section-label">Technical & Observational Questions</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What coordinate system does the visualizer use?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>All objects are converted from equatorial coordinates (J2000 RA/Dec + distance in kpc) to Galactocentric Cartesian coordinates using <a href="https://www.astropy.org/" target="_blank">Astropy</a>'s <code>Galactocentric</code> frame with default parameters.</p>
+        <p>The Galactocentric frame places the origin at the Galactic center. The Sun is located at approximately <code>x = −8.122 kpc, y = 0, z = 0.0208 kpc</code> using Astropy's built-in constants (<code>galcen_distance = 8.122 kpc</code>, <code>z_sun = 20.8 pc</code>).</p>
+        <p>In the Three.js scene, the coordinate axes are remapped as: <code>Three.x = galactic.x</code>, <code>Three.y = galactic.z</code>, <code>Three.z = −galactic.y</code>, to orient the galactic plane horizontally.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        How are ATNF pulsar distances determined?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>ATNF distances are primarily derived from the dispersion measure (DM) of pulsar radio signals combined with models of the Galactic free electron density most commonly the <a href="https://www.atnf.csiro.au/research/pulsar/ymw16/" target="_blank">YMW16</a> or NE2001 models. A small fraction have parallax measurements from VLBI.</p>
+        <p>DM-based distances carry significant systematic uncertainties, often 20–30%, particularly in regions of complex interstellar structure. This visualizer uses the ATNF-provided <code>DIST</code> field without further correction.</p>
+        <div class="highlight-box">Objects with DIST &gt; 20 kpc or |z| &gt; 5 kpc are excluded as likely distance artifacts from the DM model.</div>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        How are Magnificent Seven distances determined?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>M7 distances are derived from parallax measurements where available, primarily from HST astrometry. The values used in this project are taken from Table 1 of <a href="https://arxiv.org/pdf/0712.0342" target="_blank">Motch et al. (2007)</a>, converted from parsecs to kiloparsecs via <code>d(pc) = 1000 / parallax(mas)</code>.</p>
+        <p>For objects with distance ranges or asymmetric uncertainties (e.g. RBS 1223: 76–670 pc), the midpoint of the reported range was used. These distances carry substantial uncertainties and should be treated as approximate in the 3D visualization.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        How are LMC/SMC magnetars identified?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>For ATNF pulsars, extragalactic objects (40–70 kpc) are clustered using DBSCAN (<code>eps=5 kpc, min_samples=5</code>) and the largest cluster is assigned to the LMC, the smallest to the SMC.</p>
+        <p>For McGill magnetars, only two extragalactic objects exist (SGR 0526-66 in the LMC, CXOU J010043.1-721134 in the SMC). These are classified by 3D angular separation from the LMC center (<code>RA 05h23m35s, Dec −69°45′22″</code>) and SMC center (<code>RA 00h52m38s, Dec −72°49′43″</code>) using Astropy's <code>separation_3d()</code>.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What are the coordinate error values shown in the object card?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>For ATNF pulsars, <code>RAJ_ERR</code> and <code>DECJ_ERR</code> are the positional uncertainties in the last quoted digit of the coordinate, as provided by the ATNF catalogue. For McGill magnetars, these correspond to <code>RA_Err</code> and <code>Decl_Err</code> from the McGill table, in arcseconds.</p>
+        <p>M7 and CCO objects sourced from SIMBAD do not currently include coordinate uncertainties in this dataset.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        Why are only ~4,000 objects shown when ATNF has over 4,300 pulsars?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>The ATNF catalogue contains over 4,300 pulsars, but many lack measured distances. After applying <code>dropna</code> on <code>DIST</code>, <code>RAJ</code>, and <code>DECJ</code>, and filtering out objects beyond 20 kpc or with |z| > 5 kpc, approximately 4,056 pulsars remain.</p>
+        <p>The remaining ~40 objects come from the McGill magnetar catalogue, the Magnificent Seven, and the confirmed CCO sample. The total of 4,096 objects represents all neutron stars in the combined catalog with sufficient astrometric information for 3D placement.</p>
+      </div></div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <p>Neutron Star Project · <a href="about.html">About</a> · <a href="data-sources.html">Data Sources</a></p>
+</footer>
+
+<script>
+  function toggle(el) {
+    const item = el.parentElement;
+    item.classList.toggle('open');
+  }
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.faq-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

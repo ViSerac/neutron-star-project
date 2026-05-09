@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Sources | Neutron Star Project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #05070f;
+    --bg2: #0a0e1a;
+    --bg3: #0f1525;
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0,212,255,0.12);
+    --text: #e8eaf2;
+    --text-dim: #7a8299;
+    --border: rgba(0,212,255,0.12);
+    --top-h: 56px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+  }
+
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--top-h);
+    background: rgba(5,7,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 100;
+    gap: 32px;
+  }
+
+  #logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  #logo span { color: var(--text-dim); font-weight: 400; }
+
+  nav { display: flex; gap: 4px; margin-left: auto; }
+
+  nav { flex-wrap: wrap; }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  nav a:hover, nav a.active { color: var(--cyan); background: var(--cyan-dim); }
+
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: calc(var(--top-h) + 60px) 24px 80px;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .page-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 52px;
+    letter-spacing: 0.04em;
+  }
+
+  /* source card */
+  .source-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .source-header {
+    padding: 20px 24px 16px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .source-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .source-subtitle {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .source-badge {
+    font-size: 9px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    white-space: nowrap;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .source-body {
+    padding: 20px 24px;
+  }
+
+  .source-body p {
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .source-body p:last-child { margin-bottom: 0; }
+
+  .source-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .meta-item { display: flex; flex-direction: column; gap: 3px; }
+
+  .meta-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.7;
+  }
+
+  .meta-value {
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  .source-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .src-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--cyan);
+    text-decoration: none;
+    transition: background 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .src-link:hover { background: var(--cyan-dim); }
+
+  .src-link.secondary {
+    color: var(--text-dim);
+  }
+
+  .src-link.secondary:hover { color: var(--text); background: var(--bg3); }
+
+  /* processing note */
+  .processing-note {
+    background: var(--bg3);
+    border-left: 2px solid var(--cyan);
+    border-radius: 0 4px 4px 0;
+    padding: 10px 14px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .processing-note strong { color: var(--text); }
+
+  code {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--cyan);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  .pipeline-section {
+    margin-top: 40px;
+  }
+
+  .pipeline-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .pipeline-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .pipeline-step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pipeline-step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--cyan);
+    opacity: 0.3;
+    min-width: 32px;
+    line-height: 1.4;
+    flex-shrink: 0;
+  }
+
+  .step-content { flex: 1; }
+
+  .step-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 10px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.08em;
+  }
+
+  footer a { color: var(--text-dim); text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <nav>
+    <a href="index.html">Visualizer</a>
+    <a href="import-export.html">Import / Export</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html">About</a>
+    <a href="data-sources.html" class="active">Data Sources</a>
+  </nav>
+</div>
+
+<main>
+  <div class="page-title">Data Sources</div>
+  <div class="page-sub">
+    All data used in this project is sourced from publicly available astronomical catalogs and peer-reviewed research.<br>
+    Below are the full references, descriptions, and processing notes for each dataset.
+  </div>
+
+  <!-- ATNF -->
+  <div class="source-card">
+    <div class="source-header">
+      <div>
+        <div class="source-title">ATNF Pulsar Catalogue</div>
+        <div class="source-subtitle">Australia Telescope National Facility · v2.4.0</div>
+      </div>
+      <div class="source-badge">~4,056 pulsars</div>
+    </div>
+    <div class="source-body">
+      <div class="source-meta">
+        <div class="meta-item">
+          <div class="meta-label">Object Type</div>
+          <div class="meta-value">Pulsars</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Parameters Used</div>
+          <div class="meta-value">JNAME, RAJ, DECJ, DIST</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Access Method</div>
+          <div class="meta-value">psrqpy (Python)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Distance Method</div>
+          <div class="meta-value">DM + YMW16 / NE2001</div>
+        </div>
+      </div>
+      <p>
+        The ATNF Pulsar Catalogue is the definitive global database of radio pulsars, maintained by the Australia Telescope National Facility. It is queried programmatically using the <code>psrqpy</code> Python library, which provides direct access to the catalogue's full parameter set.
+      </p>
+      <p>
+        Distances are primarily derived from pulsar dispersion measures (DM) combined with models of the Galactic free electron density. Objects without distance estimates, or with distances exceeding 20 kpc, or with |z| > 5 kpc above the Galactic plane, are excluded from the visualization.
+      </p>
+      <div class="processing-note">
+        <strong>Overlap note:</strong> Seven pulsars in the ATNF catalogue correspond to members of the Magnificent Seven (M7) isolated neutron stars. These are removed from the ATNF dataset and represented instead by the more precise M7 entries sourced from SIMBAD astrometry.
+      </div>
+      <div class="source-links">
+        <a class="src-link" href="https://www.atnf.csiro.au/research/pulsar/psrcat/" target="_blank">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          ATNF Pulsar Catalogue
+        </a>
+        <a class="src-link secondary" href="https://psrqpy.readthedocs.io/" target="_blank">psrqpy documentation</a>
+        <a class="src-link secondary" href="https://ui.adsabs.harvard.edu/abs/2005AJ....129.1993M" target="_blank">Manchester et al. 2005</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- McGill -->
+  <div class="source-card">
+    <div class="source-header">
+      <div>
+        <div class="source-title">McGill Magnetar Catalogue</div>
+        <div class="source-subtitle">McGill University Pulsar Group</div>
+      </div>
+      <div class="source-badge">~30 magnetars</div>
+    </div>
+    <div class="source-body">
+      <div class="source-meta">
+        <div class="meta-item">
+          <div class="meta-label">Object Types</div>
+          <div class="meta-value">Magnetars, Candidates</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Parameters Used</div>
+          <div class="meta-value">Name, RA, Decl, Dist</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Access Method</div>
+          <div class="meta-value">Direct CSV download</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Coverage</div>
+          <div class="meta-value">Milky Way, LMC, SMC</div>
+        </div>
+      </div>
+      <p>
+        The McGill Magnetar Catalogue is the primary reference for known and candidate magnetars. It is downloaded as a CSV from the official McGill URL and processed to extract positional and distance information.
+      </p>
+      <p>
+        Objects are classified as <em>magnetar</em>, <em>candidate magnetar</em> (marked with <code>#</code> in the catalogue), or <em>pulsar with 2006 magnetar-like outburst</em> (marked with <code>##</code>). Two extragalactic magnetars (one in the LMC and one in the SMC) are identified by angular separation from the known centers of each galaxy.
+      </p>
+      <div class="source-links">
+        <a class="src-link" href="https://www.physics.mcgill.ca/~pulsar/magnetar/main.html" target="_blank">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          McGill Magnetar Catalogue
+        </a>
+        <a class="src-link secondary" href="https://www.physics.mcgill.ca/~pulsar/magnetar/TabO1.csv" target="_blank">Direct CSV</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- M7 -->
+  <div class="source-card">
+    <div class="source-header">
+      <div>
+        <div class="source-title">The Magnificent Seven</div>
+        <div class="source-subtitle">SIMBAD Astronomical Database + Motch et al. (2007)</div>
+      </div>
+      <div class="source-badge">7 objects</div>
+    </div>
+    <div class="source-body">
+      <div class="source-meta">
+        <div class="meta-item">
+          <div class="meta-label">Object Type</div>
+          <div class="meta-value">Isolated NS (XDINS)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Distance Method</div>
+          <div class="meta-value">Parallax (HST/Chandra)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Distance Source</div>
+          <div class="meta-value">Motch et al. 2007</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Coordinates</div>
+          <div class="meta-value">SIMBAD (J2000)</div>
+        </div>
+      </div>
+      <p>
+        The Magnificent Seven (M7) are seven nearby, thermally-emitting, radio-quiet isolated neutron stars discovered by ROSAT. Their precise equatorial coordinates were retrieved from the SIMBAD Astronomical Database.
+      </p>
+      <p>
+        Distances are derived from parallax measurements compiled in Table 1 of Motch et al. (2007), converted via <code>d(pc) = 1000 / parallax(mas)</code>. For objects with distance ranges or asymmetric uncertainties, the midpoint of the reported range was used.
+      </p>
+      <div class="source-links">
+        <a class="src-link" href="https://simbad.u-strasbg.fr/simbad/" target="_blank">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          SIMBAD Database
+        </a>
+        <a class="src-link secondary" href="https://arxiv.org/pdf/0712.0342" target="_blank">Motch et al. 2007 (arXiv)</a>
+        <a class="src-link secondary" href="https://en.wikipedia.org/wiki/The_Magnificent_Seven_(neutron_stars)" target="_blank">Wikipedia</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CCO -->
+  <div class="source-card">
+    <div class="source-header">
+      <div>
+        <div class="source-title">Central Compact Objects (CCOs)</div>
+        <div class="source-subtitle">SIMBAD Astronomical Database + Andrea De Luca (curator)</div>
+      </div>
+      <div class="source-badge">8 objects</div>
+    </div>
+    <div class="source-body">
+      <div class="source-meta">
+        <div class="meta-item">
+          <div class="meta-label">Object Type</div>
+          <div class="meta-value">Central Compact Objects</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Distance Method</div>
+          <div class="meta-value">SNR association</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">CCO List Curator</div>
+          <div class="meta-value">Andrea De Luca</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Coordinates</div>
+          <div class="meta-value">SIMBAD (J2000)</div>
+        </div>
+      </div>
+      <p>
+        The eight confirmed Central Compact Objects included in this project were identified from the list curated by Andrea De Luca. CCO coordinates were retrieved from SIMBAD, and distances are adopted from their associated supernova remnants.
+      </p>
+      <p>
+        CCOs are young neutron stars found at the geometric centers of supernova remnants, characterized by purely thermal X-ray emission and anomalously weak magnetic fields. Their distances are typically derived from kinematic or association-based measurements of the host remnant, carrying uncertainties of 20 to 40%.
+      </p>
+      <div class="source-links">
+        <a class="src-link" href="https://iopscience.iop.org/article/10.3847/1538-4357/acaf55" target="_blank">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Reference Paper (ApJ)
+        </a>
+        <a class="src-link secondary" href="https://arxiv.org/pdf/1711.07210" target="_blank">De Luca 2017 (arXiv)</a>
+        <a class="src-link secondary" href="https://simbad.u-strasbg.fr/simbad/" target="_blank">SIMBAD Database</a>
+      </div>
+    </div>
+  </div>
+
+
+</main>
+
+<footer>
+  <p>Neutron Star Project · <a href="about.html">About</a> · <a href="faq.html">FAQ</a></p>
+</footer>
+
+</body>
+</html>

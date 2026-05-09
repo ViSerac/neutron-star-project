@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import / Export | Neutron Star Project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #05070f;
+    --bg2: #0a0e1a;
+    --bg3: #0f1525;
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0,212,255,0.12);
+    --cyan-glow: rgba(0,212,255,0.4);
+    --text: #e8eaf2;
+    --text-dim: #7a8299;
+    --border: rgba(0,212,255,0.12);
+    --green: #00ff88;
+    --green-dim: rgba(0,255,136,0.12);
+    --red: #ff4444;
+    --red-dim: rgba(255,68,68,0.12);
+    --top-h: 56px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+  }
+
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--top-h);
+    background: rgba(5,7,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 100;
+    gap: 32px;
+  }
+
+  #logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  #logo span { color: var(--text-dim); font-weight: 400; }
+
+  nav { display: flex; gap: 4px; margin-left: auto; }
+
+  nav { flex-wrap: wrap; }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  nav a:hover, nav a.active { color: var(--cyan); background: var(--cyan-dim); }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: calc(var(--top-h) + 48px) 24px 80px;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .page-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  /* tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .tab-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-section { display: none; }
+  .tab-section.active { display: block; }
+
+  /* cards */
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .card-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .card-body { padding: 20px; }
+
+  /* section label */
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    opacity: 0.7;
+    margin-bottom: 16px;
+  }
+
+  /* form elements */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .form-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-field.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  label .required { color: var(--cyan); margin-left: 2px; }
+  label .optional { color: var(--text-dim); opacity: 0.5; font-size: 8px; }
+
+  input[type="text"], input[type="number"] {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  input:focus { border-color: var(--cyan); }
+  input.error { border-color: var(--red); }
+  input::placeholder { color: var(--text-dim); }
+
+  .color-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .color-preview {
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    margin-top: 6px;
+    transition: background 0.2s;
+  }
+
+  /* buttons */
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 9px 18px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .btn-primary {
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+
+  .btn-primary:hover { background: var(--cyan-glow); }
+
+  .btn-success {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: var(--green);
+  }
+
+  .btn-success:hover { background: rgba(0,255,136,0.25); }
+
+  .btn-danger {
+    background: var(--red-dim);
+    color: var(--red);
+    border-color: var(--red);
+  }
+
+  .btn-danger:hover { background: rgba(255,68,68,0.25); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+  }
+
+  .btn-ghost:hover { color: var(--text); background: var(--bg3); }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  /* toast */
+  #toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 18px;
+    font-size: 11px;
+    color: var(--text);
+    z-index: 999;
+    display: none;
+    gap: 10px;
+    align-items: center;
+    max-width: 360px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  #toast.show { display: flex; }
+  #toast.success { border-color: var(--green); color: var(--green); }
+  #toast.error { border-color: var(--red); color: var(--red); }
+
+  /* imported objects list */
+  #imported-list {
+    max-height: 320px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .imported-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 11px;
+  }
+
+  .imported-item:last-child { border-bottom: none; }
+
+  .imported-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .imported-name { color: var(--text); flex: 1; }
+  .imported-meta { color: var(--text-dim); font-size: 10px; }
+
+  .imported-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .imported-remove:hover { color: var(--red); }
+
+  /* spec box */
+  .spec-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    font-size: 11px;
+    line-height: 1.9;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .spec-box code {
+    color: var(--cyan);
+    background: var(--bg2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+
+  .spec-box .required { color: #ff9944; }
+  .spec-box .optional-text { color: var(--text-dim); }
+
+  pre.json-example {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    font-size: 10px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+
+  pre.json-example .key { color: #7dd3fc; }
+  pre.json-example .val-str { color: #86efac; }
+  pre.json-example .val-num { color: #fbbf24; }
+  pre.json-example .val-arr { color: #c4b5fd; }
+  pre.json-example .comment { color: var(--text-dim); opacity: 0.5; }
+
+  /* export list */
+  #export-list-wrap {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .export-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .export-item:hover { background: var(--bg3); }
+  .export-item:last-child { border-bottom: none; }
+
+  .export-item input[type="checkbox"] {
+    width: 13px;
+    height: 13px;
+    accent-color: var(--cyan);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .export-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .export-name { color: var(--text); flex: 1; }
+  .export-type { color: var(--text-dim); font-size: 10px; }
+
+  .export-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  #export-search {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 7px 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #export-search:focus { border-color: var(--cyan); }
+  #export-search::placeholder { color: var(--text-dim); }
+
+  .export-count {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .select-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .select-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .select-chip:hover { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-dim); }
+  .select-chip.active { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-dim); }
+
+  /* stat bar */
+  .stat-bar {
+    display: flex;
+    gap: 20px;
+    padding: 12px 16px;
+    background: var(--bg3);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .stat-item { display: flex; flex-direction: column; gap: 2px; }
+  .stat-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--cyan); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 10px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <nav>
+    <a href="index.html">Visualizer</a>
+    <a href="import-export.html" class="active">Import / Export</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html">About</a>
+    <a href="data-sources.html">Data Sources</a>
+  </nav>
+</div>
+
+<main>
+  <div class="page-title">Import / Export</div>
+  <div class="page-sub">
+    Import your own data into the 3D visualizer, or export catalog data for external use.
+    Imported objects are stored locally in your browser and persist between sessions.
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('import', this)">Import</button>
+    <button class="tab-btn" onclick="switchTab('export', this)">Export</button>
+    <button class="tab-btn" onclick="switchTab('manage', this)">Manage Imported</button>
+  </div>
+
+  <!-- IMPORT TAB -->
+  <div class="tab-section active" id="tab-import">
+
+    <!-- Spec -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">File Specification</div>
+      </div>
+      <div class="card-body">
+        <div class="section-label">Required and optional fields</div>
+        <div class="spec-box">
+          <span class="required">Required:</span>
+          <code>NS_NAME</code> (string) &nbsp;
+          <code>RAJ</code> (string, format: "HH MM SS.ss") &nbsp;
+          <code>DECJ</code> (string, format: "+DD MM SS.s") &nbsp;
+          <code>DIST</code> (float, kpc, max 100)<br><br>
+          <span class="optional-text">Optional:</span>
+          <code>type</code> (string, creates a filter group) &nbsp;
+          <code>color</code> (array [R, G, B, A] each float 0.0 to 1.0) &nbsp;
+          <code>source_catalog</code> (string)
+        </div>
+
+        <pre class="json-example">[
+  {
+    <span class="key">"NS_NAME"</span>: <span class="val-str">"MY-J0530+1347"</span>,          <span class="comment">// required — object name</span>
+    <span class="key">"RAJ"</span>:     <span class="val-str">"05 30 00.00"</span>,           <span class="comment">// required — right ascension (J2000)</span>
+    <span class="key">"DECJ"</span>:    <span class="val-str">"+13 47 00.0"</span>,           <span class="comment">// required — declination (J2000)</span>
+    <span class="key">"DIST"</span>:    <span class="val-num">3.2</span>,                    <span class="comment">// required — distance in kpc (max 100)</span>
+    <span class="key">"type"</span>:    <span class="val-str">"my_category"</span>,          <span class="comment">// optional — creates a filter group</span>
+    <span class="key">"color"</span>:   <span class="val-arr">[0.0, 1.0, 0.5, 1.0]</span>,   <span class="comment">// optional — RGBA, each value 0.0 to 1.0</span>
+    <span class="key">"source_catalog"</span>: <span class="val-str">"My Survey"</span> <span class="comment">// optional — catalog label</span>
+  }
+]</pre>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="downloadTestFile()" style="font-size:10px">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download ns_import_template.json
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import from file -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Import from JSON file</div>
+      </div>
+      <div class="card-body">
+        <div class="form-field" style="margin-bottom:16px">
+          <label>Select JSON file</label>
+          <input type="file" id="file-input" accept=".json"
+            style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Space Mono',monospace;font-size:11px;padding:8px 10px;cursor:pointer">
+        </div>
+        <button class="btn btn-primary" onclick="importFromFile()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Import File
+        </button>
+        <div id="file-result" style="margin-top:12px;font-size:11px;display:none"></div>
+      </div>
+    </div>
+
+    <!-- Add single object -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Add single object</div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-field">
+            <label>NS_NAME <span class="required">*</span></label>
+            <input type="text" id="f-name" placeholder="MY-J0530+1347">
+          </div>
+          <div class="form-field">
+            <label>source_catalog <span class="optional">optional</span></label>
+            <input type="text" id="f-catalog" placeholder="My Survey">
+          </div>
+          <div class="form-field">
+            <label>RAJ <span class="required">*</span></label>
+            <input type="text" id="f-raj" placeholder="05 30 00.00">
+          </div>
+          <div class="form-field">
+            <label>DECJ <span class="required">*</span></label>
+            <input type="text" id="f-decj" placeholder="+13 47 00.0">
+          </div>
+          <div class="form-field">
+            <label>DIST (kpc, max 100) <span class="required">*</span></label>
+            <input type="number" id="f-dist" placeholder="3.2" step="0.001" min="0" max="100">
+          </div>
+          <div class="form-field">
+            <label>type <span class="optional">optional</span></label>
+            <input type="text" id="f-type" placeholder="my_category">
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:8px">Color RGBA (optional, each value 0.0 to 1.0)</div>
+        <div class="color-row">
+          <div class="form-field">
+            <label>R</label>
+            <input type="number" id="f-r" placeholder="0.0" step="0.01" min="0" max="1" oninput="updateColorPreview()">
+          </div>
+          <div class="form-field">
+            <label>G</label>
+            <input type="number" id="f-g" placeholder="1.0" step="0.01" min="0" max="1" oninput="updateColorPreview()">
+          </div>
+          <div class="form-field">
+            <label>B</label>
+            <input type="number" id="f-b" placeholder="0.5" step="0.01" min="0" max="1" oninput="updateColorPreview()">
+          </div>
+          <div class="form-field">
+            <label>A</label>
+            <input type="number" id="f-a" placeholder="1.0" step="0.01" min="0" max="1" oninput="updateColorPreview()">
+          </div>
+        </div>
+        <div id="color-preview" class="color-preview" style="background:rgba(128,128,128,0.5)"></div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="addSingleObject()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Object
+          </button>
+          <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EXPORT TAB -->
+  <div class="tab-section" id="tab-export">
+
+    <div class="stat-bar" id="export-stats">
+      <div class="stat-item">
+        <div class="stat-label">Total objects</div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Selected</div>
+        <div class="stat-value" id="stat-selected">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Filtered (visible)</div>
+        <div class="stat-value" id="stat-filtered">0</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Quick Export</div>
+      </div>
+      <div class="card-body" style="display:flex;gap:10px;flex-wrap:wrap;flex-direction:column">
+        <div style="font-size:10px;color:var(--text-dim);line-height:1.7;margin-bottom:4px">
+          <strong style="color:var(--text)">Export All:</strong> every object in the catalog plus imported.<br>
+          <strong style="color:var(--text)">Export Filtered:</strong> objects matching the current search query in the selection box below.<br>
+          <strong style="color:var(--text)">Export Selected:</strong> only objects with a checkbox ticked in the list below.
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-success" onclick="exportAll()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export All (CSV)
+        </button>
+        <button class="btn btn-primary" onclick="exportFiltered()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Filtered (CSV)
+        </button>
+        <button class="btn btn-ghost" onclick="exportSelected()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Selected (CSV)
+        </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Select objects to export</div>
+      </div>
+      <div class="card-body">
+        <div class="export-controls">
+          <input type="text" id="export-search" placeholder="Filter list (regex supported)" oninput="filterExportList()">
+        </div>
+
+        <div class="select-row">
+          <button class="select-chip" id="chip-all" onclick="toggleChip(this, 'all')">Select all</button>
+          <button class="select-chip" id="chip-filtered" onclick="toggleChip(this, 'filtered')">Select filtered</button>
+          <button class="select-chip" id="chip-pulsar" onclick="toggleChip(this, 'pulsar')">Pulsars</button>
+          <button class="select-chip" id="chip-magnetar" onclick="toggleChip(this, 'magnetar')">Magnetars</button>
+          <button class="select-chip" id="chip-m7" onclick="toggleChip(this, 'm7')">M7</button>
+          <button class="select-chip" id="chip-cco" onclick="toggleChip(this, 'cco')">CCOs</button>
+          <button class="select-chip" id="chip-imported" onclick="toggleChip(this, 'imported')">Imported</button>
+          <button class="select-chip" id="chip-clear" onclick="clearSelection()" style="color:var(--red);border-color:var(--red-dim)">Clear</button>
+        </div>
+
+        <div class="export-count" id="export-count"></div>
+        <div id="export-list-wrap">
+          <div id="export-list"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MANAGE TAB -->
+  <div class="tab-section" id="tab-manage">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Imported objects</div>
+        <button class="btn btn-danger" onclick="clearAllImported()" style="font-size:10px;padding:6px 12px">
+          Clear all
+        </button>
+      </div>
+      <div class="card-body">
+        <div id="imported-empty" style="font-size:11px;color:var(--text-dim);display:none">
+          No imported objects yet. Use the Import tab to add data.
+        </div>
+        <div id="imported-list"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Neutron Star Project · <a href="about.html">About</a> · <a href="data-sources.html">Data Sources</a>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+// ── STORAGE KEY ──────────────────────────────────────────
+const IMPORT_KEY = 'nsp_imported_objects';
+const CATALOG_URL = 'data/NS_db_full.json';
+
+// ── STATE ────────────────────────────────────────────────
+let catalogData = [];
+let importedData = [];
+let exportListData = [];
+let selectedExportIds = new Set();
+
+// ── INIT ─────────────────────────────────────────────────
+async function init() {
+  importedData = loadImported();
+  await loadCatalog();
+  renderManageList();
+  renderExportList();
+  updateStats();
+}
+
+async function loadCatalog() {
+  try {
+    const res = await fetch(CATALOG_URL);
+    catalogData = await res.json();
+  } catch(e) {
+    console.warn('Could not load catalog:', e);
+  }
+}
+
+// ── LOCALSTORAGE ─────────────────────────────────────────
+function loadImported() {
+  try {
+    return JSON.parse(localStorage.getItem(IMPORT_KEY) || '[]');
+  } catch { return []; }
+}
+
+function saveImported() {
+  localStorage.setItem(IMPORT_KEY, JSON.stringify(importedData));
+}
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'export') { renderExportList(); updateStats(); }
+  if (id === 'manage') renderManageList();
+}
+
+// ── IMPORT FROM FILE ──────────────────────────────────────
+function importFromFile() {
+  const file = document.getElementById('file-input').files[0];
+  if (!file) { showToast('No file selected.', 'error'); return; }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const raw = JSON.parse(e.target.result);
+      const arr = Array.isArray(raw) ? raw : [raw];
+      const result = processImport(arr);
+      const el = document.getElementById('file-result');
+      el.style.display = 'block';
+      el.innerHTML = `
+        <span style="color:var(--green)">Imported: ${result.ok}</span>
+        ${result.skipped > 0 ? `<span style="color:var(--red);margin-left:12px">Skipped: ${result.skipped}</span>` : ''}
+        ${result.errors.length ? `<div style="margin-top:8px;color:var(--red);font-size:10px">${result.errors.slice(0,5).join('<br>')}</div>` : ''}
+      `;
+      showToast(`${result.ok} objects imported.`, 'success');
+      renderManageList();
+    } catch(err) {
+      showToast('Invalid JSON file.', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function processImport(arr) {
+  let ok = 0, skipped = 0;
+  const errors = [];
+
+  arr.forEach((obj, i) => {
+    const err = validateObject(obj, i);
+    if (err) { errors.push(err); skipped++; return; }
+
+    // Mark as imported
+    const entry = {
+      NS_NAME: obj.NS_NAME.trim(),
+      RAJ: obj.RAJ.trim(),
+      DECJ: obj.DECJ.trim(),
+      DIST: parseFloat(obj.DIST),
+      type: obj.type || 'user_import',
+      color: validateColor(obj.color) ? obj.color : null,
+      source_catalog: obj.source_catalog || 'User Import',
+      galaxy: parseFloat(obj.DIST) <= 20 ? 'milky_way' : parseFloat(obj.DIST) <= 70 ? 'lmc' : 'smc',
+      _imported: true,
+      _id: `imp_${Date.now()}_${i}`
+    };
+
+    // Avoid duplicates by name
+    if (!importedData.find(d => d.NS_NAME === entry.NS_NAME)) {
+      importedData.push(entry);
+      ok++;
+    } else {
+      errors.push(`[${i}] Duplicate name: ${obj.NS_NAME}`);
+      skipped++;
+    }
+  });
+
+  saveImported();
+  return { ok, skipped, errors };
+}
+
+function validateObject(obj, i) {
+  if (!obj.NS_NAME) return `[${i}] Missing NS_NAME`;
+  if (!obj.RAJ) return `[${i}] Missing RAJ`;
+  if (!obj.DECJ) return `[${i}] Missing DECJ`;
+  if (obj.DIST == null || isNaN(parseFloat(obj.DIST))) return `[${i}] Missing or invalid DIST`;
+  if (parseFloat(obj.DIST) > 100) return `[${i}] DIST exceeds 100 kpc (${obj.DIST})`;
+  if (parseFloat(obj.DIST) <= 0) return `[${i}] DIST must be positive`;
+  return null;
+}
+
+function validateColor(c) {
+  if (!Array.isArray(c) || c.length !== 4) return false;
+  return c.every(v => typeof v === 'number' && v >= 0 && v <= 1);
+}
+
+// ── ADD SINGLE ────────────────────────────────────────────
+function addSingleObject() {
+  const obj = {
+    NS_NAME: document.getElementById('f-name').value.trim(),
+    RAJ: document.getElementById('f-raj').value.trim(),
+    DECJ: document.getElementById('f-decj').value.trim(),
+    DIST: document.getElementById('f-dist').value,
+    type: document.getElementById('f-type').value.trim() || 'user_import',
+    source_catalog: document.getElementById('f-catalog').value.trim() || 'User Import',
+  };
+
+  const r = parseFloat(document.getElementById('f-r').value);
+  const g = parseFloat(document.getElementById('f-g').value);
+  const b = parseFloat(document.getElementById('f-b').value);
+  const a = parseFloat(document.getElementById('f-a').value);
+  if (!isNaN(r) && !isNaN(g) && !isNaN(b) && !isNaN(a)) {
+    obj.color = [r, g, b, a];
+  }
+
+  const err = validateObject(obj, 0);
+  if (err) { showToast(err, 'error'); return; }
+
+  const result = processImport([obj]);
+  if (result.ok > 0) {
+    showToast(`"${obj.NS_NAME}" added successfully.`, 'success');
+    clearForm();
+    renderManageList();
+  } else {
+    showToast(result.errors[0] || 'Failed to add object.', 'error');
+  }
+}
+
+function clearForm() {
+  ['f-name','f-raj','f-decj','f-dist','f-type','f-catalog','f-r','f-g','f-b','f-a']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('color-preview').style.background = 'rgba(128,128,128,0.5)';
+}
+
+function updateColorPreview() {
+  const r = Math.min(1, Math.max(0, parseFloat(document.getElementById('f-r').value) || 0));
+  const g = Math.min(1, Math.max(0, parseFloat(document.getElementById('f-g').value) || 0));
+  const b = Math.min(1, Math.max(0, parseFloat(document.getElementById('f-b').value) || 0));
+  const a = Math.min(1, Math.max(0, parseFloat(document.getElementById('f-a').value) || 1));
+  document.getElementById('color-preview').style.background =
+    `rgba(${Math.round(r*255)},${Math.round(g*255)},${Math.round(b*255)},${a})`;
+}
+
+// ── MANAGE LIST ───────────────────────────────────────────
+function renderManageList() {
+  const list = document.getElementById('imported-list');
+  const empty = document.getElementById('imported-empty');
+
+  if (!importedData.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  list.innerHTML = importedData.map((obj, i) => {
+    const color = obj.color ? `rgba(${obj.color.map((v,j) => j<3 ? Math.round(v*255) : v).join(',')})` : '#888';
+    return `
+      <div class="imported-item">
+        <div class="imported-dot" style="background:${color}"></div>
+        <div class="imported-name">${obj.NS_NAME}</div>
+        <div class="imported-meta">${obj.type} · ${obj.DIST} kpc · ${obj.source_catalog}</div>
+        <button class="imported-remove" onclick="removeImported(${i})" title="Remove">×</button>
+      </div>`;
+  }).join('');
+}
+
+function removeImported(idx) {
+  const name = importedData[idx].NS_NAME;
+  importedData.splice(idx, 1);
+  saveImported();
+  renderManageList();
+  showToast(`"${name}" removed.`, 'success');
+}
+
+function clearAllImported() {
+  if (!importedData.length) { showToast('No imported objects to clear.', 'error'); return; }
+  const n = importedData.length;
+  importedData = [];
+  saveImported();
+  renderManageList();
+  showToast(`Cleared ${n} imported objects.`, 'success');
+}
+
+// ── EXPORT LIST ───────────────────────────────────────────
+function renderExportList() {
+  const typeOrder = [
+    'user_import',
+    'central compact object (CCO)',
+    'M7 isolated neutron star',
+    'pulsar_outburst_2006',
+    'candidate_magnetar',
+    'magnetar',
+    'pulsar',
+  ];
+
+  // Imported objects always first, then catalog sorted by type
+  const imported = [...importedData];
+  const catalog = [...catalogData].sort((a, b) => {
+    const ai = typeOrder.indexOf(a.type);
+    const bi = typeOrder.indexOf(b.type);
+    return (ai === -1 ? typeOrder.length : ai) - (bi === -1 ? typeOrder.length : bi);
+  });
+
+  exportListData = [...imported, ...catalog];
+  filterExportList();
+}
+
+function filterExportList() {
+  const q = document.getElementById('export-search').value.trim();
+  let filtered = exportListData;
+
+  if (q) {
+    try {
+      const pattern = new RegExp(q, 'i');
+      filtered = exportListData.filter(s => pattern.test(s.NS_NAME || ''));
+    } catch {
+      // invalid regex — fall back to plain substring
+      filtered = exportListData.filter(s => (s.NS_NAME || '').toLowerCase().includes(q.toLowerCase()));
+    }
+  }
+
+  const list = document.getElementById('export-list');
+  const show = filtered.slice(0, 500);
+
+  list.innerHTML = show.map((s, i) => {
+    const color = getColor(s);
+    const checked = selectedExportIds.has(s.NS_NAME) ? 'checked' : '';
+    const importedBadge = s._imported ? '<span style="color:var(--cyan);font-size:9px;margin-left:4px">[imported]</span>' : '';
+    return `
+      <div class="export-item" onclick="toggleExportItem('${s.NS_NAME.replace(/'/g,"\\'")}', this)">
+        <input type="checkbox" ${checked} onclick="event.stopPropagation();toggleExportItem('${s.NS_NAME.replace(/'/g,"\\'")}', this.parentElement)">
+        <div class="export-dot" style="background:${color}"></div>
+        <div class="export-name">${s.NS_NAME}${importedBadge}</div>
+        <div class="export-type">${s.type || ''}</div>
+      </div>`;
+  }).join('');
+
+  if (filtered.length > 500) {
+    list.innerHTML += `<div style="padding:10px 14px;font-size:10px;color:var(--text-dim);text-align:center">Showing 500 of ${filtered.length} — refine search</div>`;
+  }
+
+  document.getElementById('export-count').textContent =
+    `${filtered.length.toLocaleString()} of ${exportListData.length.toLocaleString()} objects`;
+  updateStats();
+}
+
+function toggleExportItem(name, row) {
+  if (selectedExportIds.has(name)) {
+    selectedExportIds.delete(name);
+    row.querySelector('input[type="checkbox"]').checked = false;
+  } else {
+    selectedExportIds.add(name);
+    row.querySelector('input[type="checkbox"]').checked = true;
+  }
+  updateStats();
+}
+
+// ── CHIP TOGGLE SELECTION ─────────────────────────────────
+const activeChips = new Set();
+
+function getTypeObjects(key) {
+  const map = {
+    'all':      exportListData,
+    'filtered': getFilteredData(),
+    'pulsar':   exportListData.filter(s => s.type === 'pulsar'),
+    'magnetar': exportListData.filter(s => ['magnetar','candidate_magnetar','pulsar_outburst_2006'].includes(s.type)),
+    'm7':       exportListData.filter(s => s.type === 'M7 isolated neutron star'),
+    'cco':      exportListData.filter(s => s.type === 'central compact object (CCO)'),
+    'imported': importedData,
+  };
+  return map[key] || [];
+}
+
+function getFilteredData() {
+  const q = document.getElementById('export-search').value.trim();
+  if (!q) return exportListData;
+  try {
+    const p = new RegExp(q, 'i');
+    return exportListData.filter(s => p.test(s.NS_NAME || ''));
+  } catch {
+    return exportListData.filter(s => (s.NS_NAME || '').toLowerCase().includes(q.toLowerCase()));
+  }
+}
+
+function toggleChip(btn, key) {
+  if (activeChips.has(key)) {
+    activeChips.delete(key);
+    btn.classList.remove('active');
+    const names = new Set(getTypeObjects(key).map(s => s.NS_NAME));
+    names.forEach(n => selectedExportIds.delete(n));
+  } else {
+    activeChips.add(key);
+    btn.classList.add('active');
+    getTypeObjects(key).forEach(s => selectedExportIds.add(s.NS_NAME));
+  }
+  filterExportList();
+}
+
+function clearSelection() {
+  selectedExportIds.clear();
+  activeChips.clear();
+  document.querySelectorAll('.select-chip').forEach(b => b.classList.remove('active'));
+  filterExportList();
+}
+
+function selectAll() { toggleChip(document.getElementById('chip-all'), 'all'); }
+function selectFiltered() { toggleChip(document.getElementById('chip-filtered'), 'filtered'); }
+function selectImported() { toggleChip(document.getElementById('chip-imported'), 'imported'); }
+
+function updateStats() {
+  const filtered = getFilteredData();
+  document.getElementById('stat-total').textContent = exportListData.length.toLocaleString();
+  document.getElementById('stat-selected').textContent = selectedExportIds.size.toLocaleString();
+  document.getElementById('stat-filtered').textContent = filtered.length.toLocaleString();
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────
+const CSV_COLS = ['NS_NAME','RAJ','RAJ_ERR','DECJ','DECJ_ERR','DIST','P','PDOT','x','y','z','galaxy','type','source_catalog','wiki_url'];
+
+function toCSV(data) {
+  const header = CSV_COLS.join(',');
+  const rows = data.map(s =>
+    CSV_COLS.map(col => {
+      const v = s[col];
+      if (v == null) return '';
+      const str = String(v);
+      return str.includes(',') || str.includes('"') || str.includes('\n')
+        ? `"${str.replace(/"/g, '""')}"` : str;
+    }).join(',')
+  );
+  return [header, ...rows].join('\n');
+}
+
+function downloadCSV(data, filename) {
+  if (!data.length) { showToast('No objects to export.', 'error'); return; }
+  const csv = toCSV(data);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${data.length.toLocaleString()} objects.`, 'success');
+}
+
+function exportAll() {
+  downloadCSV([...catalogData, ...importedData], 'ns_project_all.csv');
+}
+
+function exportFiltered() {
+  const filtered = getFilteredData();
+  downloadCSV(filtered, 'ns_project_filtered.csv');
+}
+
+function exportSelected() {
+  const allData = [...catalogData, ...importedData];
+  const selected = allData.filter(s => selectedExportIds.has(s.NS_NAME));
+  downloadCSV(selected, 'ns_project_selected.csv');
+}
+
+// ── COLOR UTIL ────────────────────────────────────────────
+const TYPE_COLORS = {
+  'pulsar': '#60a5fa',
+  'magnetar': '#ff4d1a',
+  'candidate_magnetar': '#ffa040',
+  'pulsar_outburst_2006': '#d4f542',
+  'M7 isolated neutron star': '#00d4ff',
+  'central compact object (CCO)': '#b06dff',
+};
+
+function getColor(s) {
+  if (s.color && Array.isArray(s.color) && s.color.length === 4) {
+    const [r,g,b,a] = s.color;
+    return `rgba(${Math.round(r*255)},${Math.round(g*255)},${Math.round(b*255)},${a})`;
+  }
+  return TYPE_COLORS[s.type] || '#888888';
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 3000);
+}
+
+// ── TEST FILE DOWNLOAD ────────────────────────────────────
+function downloadTestFile() {
+  // Single example object — use as template
+  const testData = [
+    {
+      "NS_NAME": "MY-J0530+1347",
+      "RAJ": "05 30 00.00",
+      "DECJ": "+13 47 00.0",
+      "DIST": 3.2,
+      "type": "my_category",
+      "color": [0.0, 1.0, 0.5, 1.0],
+      "source_catalog": "My Survey"
+    }
+  ];
+  const blob = new Blob([JSON.stringify(testData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ns_import_template.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── START ─────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

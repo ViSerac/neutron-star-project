@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analysis | Neutron Star Project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #05070f;
+    --bg2: #0a0e1a;
+    --bg3: #0f1525;
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0,212,255,0.12);
+    --cyan-glow: rgba(0,212,255,0.4);
+    --text: #e8eaf2;
+    --text-dim: #7a8299;
+    --border: rgba(0,212,255,0.12);
+    --top-h: 56px;
+    --green: #00ff88;
+    --orange: #ff8c00;
+    --red: #ff4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+  }
+
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--top-h);
+    background: rgba(5,7,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 100;
+    gap: 32px;
+  }
+
+  #logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  #logo span { color: var(--text-dim); font-weight: 400; }
+
+  nav { display: flex; gap: 4px; margin-left: auto; }
+
+  nav { flex-wrap: wrap; }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  nav a:hover, nav a.active { color: var(--cyan); background: var(--cyan-dim); }
+
+  /* layout */
+  .page-wrap {
+    padding-top: var(--top-h);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* sidebar */
+  #sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.6;
+    padding: 0 18px;
+    margin-bottom: 10px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    text-decoration: none;
+  }
+
+  .sidebar-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+
+  .sidebar-item.active {
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    border-left-color: var(--cyan);
+  }
+
+  .sidebar-item.coming-soon {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .sidebar-badge {
+    font-size: 8px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--bg3);
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    margin-left: auto;
+  }
+
+  .sidebar-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 12px 18px;
+  }
+
+  /* main content */
+  #content {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .analysis-panel { display: none; padding: 32px; }
+  .analysis-panel.active { display: block; }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .panel-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  /* controls */
+  .controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    align-items: flex-end;
+  }
+
+  .control-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .control-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .toggle-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .toggle-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .toggle-chip.active {
+    border-color: var(--cyan);
+    background: var(--cyan-dim);
+    color: var(--cyan);
+  }
+
+  .toggle-chip:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--cyan);
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { background: var(--cyan-glow); }
+
+  /* chart container */
+  .chart-wrap {
+    position: relative;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .chart-wrap canvas {
+    display: block;
+    width: 100%;
+  }
+
+  .chart-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg2);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+    padding: 14px 20px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--cyan); }
+
+  /* iso legend */
+  .iso-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+
+  .iso-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .iso-line {
+    width: 24px;
+    height: 2px;
+    border-radius: 1px;
+  }
+
+  /* tooltip */
+  #ppdot-tooltip {
+    position: fixed;
+    background: rgba(10,14,26,0.95);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: var(--text);
+    pointer-events: none;
+    display: none;
+    z-index: 200;
+    line-height: 1.8;
+    max-width: 220px;
+  }
+
+  /* heatmap controls */
+  .heatmap-mode-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 0;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 10px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.08em;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <nav>
+    <a href="index.html">Visualizer</a>
+    <a href="import-export.html">Import / Export</a>
+    <a href="analysis.html" class="active">Analysis</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html">About</a>
+    <a href="data-sources.html">Data Sources</a>
+  </nav>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="sidebar-label">Available</div>
+    <div class="sidebar-item active" onclick="showPanel('ppdot', this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+      P-Pdot Diagram
+    </div>
+    <div class="sidebar-item" onclick="showPanel('heatmap', this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+      Galactic Heatmap
+    </div>
+
+    <hr class="sidebar-divider">
+    <div class="sidebar-label">Coming soon</div>
+
+    <div class="sidebar-item coming-soon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Nearest Neighbor
+      <span class="sidebar-badge">soon</span>
+    </div>
+    <div class="sidebar-item coming-soon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Clustering
+      <span class="sidebar-badge">soon</span>
+    </div>
+    <div class="sidebar-item coming-soon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2v20"/></svg>
+      Line of Sight
+      <span class="sidebar-badge">soon</span>
+    </div>
+    <div class="sidebar-item coming-soon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      Cross-Match
+      <span class="sidebar-badge">soon</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div id="content">
+
+    <!-- P-PDOT PANEL -->
+    <div class="analysis-panel active" id="panel-ppdot">
+      <div class="panel-title">P-Pdot Diagram</div>
+      <div class="panel-sub">
+        Period vs period derivative for pulsars and magnetars. Isolines show constant magnetic field strength (B) and characteristic age (τ). The death line marks the theoretical boundary below which radio emission ceases.
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-label">Objects plotted</div><div class="stat-value" id="ppdot-count">—</div></div>
+        <div class="stat"><div class="stat-label">ATNF pulsars</div><div class="stat-value" id="ppdot-atnf">—</div></div>
+        <div class="stat"><div class="stat-label">McGill magnetars</div><div class="stat-value" id="ppdot-mcgill">—</div></div>
+      </div>
+
+      <div class="controls-row">
+        <div class="control-group">
+          <div class="control-label">Catalogs</div>
+          <div class="toggle-row">
+            <button class="toggle-chip active" id="chip-atnf" onclick="toggleCatalog('ATNF', this)">ATNF</button>
+            <button class="toggle-chip active" id="chip-mcgill" onclick="toggleCatalog('McGill', this)">McGill</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Isolines B</div>
+          <div class="toggle-row">
+            <button class="toggle-chip active" id="iso-b12" onclick="toggleIso('b12', this)">10^12 G</button>
+            <button class="toggle-chip active" id="iso-b14" onclick="toggleIso('b14', this)">10^14 G</button>
+            <button class="toggle-chip active" id="iso-b15" onclick="toggleIso('b15', this)">10^15 G</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Isolines τ</div>
+          <div class="toggle-row">
+            <button class="toggle-chip active" id="iso-t3" onclick="toggleIso('t3', this)">10^3 yr</button>
+            <button class="toggle-chip active" id="iso-t6" onclick="toggleIso('t6', this)">10^6 yr</button>
+            <button class="toggle-chip active" id="iso-t9" onclick="toggleIso('t9', this)">10^9 yr</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Death line</div>
+          <div class="toggle-row">
+            <button class="toggle-chip active" id="iso-death" onclick="toggleIso('death', this)">Show</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="iso-legend">
+        <div class="iso-item"><div class="iso-line" style="background:#60a5fa;border-top:2px dashed #60a5fa"></div>ATNF pulsars</div>
+        <div class="iso-item"><div class="iso-line" style="background:#ff4d1a"></div>McGill magnetars</div>
+        <div class="iso-item"><div class="iso-line" style="background:#7dd3fc;border-top:2px dashed #7dd3fc"></div>B = 10^12 G</div>
+        <div class="iso-item"><div class="iso-line" style="background:#fb923c;border-top:2px dashed #fb923c"></div>B = 10^14 G</div>
+        <div class="iso-item"><div class="iso-line" style="background:#4ade80;border-top:2px dotted #4ade80"></div>B = 10^15 G</div>
+        <div class="iso-item"><div class="iso-line" style="background:#f87171"></div>τ = 10^3 yr</div>
+        <div class="iso-item"><div class="iso-line" style="background:#fb923c"></div>τ = 10^6 yr</div>
+        <div class="iso-item"><div class="iso-line" style="background:#fbbf24"></div>τ = 10^9 yr</div>
+        <div class="iso-item"><div class="iso-line" style="background:#9ca3af"></div>Death line</div>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="ppdot-canvas" height="520"></canvas>
+        <div class="chart-loading" id="ppdot-loading">Loading catalog data...</div>
+      </div>
+    </div>
+
+    <!-- HEATMAP PANEL -->
+    <div class="analysis-panel" id="panel-heatmap">
+      <div class="panel-title">Galactic Heatmap</div>
+      <div class="panel-sub">
+        Top-down view of neutron star positions projected onto the Galactic plane (x/y). The Sun is located at x = -8.122 kpc. Concentration near the Sun reflects detection bias — closer objects are easier to observe. KDE mode uses Gaussian kernel density estimation with Silverman bandwidth — may take a few seconds for large datasets.
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-label">Objects shown</div><div class="stat-value" id="heatmap-count">—</div></div>
+        <div class="stat"><div class="stat-label">Sun position</div><div class="stat-value" style="font-size:13px;margin-top:4px">(-8.12, 0) kpc</div></div>
+      </div>
+
+      <div class="controls-row">
+        <div class="control-group">
+          <div class="control-label">Display mode</div>
+          <div class="toggle-row heatmap-mode-row">
+            <button class="toggle-chip active" id="hm-scatter" onclick="setHeatmapMode('scatter', this)">Scatter</button>
+            <button class="toggle-chip" id="hm-hexbin" onclick="setHeatmapMode('hexbin', this)">Hexbin</button>
+            <button class="toggle-chip" id="hm-kde" onclick="setHeatmapMode('kde', this)">KDE</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Object types</div>
+          <div class="toggle-row">
+            <button class="toggle-chip active" id="hm-pulsar" onclick="toggleHeatmapType('pulsar', this)">Pulsars</button>
+            <button class="toggle-chip active" id="hm-magnetar" onclick="toggleHeatmapType('magnetar', this)">Magnetars</button>
+            <button class="toggle-chip active" id="hm-m7" onclick="toggleHeatmapType('m7', this)">M7</button>
+            <button class="toggle-chip active" id="hm-cco" onclick="toggleHeatmapType('cco', this)">CCOs</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="heatmap-canvas" height="600"></canvas>
+        <div class="chart-loading" id="heatmap-loading">Loading catalog data...</div>
+      </div>
+    </div>
+
+    <footer>Neutron Star Project · <a href="about.html" style="color:var(--text-dim);text-decoration:none">About</a> · <a href="data-sources.html" style="color:var(--text-dim);text-decoration:none">Data Sources</a></footer>
+
+  </div>
+</div>
+
+<div id="ppdot-tooltip"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────
+const DATA_URL = 'data/NS_db_full.json';
+
+// ── STATE ─────────────────────────────────────────────────
+let allData = [];
+let ppdotVisible = { ATNF: true, McGill: true };
+let isoVisible = { b12: true, b14: true, b15: true, t3: true, t6: true, t9: true, death: true };
+let heatmapMode = 'scatter';
+let heatmapTypes = { pulsar: true, magnetar: true, m7: true, cco: true };
+
+const TYPE_COLORS = {
+  pulsar: '#60a5fa',
+  magnetar: '#ff4d1a',
+  candidate_magnetar: '#ffa040',
+  pulsar_outburst_2006: '#d4f542',
+  'M7 isolated neutron star': '#00d4ff',
+  'central compact object (CCO)': '#b06dff',
+};
+
+// ── INIT ──────────────────────────────────────────────────
+async function init() {
+  const res = await fetch(DATA_URL);
+  allData = await res.json();
+  document.getElementById('ppdot-loading').style.display = 'none';
+  document.getElementById('heatmap-loading').style.display = 'none';
+  requestAnimationFrame(() => drawPPdot());
+}
+
+// ── PANEL SWITCH ──────────────────────────────────────────
+function showPanel(id, el) {
+  document.querySelectorAll('.analysis-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item:not(.coming-soon)').forEach(s => s.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+  requestAnimationFrame(() => {
+    if (id === 'ppdot') drawPPdot();
+    if (id === 'heatmap') drawHeatmap();
+  });
+}
+
+// ── P-PDOT ────────────────────────────────────────────────
+function toggleCatalog(cat, btn) {
+  ppdotVisible[cat] = !ppdotVisible[cat];
+  btn.classList.toggle('active', ppdotVisible[cat]);
+  drawPPdot();
+}
+
+function toggleIso(key, btn) {
+  isoVisible[key] = !isoVisible[key];
+  btn.classList.toggle('active', isoVisible[key]);
+  drawPPdot();
+}
+
+function drawPPdot() {
+  const canvas = document.getElementById('ppdot-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.offsetWidth || 800;
+  canvas.width = W;
+  canvas.height = 520;
+  const H = canvas.height;
+
+  const PAD = { top: 24, right: 32, bottom: 52, left: 62 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  // Filter data
+  const pts = allData.filter(s => {
+    if (!s.P || !s.PDOT || s.PDOT <= 0) return false;
+    const cat = s.source_catalog;
+    if (cat === 'ATNF' && !ppdotVisible.ATNF) return false;
+    if (cat === 'McGill' && !ppdotVisible.McGill) return false;
+    return true;
+  }).map(s => ({
+    ...s,
+    lp: Math.log10(s.P),
+    lpdot: Math.log10(s.PDOT)
+  }));
+
+  // Axis ranges
+  const lpMin = -3.2, lpMax = 2.4;
+  const lpdotMin = -23, lpdotMax = -8.5;
+
+  function toX(lp) { return PAD.left + (lp - lpMin) / (lpMax - lpMin) * plotW; }
+  function toY(lpdot) { return PAD.top + (1 - (lpdot - lpdotMin) / (lpdotMax - lpdotMin)) * plotH; }
+
+  // Background
+  ctx.fillStyle = '#05070f';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,212,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let lp = -3; lp <= 2; lp++) {
+    const x = toX(lp);
+    ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + plotH); ctx.stroke();
+  }
+  for (let lpdot = -22; lpdot <= -9; lpdot += 2) {
+    const y = toY(lpdot);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + plotW, y); ctx.stroke();
+  }
+
+  // Isolines
+  const lpRange = [];
+  for (let lp = lpMin; lp <= lpMax; lp += 0.05) lpRange.push(lp);
+
+  function drawIsoline(fn, color, dash, width=1) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.setLineDash(dash);
+    ctx.beginPath();
+    let first = true;
+    for (const lp of lpRange) {
+      const lpdot = fn(lp);
+      if (lpdot < lpdotMin || lpdot > lpdotMax) { first = true; continue; }
+      const x = toX(lp), y = toY(lpdot);
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // B isolines
+  if (isoVisible.b12) drawIsoline(lp => 2*Math.log10(1e12) - 2*Math.log10(3.2e19) - lp, '#7dd3fc', [6,3], 1.2);
+  if (isoVisible.b14) drawIsoline(lp => 2*Math.log10(1e14) - 2*Math.log10(3.2e19) - lp, '#fb923c', [6,3], 1.2);
+  if (isoVisible.b15) drawIsoline(lp => 2*Math.log10(1e15) - 2*Math.log10(3.2e19) - lp, '#4ade80', [3,3], 1.2);
+
+  // τ isolines (yr to s: * 3.15e7)
+  if (isoVisible.t3) drawIsoline(lp => lp - Math.log10(2 * 1e3 * 3.15e7), '#f87171', [], 1.2);
+  if (isoVisible.t6) drawIsoline(lp => lp - Math.log10(2 * 1e6 * 3.15e7), '#fb923c', [], 1.2);
+  if (isoVisible.t9) drawIsoline(lp => lp - Math.log10(2 * 1e9 * 3.15e7), '#fbbf24', [], 1.2);
+
+  // Death line
+  if (isoVisible.death) drawIsoline(lp => Math.log10(1.7e-20) + (11/4)*lp, '#9ca3af', [4,4], 1.5);
+
+  // Points
+  for (const pt of pts) {
+    const x = toX(pt.lp), y = toY(pt.lpdot);
+    if (x < PAD.left || x > PAD.left+plotW || y < PAD.top || y > PAD.top+plotH) continue;
+    const color = pt.source_catalog === 'McGill' ? '#ff4d1a' : '#60a5fa';
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, pt.source_catalog === 'McGill' ? 3.5 : 2, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Axes
+  ctx.strokeStyle = 'rgba(0,212,255,0.3)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([]);
+  ctx.strokeRect(PAD.left, PAD.top, plotW, plotH);
+
+  // Axis labels
+  ctx.fillStyle = '#7a8299';
+  ctx.font = '11px Space Mono, monospace';
+  ctx.textAlign = 'center';
+
+  for (let lp = -3; lp <= 2; lp++) {
+    ctx.fillText(lp, toX(lp), H - 16);
+  }
+
+  ctx.textAlign = 'right';
+  for (let lpdot = -22; lpdot <= -9; lpdot += 2) {
+    ctx.fillText(lpdot, PAD.left - 8, toY(lpdot) + 4);
+  }
+
+  // Axis titles
+  ctx.fillStyle = '#e8eaf2';
+  ctx.font = '11px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('log10(Period [s])', PAD.left + plotW/2, H - 2);
+
+  ctx.save();
+  ctx.translate(14, PAD.top + plotH/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('log10(Ṗ [s/s])', 0, 0);
+  ctx.restore();
+
+  // Stats
+  const atnfPts = pts.filter(p => p.source_catalog === 'ATNF');
+  const mcgillPts = pts.filter(p => p.source_catalog === 'McGill');
+  document.getElementById('ppdot-count').textContent = pts.length.toLocaleString();
+  document.getElementById('ppdot-atnf').textContent = atnfPts.length.toLocaleString();
+  document.getElementById('ppdot-mcgill').textContent = mcgillPts.length.toLocaleString();
+
+  // Tooltip
+  canvas.onmousemove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    let best = null, bestD = 64;
+    for (const pt of pts) {
+      const x = toX(pt.lp), y = toY(pt.lpdot);
+      const d = (mx-x)**2 + (my-y)**2;
+      if (d < bestD) { bestD = d; best = pt; }
+    }
+    const tip = document.getElementById('ppdot-tooltip');
+    if (best) {
+      tip.style.display = 'block';
+      tip.style.left = (e.clientX + 14) + 'px';
+      tip.style.top = (e.clientY - 10) + 'px';
+      tip.innerHTML = `<strong style="color:var(--cyan)">${best.NS_NAME}</strong><br>
+        P = ${best.P.toExponential(3)} s<br>
+        Ṗ = ${best.PDOT.toExponential(3)} s/s<br>
+        Type: ${best.type || '—'}<br>
+        Catalog: ${best.source_catalog}`;
+    } else {
+      tip.style.display = 'none';
+    }
+  };
+  canvas.onmouseleave = () => { document.getElementById('ppdot-tooltip').style.display = 'none'; };
+}
+
+// ── HEATMAP ───────────────────────────────────────────────
+function setHeatmapMode(mode, btn) {
+  heatmapMode = mode;
+  document.querySelectorAll('.heatmap-mode-row .toggle-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  drawHeatmap();
+}
+
+function toggleHeatmapType(key, btn) {
+  heatmapTypes[key] = !heatmapTypes[key];
+  btn.classList.toggle('active', heatmapTypes[key]);
+  drawHeatmap();
+}
+
+function typeToKey(type) {
+  if (type === 'pulsar') return 'pulsar';
+  if (['magnetar','candidate_magnetar','pulsar_outburst_2006'].includes(type)) return 'magnetar';
+  if (type === 'M7 isolated neutron star') return 'm7';
+  if (type === 'central compact object (CCO)') return 'cco';
+  return null;
+}
+
+function drawHeatmap() {
+  const canvas = document.getElementById('heatmap-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.offsetWidth || 800;
+  canvas.width = W;
+  canvas.height = 600;
+  const H = canvas.height;
+
+  const PAD = { top: 20, right: 20, bottom: 48, left: 56 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  const xMin = -20, xMax = 20, yMin = -20, yMax = 20;
+
+  function toX(x) { return PAD.left + (x - xMin) / (xMax - xMin) * plotW; }
+  function toY(y) { return PAD.top + (1 - (y - yMin) / (yMax - yMin)) * plotH; }
+
+  ctx.fillStyle = '#05070f';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,212,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let x = -20; x <= 20; x += 5) {
+    const px = toX(x);
+    ctx.beginPath(); ctx.moveTo(px, PAD.top); ctx.lineTo(px, PAD.top+plotH); ctx.stroke();
+  }
+  for (let y = -20; y <= 20; y += 5) {
+    const py = toY(y);
+    ctx.beginPath(); ctx.moveTo(PAD.left, py); ctx.lineTo(PAD.left+plotW, py); ctx.stroke();
+  }
+
+  // Galactic center cross
+  const gcX = toX(0), gcY = toY(0);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(gcX-10, gcY); ctx.lineTo(gcX+10, gcY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(gcX, gcY-10); ctx.lineTo(gcX, gcY+10); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Filter
+  const pts = allData.filter(s => {
+    if (s.galaxy !== 'milky_way') return false;
+    if (s.x == null || s.y == null) return false;
+    const key = typeToKey(s.type);
+    if (!key || !heatmapTypes[key]) return false;
+    return true;
+  });
+
+  document.getElementById('heatmap-count').textContent = pts.length.toLocaleString();
+
+  if (heatmapMode === 'scatter') {
+    for (const pt of pts) {
+      const x = toX(pt.x), y = toY(pt.y);
+      if (x < PAD.left || x > PAD.left+plotW || y < PAD.top || y > PAD.top+plotH) continue;
+      const color = TYPE_COLORS[pt.type] || '#888';
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, 1.5, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Scatter tooltip
+    canvas.onmousemove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+      let best = null, bestD = 100;
+      for (const pt of pts) {
+        const x = toX(pt.x), y = toY(pt.y);
+        const d = (mx-x)**2 + (my-y)**2;
+        if (d < bestD) { bestD = d; best = pt; }
+      }
+      const tip = document.getElementById('ppdot-tooltip');
+      if (best) {
+        tip.style.display = 'block';
+        tip.style.left = (e.clientX + 14) + 'px';
+        tip.style.top = (e.clientY - 10) + 'px';
+        tip.innerHTML = `<strong style="color:var(--cyan)">${best.NS_NAME}</strong><br>
+          x = ${best.x != null ? best.x.toFixed(2) : '—'} kpc<br>
+          y = ${best.y != null ? best.y.toFixed(2) : '—'} kpc<br>
+          Dist = ${best.DIST != null ? parseFloat(best.DIST).toFixed(2) : '—'} kpc<br>
+          Type: ${best.type || '—'}`;
+      } else {
+        tip.style.display = 'none';
+      }
+    };
+    canvas.onmouseleave = () => { document.getElementById('ppdot-tooltip').style.display = 'none'; };
+  } else {
+    canvas.onmousemove = null;
+    canvas.onmouseleave = null;
+  } else if (heatmapMode === 'hexbin') {
+    // Hexbin
+    const hexR = 12;
+    const hexW = hexR * 2;
+    const hexH = Math.sqrt(3) * hexR;
+    const bins = new Map();
+
+    for (const pt of pts) {
+      const px = toX(pt.x), py = toY(pt.y);
+      if (px < PAD.left || px > PAD.left+plotW || py < PAD.top || py > PAD.top+plotH) continue;
+      const col = Math.round((px - PAD.left) / (hexW * 0.75));
+      const row = Math.round((py - PAD.top) / hexH - (col % 2) * 0.5);
+      const key = `${col},${row}`;
+      bins.set(key, (bins.get(key) || 0) + 1);
+    }
+
+    const maxCount = Math.max(...bins.values(), 1);
+
+    for (const [key, count] of bins) {
+      const [col, row] = key.split(',').map(Number);
+      const cx = PAD.left + col * hexW * 0.75;
+      const cy = PAD.top + (row + (col % 2) * 0.5) * hexH;
+      const t = Math.sqrt(count / maxCount);
+      const r = Math.round(t * 255);
+      const g = Math.round((1-t) * 100);
+      const b = Math.round((1-t) * 30);
+      ctx.fillStyle = `rgba(${r},${g},${b},0.85)`;
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const angle = Math.PI/180 * (60*i - 30);
+        const hx = cx + hexR * Math.cos(angle);
+        const hy = cy + hexR * Math.sin(angle);
+        i === 0 ? ctx.moveTo(hx, hy) : ctx.lineTo(hx, hy);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (heatmapMode === 'kde') {
+    // KDE via Gaussian kernel on a grid
+    const gridN = 120;
+    const xs = pts.map(p => p.x);
+    const ys = pts.map(p => p.y);
+    const n = xs.length;
+    if (n === 0) { ctx.fillStyle='#7a8299'; ctx.font='12px Space Mono,monospace'; ctx.textAlign='center'; ctx.fillText('No data', PAD.left+plotW/2, PAD.top+plotH/2); }
+    else {
+      // Silverman bandwidth
+      const stdX = Math.sqrt(xs.reduce((s,v)=>s+(v-xs.reduce((a,b)=>a+b)/n)**2,0)/n);
+      const stdY = Math.sqrt(ys.reduce((s,v)=>s+(v-ys.reduce((a,b)=>a+b)/n)**2,0)/n);
+      const hx = 1.06 * stdX * Math.pow(n, -0.2);
+      const hy = 1.06 * stdY * Math.pow(n, -0.2);
+
+      // Build grid
+      const grid = new Float32Array(gridN * gridN);
+      const gxStep = (xMax - xMin) / gridN;
+      const gyStep = (yMax - yMin) / gridN;
+
+      for (let gi = 0; gi < gridN; gi++) {
+        const gx = xMin + (gi + 0.5) * gxStep;
+        for (let gj = 0; gj < gridN; gj++) {
+          const gy = yMin + (gj + 0.5) * gyStep;
+          let val = 0;
+          for (let k = 0; k < n; k++) {
+            const dx = (gx - xs[k]) / hx;
+            const dy = (gy - ys[k]) / hy;
+            val += Math.exp(-0.5*(dx*dx+dy*dy));
+          }
+          grid[gi * gridN + gj] = val;
+        }
+      }
+
+      const maxVal = Math.max(...grid);
+
+      // Render as image
+      const imgData = ctx.createImageData(gridN, gridN);
+      for (let i = 0; i < gridN; i++) {
+        for (let j = 0; j < gridN; j++) {
+          const t = grid[i * gridN + j] / maxVal;
+          const idx = (j * gridN + i) * 4;
+          // inferno colormap approximation
+          const r = Math.min(255, Math.round(t < 0.5 ? t*2*180 : 180+(t-0.5)*2*75));
+          const g = Math.min(255, Math.round(t < 0.5 ? t*2*30 : 30+(t-0.5)*2*180));
+          const b = Math.min(255, Math.round(t < 0.25 ? t*4*150 : t < 0.5 ? 150-(t-0.25)*4*120 : t < 0.75 ? 30 : (t-0.75)*4*10));
+          imgData.data[idx]   = r;
+          imgData.data[idx+1] = g;
+          imgData.data[idx+2] = b;
+          imgData.data[idx+3] = t > 0.01 ? Math.round(t * 220 + 20) : 0;
+        }
+      }
+
+      // Scale to plot area
+      const tmpCanvas = document.createElement('canvas');
+      tmpCanvas.width = gridN; tmpCanvas.height = gridN;
+      tmpCanvas.getContext('2d').putImageData(imgData, 0, 0);
+      ctx.drawImage(tmpCanvas, PAD.left, PAD.top, plotW, plotH);
+    }
+  }
+  const sunX = toX(-8.122), sunY = toY(0.02);
+  ctx.fillStyle = '#FFD700';
+  ctx.shadowColor = '#FFD700';
+  ctx.shadowBlur = 8;
+  ctx.beginPath(); ctx.arc(sunX, sunY, 4, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Sun label
+  ctx.fillStyle = '#FFD700';
+  ctx.font = '9px Space Mono, monospace';
+  ctx.fillText('Sun', sunX + 7, sunY + 3);
+
+  // GC label
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '9px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('GC', gcX, gcY - 8);
+
+  // Axes
+  ctx.strokeStyle = 'rgba(0,212,255,0.3)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(PAD.left, PAD.top, plotW, plotH);
+
+  ctx.fillStyle = '#7a8299';
+  ctx.font = '10px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  for (let x = -20; x <= 20; x += 5) {
+    ctx.fillText(x, toX(x), H - 14);
+  }
+  ctx.textAlign = 'right';
+  for (let y = -20; y <= 20; y += 5) {
+    ctx.fillText(y, PAD.left - 6, toY(y) + 3);
+  }
+
+  ctx.fillStyle = '#e8eaf2';
+  ctx.font = '11px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('x (kpc)', PAD.left + plotW/2, H - 2);
+
+  ctx.save();
+  ctx.translate(14, PAD.top + plotH/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('y (kpc)', 0, 0);
+  ctx.restore();
+}
+
+// ── RESIZE ────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  if (document.getElementById('panel-ppdot').classList.contains('active')) drawPPdot();
+  if (document.getElementById('panel-heatmap').classList.contains('active')) drawHeatmap();
+});
+
+// ── START ─────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

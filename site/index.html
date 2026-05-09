@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neutron Star Project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #05070f;
+    --bg2: #0a0e1a;
+    --bg3: #0f1525;
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0,212,255,0.15);
+    --cyan-glow: rgba(0,212,255,0.4);
+    --text: #e8eaf2;
+    --text-dim: #7a8299;
+    --border: rgba(0,212,255,0.12);
+    --panel-w: 320px;
+    --top-h: 56px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    height: 100vh;
+    overflow: hidden;
+    cursor: crosshair;
+  }
+
+  /* ── TOP BAR ── */
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--top-h);
+    background: rgba(5,7,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 100;
+    gap: 32px;
+  }
+
+  #logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  #logo span { color: var(--text-dim); font-weight: 400; }
+
+  nav { display: flex; gap: 4px; margin-left: auto; }
+
+  nav { flex-wrap: wrap; }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--cyan);
+    background: var(--cyan-dim);
+  }
+
+  /* ── CANVAS ── */
+  #canvas-wrap {
+    position: fixed;
+    top: var(--top-h);
+    left: var(--panel-w);
+    right: 0;
+    bottom: 0;
+  }
+
+  #three-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ── SIDE PANEL ── */
+  #panel {
+    position: fixed;
+    top: var(--top-h);
+    left: 0;
+    width: var(--panel-w);
+    bottom: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    overflow: hidden;
+  }
+
+  #search-wrap {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #search {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #search::placeholder { color: var(--text-dim); }
+  #search:focus { border-color: var(--cyan); }
+
+  /* filters */
+  #filters {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-section-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+
+  .filter-row { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    padding: 4px 9px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .chip.active { color: var(--bg); font-weight: 700; border-color: transparent; }
+  .chip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* star list */
+  #star-list-wrap {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  #star-count {
+    padding: 10px 16px 6px;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  .star-item {
+    padding: 9px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .star-item:hover { background: var(--bg3); }
+  .star-item.selected { background: var(--cyan-dim); border-left: 2px solid var(--cyan); }
+
+  .star-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  .star-name {
+    font-size: 10px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .star-type {
+    font-size: 9px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+
+  /* selected card */
+  #selected-card {
+    border-top: 1px solid var(--border);
+    background: var(--bg3);
+    padding: 16px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  #selected-card.visible { display: flex; }
+
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--cyan);
+    line-height: 1.3;
+  }
+
+  .card-badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 2px;
+    letter-spacing: 0.06em;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .card-field { display: flex; flex-direction: column; gap: 2px; }
+
+  .card-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .card-value { font-size: 11px; color: var(--text); }
+
+  .card-coords {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 10px;
+    line-height: 1.8;
+    position: relative;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: var(--cyan-dim);
+    border: 1px solid var(--border);
+    color: var(--cyan);
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .copy-btn:hover { background: var(--cyan-glow); }
+
+  .wiki-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--cyan);
+    text-decoration: none;
+    font-size: 10px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+
+  .wiki-link:hover { background: var(--cyan-dim); }
+
+  .simbad-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 10px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .simbad-link:hover { background: var(--bg2); color: var(--text); }
+
+  /* ── LEGEND ── */
+  #legend {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(10,14,26,0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .legend-title {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── TOOLTIP ── */
+  #tooltip {
+    position: fixed;
+    background: rgba(10,14,26,0.95);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 11px;
+    font-size: 10px;
+    color: var(--text);
+    pointer-events: none;
+    display: none;
+    z-index: 200;
+    white-space: nowrap;
+  }
+
+  /* ── LOADING ── */
+  #loading {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    gap: 16px;
+    transition: opacity 0.6s;
+  }
+
+  #loading.fade { opacity: 0; pointer-events: none; }
+
+  .load-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .load-sub {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+  }
+
+  .load-bar-wrap {
+    width: 200px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .load-bar {
+    height: 100%;
+    background: var(--cyan);
+    width: 0%;
+    transition: width 0.4s;
+    border-radius: 2px;
+  }
+
+  /* ── FOOTER ── */
+  #footer {
+    position: fixed;
+    bottom: 0;
+    left: var(--panel-w);
+    right: 0;
+    height: 28px;
+    background: rgba(5,7,15,0.7);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    gap: 16px;
+    z-index: 50;
+  }
+
+  #footer a { color: var(--text-dim); text-decoration: none; }
+  #footer a:hover { color: var(--cyan); }
+
+  #star-info-bar {
+    margin-left: auto;
+    color: var(--text-dim);
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* galaxy chips */
+  .chip[data-galaxy="milky_way"].active { background: #1a4a6b; color: #7dd3fc; border-color: #7dd3fc; }
+  .chip[data-galaxy="lmc"].active { background: #4a2a6b; color: #c4b5fd; border-color: #c4b5fd; }
+  .chip[data-galaxy="smc"].active { background: #2a4a2a; color: #86efac; border-color: #86efac; }
+
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+  <div class="load-title">Neutron Star Project</div>
+  <div class="load-sub">Loading catalog data...</div>
+  <div class="load-bar-wrap"><div class="load-bar" id="load-bar"></div></div>
+  <div class="load-sub" id="load-count"></div>
+</div>
+
+<!-- Topbar -->
+<div id="topbar">
+  <div id="logo">Neutron Star <span>Project</span></div>
+  <nav>
+    <a href="index.html" class="active">Visualizer</a>
+    <a href="import-export.html">Import / Export</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html">About</a>
+    <a href="data-sources.html">Data Sources</a>
+  </nav>
+</div>
+
+<!-- Side Panel -->
+<div id="panel">
+  <div id="search-wrap">
+    <input id="search" type="text" placeholder="Search by name..." autocomplete="off">
+  </div>
+
+  <div id="filters">
+    <div class="filter-section-label">Galaxy</div>
+    <div class="filter-row">
+      <button class="chip active" data-filter="galaxy" data-galaxy="milky_way">
+        <span class="chip-dot" style="background:#7dd3fc"></span>Milky Way
+      </button>
+      <button class="chip active" data-filter="galaxy" data-galaxy="lmc">
+        <span class="chip-dot" style="background:#c4b5fd"></span>LMC
+      </button>
+      <button class="chip active" data-filter="galaxy" data-galaxy="smc">
+        <span class="chip-dot" style="background:#86efac"></span>SMC
+      </button>
+    </div>
+
+    <div class="filter-section-label" style="margin-top:6px">Type</div>
+    <div class="filter-row" id="type-filters"></div>
+  </div>
+
+  <div id="star-count"></div>
+  <div id="star-list-wrap">
+    <div id="star-list"></div>
+  </div>
+
+  <div id="selected-card">
+    <div>
+      <div class="card-name" id="card-name"></div>
+      <span class="card-badge" id="card-badge"></span>
+    </div>
+    <div class="card-grid">
+      <div class="card-field">
+        <div class="card-label">Distance</div>
+        <div class="card-value" id="card-dist"></div>
+      </div>
+      <div class="card-field">
+        <div class="card-label">Catalog</div>
+        <div class="card-value" id="card-catalog"></div>
+      </div>
+      <div class="card-field">
+        <div class="card-label">Galaxy</div>
+        <div class="card-value" id="card-galaxy"></div>
+      </div>
+      <div class="card-field">
+        <div class="card-label">Period (s)</div>
+        <div class="card-value" id="card-p"></div>
+      </div>
+      <div class="card-field">
+        <div class="card-label">P-dot (s/s)</div>
+        <div class="card-value" id="card-pdot"></div>
+      </div>
+    </div>
+    <div class="card-coords">
+      <div class="card-label">Coordinates (J2000)</div>
+      <div style="margin-top:4px">
+        <span style="color:var(--text-dim)">RA </span><span id="card-ra"></span><br>
+        <span style="color:var(--text-dim)">Dec </span><span id="card-dec"></span>
+      </div>
+      <button class="copy-btn" id="copy-coords">COPY</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <a class="wiki-link" id="wiki-link" href="#" target="_blank">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Wikipedia
+      </a>
+      <a class="simbad-link" id="simbad-link" href="#" target="_blank">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        SIMBAD
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Three.js canvas -->
+<div id="canvas-wrap">
+  <canvas id="three-canvas"></canvas>
+</div>
+
+<!-- Legend -->
+<div id="legend">
+  <div class="legend-title">Object Types</div>
+  <div id="legend-items"></div>
+  <div class="legend-item" style="margin-top:4px;border-top:1px solid var(--border);padding-top:6px">
+    <div class="legend-dot" style="background:#FFD700;box-shadow:0 0 6px #FFD700"></div>
+    <span>Sun (reference)</span>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div id="tooltip"></div>
+
+<!-- Footer -->
+<div id="footer">
+  <span>Neutron Star Project</span>
+  <a href="about.html">Made by Seraco</a>
+  <a href="data-sources.html">Data Sources</a>
+  <span id="star-info-bar"></span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const DATA_URL = 'data/NS_db_full.json';
+
+const TYPE_CONFIG = {
+  'pulsar':                       { color: 0x60a5fa, label: 'Pulsar' },
+  'magnetar':                     { color: 0xff4d1a, label: 'Magnetar' },
+  'candidate_magnetar':           { color: 0xffa040, label: 'Magnetar Candidate' },
+  'pulsar_outburst_2006':         { color: 0xd4f542, label: 'Pulsar (2006 Outburst)' },
+  'M7 isolated neutron star':     { color: 0x00d4ff, label: 'M7 Isolated NS' },
+  'central compact object (CCO)': { color: 0xb06dff, label: 'Central Compact Object (CCO)' },
+};
+
+const GALAXY_ACTIVE = { milky_way: true, lmc: true, smc: true };
+const TYPE_ACTIVE = Object.fromEntries(Object.keys(TYPE_CONFIG).map(k => [k, true]));
+
+// Dynamically added types will be added to TYPE_ACTIVE when discovered
+
+// ── STATE ────────────────────────────────────────────────
+let allStars = [];
+let filteredStars = [];
+let selectedIdx = null;
+let scene, camera, renderer, points, highlightMesh, orbitControls;
+let raycaster, mouse;
+let positionAttr, colorAttr;
+let isDragging = false, dragStart = {x:0,y:0};
+let isRotating = false;
+let rotateStart = {x:0,y:0};
+let spherical = {theta: 0.3, phi: 1.2, radius: 25};
+let panOffset = {x:0,y:0,z:0};
+let isPanning = false;
+let panStart = {x:0,y:0};
+let userInteracted = false;
+
+// ── COORDINATE CONVERSION (ICRS -> Galactocentric approx) ─
+// Matches Astropy Galactocentric defaults: galcen_distance=8.122kpc, z_sun=20.8pc
+function icrsToGalactocentric(raj, decj, dist_kpc) {
+  try {
+    // Parse RA "HH MM SS.ss" -> degrees
+    const raParts = raj.trim().split(/\s+/);
+    const ra_deg = (parseFloat(raParts[0]) + parseFloat(raParts[1]||0)/60 + parseFloat(raParts[2]||0)/3600) * 15;
+    // Parse Dec "+DD MM SS.s" -> degrees
+    const decStr = decj.trim();
+    const sign = decStr[0] === '-' ? -1 : 1;
+    const decParts = decStr.replace(/^[+-]/,'').split(/\s+/);
+    const dec_deg = sign * (parseFloat(decParts[0]) + parseFloat(decParts[1]||0)/60 + parseFloat(decParts[2]||0)/3600);
+
+    const ra = ra_deg * Math.PI / 180;
+    const dec = dec_deg * Math.PI / 180;
+    const d = dist_kpc;
+
+    // ICRS Cartesian
+    const xi = d * Math.cos(dec) * Math.cos(ra);
+    const yi = d * Math.cos(dec) * Math.sin(ra);
+    const zi = d * Math.sin(dec);
+
+    // Rotation matrix ICRS -> Galactic (IAU 1958, approximation)
+    // Using standard values
+    const x_g =  -0.054876*xi - 0.873437*yi - 0.483835*zi;
+    const y_g =   0.494109*xi - 0.444830*yi + 0.746982*zi;
+    const z_g =  -0.867666*xi - 0.198076*yi + 0.455984*zi;
+
+    // Shift to Galactocentric (Sun at x=-8.122, z=0.0208)
+    const x_gc = x_g + 8.122;
+    const y_gc = y_g;
+    const z_gc = z_g + 0.0208;
+
+    return { x: x_gc, y: y_gc, z: z_gc };
+  } catch(e) {
+    return { x: -8.122, y: 0, z: 0.02 };
+  }
+}
+
+// ── LOAD ─────────────────────────────────────────────────
+async function loadData() {
+  setLoadBar(10);
+  const res = await fetch(DATA_URL);
+  setLoadBar(50);
+  const catalogStars = await res.json();
+  setLoadBar(70);
+
+  // Merge imported objects from localStorage
+  let imported = [];
+  try {
+    imported = JSON.parse(localStorage.getItem('nsp_imported_objects') || '[]');
+  } catch {}
+
+  // Compute x/y/z for imported objects that don't have it
+  imported.forEach(s => {
+    if (s.x == null || s.y == null || s.z == null) {
+      const coords = icrsToGalactocentric(s.RAJ || '', s.DECJ || '', parseFloat(s.DIST) || 1);
+      s.x = coords.x;
+      s.y = coords.y;
+      s.z = coords.z;
+    }
+  });
+
+  allStars = [...catalogStars, ...imported];
+  setLoadBar(80);
+
+  // Build dynamic type config from imported objects
+  imported.forEach(s => {
+    if (s.type && !TYPE_CONFIG[s.type]) {
+      const color = (s.color && Array.isArray(s.color) && s.color.length === 4)
+        ? (Math.round(s.color[0] * 255) << 16 | Math.round(s.color[1] * 255) << 8 | Math.round(s.color[2] * 255))
+        : 0x888888;
+      TYPE_CONFIG[s.type] = { color, label: s.type.replace(/_/g, ' ') };
+      TYPE_ACTIVE[s.type] = true;
+    }
+  });
+
+  buildTypeFilters();
+  buildLegend();
+  applyFilters();
+  setLoadBar(100);
+
+  const importedCount = imported.length;
+  await new Promise(r => setTimeout(r, 400));
+  document.getElementById('loading').classList.add('fade');
+  setTimeout(() => {
+    document.getElementById('loading').style.display = 'none';
+    if (importedCount > 0) {
+      // brief notice that imported data was loaded
+      document.getElementById('star-info-bar').textContent =
+        `${importedCount} imported object${importedCount > 1 ? 's' : ''} loaded from local storage`;
+      setTimeout(() => document.getElementById('star-info-bar').textContent = '', 4000);
+    }
+  }, 700);
+}
+
+function setLoadBar(pct) {
+  document.getElementById('load-bar').style.width = pct + '%';
+  document.getElementById('load-count').textContent = pct < 100
+    ? 'Loading...'
+    : `${allStars.length.toLocaleString()} objects loaded`;
+}
+
+// ── FILTERS ──────────────────────────────────────────────
+function buildTypeFilters() {
+  const wrap = document.getElementById('type-filters');
+  wrap.innerHTML = ''; // clear before rebuild
+
+  // Static order reversed (rarest first, pulsars last)
+  const staticOrder = [
+    'M7 isolated neutron star',
+    'central compact object (CCO)',
+    'candidate_magnetar',
+    'pulsar_outburst_2006',
+    'magnetar',
+    'pulsar',
+  ];
+
+  // Dynamic types (imported) not in static order
+  const dynamicTypes = Object.keys(TYPE_CONFIG).filter(t => !staticOrder.includes(t));
+  const order = [...staticOrder, ...dynamicTypes];
+
+  order.forEach(type => {
+    if (!TYPE_CONFIG[type]) return;
+    if (TYPE_ACTIVE[type] === undefined) TYPE_ACTIVE[type] = true;
+    const cfg = TYPE_CONFIG[type];
+    const btn = document.createElement('button');
+    btn.className = 'chip active';
+    btn.dataset.filter = 'type';
+    btn.dataset.type = type;
+    const hex = '#' + cfg.color.toString(16).padStart(6,'0');
+    btn.innerHTML = `<span class="chip-dot" style="background:${hex}"></span>${cfg.label}`;
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      TYPE_ACTIVE[type] = btn.classList.contains('active');
+      if (btn.classList.contains('active')) {
+        btn.style.background = hex + '33';
+        btn.style.color = hex;
+        btn.style.borderColor = hex;
+      } else {
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }
+      applyFilters();
+    });
+    btn.style.background = hex + '33';
+    btn.style.color = hex;
+    btn.style.borderColor = hex;
+    wrap.appendChild(btn);
+  });
+
+  document.querySelectorAll('[data-filter="galaxy"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const g = btn.dataset.galaxy;
+      btn.classList.toggle('active');
+      GALAXY_ACTIVE[g] = btn.classList.contains('active');
+      applyFilters();
+      reframeCameraToVisible();
+    });
+  });
+}
+
+function buildLegend() {
+  const wrap = document.getElementById('legend-items');
+  wrap.innerHTML = '';
+  Object.entries(TYPE_CONFIG).forEach(([type, cfg]) => {
+    const hex = '#' + cfg.color.toString(16).padStart(6,'0');
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.id = `legend-${type.replace(/\s/g,'_')}`;
+    item.innerHTML = `<div class="legend-dot" style="background:${hex}"></div><span>${cfg.label}</span>`;
+    wrap.appendChild(item);
+  });
+}
+
+function applyFilters() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  filteredStars = allStars.filter(s => {
+    if (!GALAXY_ACTIVE[s.galaxy]) return false;
+    if (!TYPE_ACTIVE[s.type]) return false;
+    if (q && !s.NS_NAME.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  updateList();
+  updatePoints();
+  document.getElementById('star-count').textContent =
+    `${filteredStars.length.toLocaleString()} of ${allStars.length.toLocaleString()} objects`;
+}
+
+// ── LIST ─────────────────────────────────────────────────
+const TYPE_ORDER = [
+  'user_import', 'central compact object (CCO)', 'M7 isolated neutron star',
+  'pulsar_outburst_2006', 'candidate_magnetar', 'magnetar', 'pulsar'
+];
+
+function typeRank(t) {
+  const i = TYPE_ORDER.indexOf(t);
+  return i === -1 ? TYPE_ORDER.length : i;
+}
+
+function updateList() {
+  const list = document.getElementById('star-list');
+  list.innerHTML = '';
+  const sorted = [...filteredStars].sort((a,b) => typeRank(a.type) - typeRank(b.type));
+  const show = sorted.slice(0, 300);
+  show.forEach((s, i) => {
+    const cfg = TYPE_CONFIG[s.type] || { color: 0x888888 };
+    const hex = '#' + cfg.color.toString(16).padStart(6,'0');
+    const item = document.createElement('div');
+    item.className = 'star-item' + (selectedIdx === i ? ' selected' : '');
+    item.innerHTML = `
+      <div class="star-dot" style="background:${hex}"></div>
+      <div>
+        <div class="star-name">${s.NS_NAME}</div>
+        <div class="star-type">${cfg.label || s.type}</div>
+      </div>`;
+    item.addEventListener('click', () => selectStar(i));
+    list.appendChild(item);
+  });
+  if (filteredStars.length > 300) {
+    const note = document.createElement('div');
+    note.style.cssText = 'padding:10px 16px;font-size:10px;color:var(--text-dim);text-align:center';
+    note.textContent = `+ ${filteredStars.length - 300} more — refine search to narrow`;
+    list.appendChild(note);
+  }
+}
+
+// ── CARD ─────────────────────────────────────────────────
+function selectStar(idx) {
+  selectedIdx = idx;
+  const s = filteredStars[idx];
+  if (!s) return;
+
+  // highlight in list
+  document.querySelectorAll('.star-item').forEach((el,i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+
+  // fill card
+  const cfg = TYPE_CONFIG[s.type] || { color: 0x888888, label: s.type };
+  const hex = '#' + cfg.color.toString(16).padStart(6,'0');
+
+  document.getElementById('card-name').textContent = s.NS_NAME;
+  const badge = document.getElementById('card-badge');
+  badge.textContent = cfg.label;
+  badge.style.background = hex + '22';
+  badge.style.color = hex;
+  badge.style.border = `1px solid ${hex}44`;
+
+  document.getElementById('card-dist').textContent =
+    s.DIST != null ? parseFloat(s.DIST).toFixed(3) + ' kpc' : 'Unknown';
+  document.getElementById('card-catalog').textContent = s.source_catalog || '—';
+  document.getElementById('card-galaxy').textContent =
+    s.galaxy === 'milky_way' ? 'Milky Way' : s.galaxy?.toUpperCase() || '—';
+  document.getElementById('card-p').textContent =
+    s.P != null ? parseFloat(s.P).toExponential(3) + ' s' : '—';
+  document.getElementById('card-pdot').textContent =
+    s.PDOT != null ? parseFloat(s.PDOT).toExponential(3) + ' s/s' : '—';
+  document.getElementById('card-ra').textContent = s.RAJ || '—';
+  document.getElementById('card-dec').textContent = s.DECJ || '—';
+  // errors
+  const raErr = s.RAJ_ERR != null ? ` ± ${s.RAJ_ERR}` : '';
+  const decErr = s.DECJ_ERR != null ? ` ± ${s.DECJ_ERR}` : '';
+  document.getElementById('card-ra').textContent = (s.RAJ || '—') + raErr;
+  document.getElementById('card-dec').textContent = (s.DECJ || '—') + decErr;
+
+  const wikiEl = document.getElementById('wiki-link');
+  if (s.wiki_url) { wikiEl.href = s.wiki_url; wikiEl.style.display = 'flex'; }
+  else wikiEl.style.display = 'none';
+
+  const simbadEl = document.getElementById('simbad-link');
+  const simbadQ = encodeURIComponent(s.NS_NAME);
+  simbadEl.href = `https://simbad.u-strasbg.fr/simbad/sim-id?Ident=${simbadQ}`;
+
+  document.getElementById('selected-card').classList.add('visible');
+
+  // move camera to star
+  focusOnStar(s);
+
+  // highlight point
+  if (highlightMesh) {
+    highlightMesh.position.set(s.x, s.z, -s.y);
+    highlightMesh.visible = true;
+  }
+}
+
+document.getElementById('copy-coords').addEventListener('click', () => {
+  const ra = document.getElementById('card-ra').textContent;
+  const dec = document.getElementById('card-dec').textContent;
+  navigator.clipboard.writeText(`RA: ${ra} | Dec: ${dec}`);
+  const btn = document.getElementById('copy-coords');
+  btn.textContent = 'COPIED';
+  setTimeout(() => btn.textContent = 'COPY', 1500);
+});
+
+document.getElementById('search').addEventListener('input', applyFilters);
+
+// ── THREE.JS ─────────────────────────────────────────────
+function initThree() {
+  const wrap = document.getElementById('canvas-wrap');
+  const canvas = document.getElementById('three-canvas');
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  renderer.setClearColor(0x05070f, 1);
+
+  scene = new THREE.Scene();
+
+  camera = new THREE.PerspectiveCamera(60, wrap.clientWidth / wrap.clientHeight, 0.001, 2000);
+  updateCamera();
+
+  raycaster = new THREE.Raycaster();
+  raycaster.params.Points.threshold = 0.15;
+  mouse = new THREE.Vector2();
+
+  // Background stars
+  const bgGeo = new THREE.BufferGeometry();
+  const bgPos = [];
+  for (let i = 0; i < 3000; i++) {
+    const r = 500 + Math.random() * 500;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    bgPos.push(
+      r * Math.sin(phi) * Math.cos(theta),
+      r * Math.cos(phi),
+      r * Math.sin(phi) * Math.sin(theta)
+    );
+  }
+  bgGeo.setAttribute('position', new THREE.Float32BufferAttribute(bgPos, 3));
+  const bgMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.3 });
+  scene.add(new THREE.Points(bgGeo, bgMat));
+
+  // Sun
+  const sunGeo = new THREE.SphereGeometry(0.15, 8, 8);
+  const sunMat = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
+  const sun = new THREE.Mesh(sunGeo, sunMat);
+  sun.position.set(-8.122, 0.0208, 0);
+  scene.add(sun);
+  const sunLight = new THREE.PointLight(0xFFD700, 0.5, 5);
+  sunLight.position.copy(sun.position);
+  scene.add(sunLight);
+
+  // Highlight sphere
+  const hlGeo = new THREE.SphereGeometry(0.12, 8, 8);
+  const hlMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.9 });
+  highlightMesh = new THREE.Mesh(hlGeo, hlMat);
+  highlightMesh.visible = false;
+  scene.add(highlightMesh);
+
+  window.addEventListener('resize', onResize);
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onMouseUp);
+  canvas.addEventListener('wheel', onWheel, { passive: false });
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  canvas.addEventListener('auxclick', e => e.preventDefault());
+
+  animate();
+}
+
+function updatePoints() {
+  if (points) scene.remove(points);
+  if (!filteredStars.length) return;
+
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(filteredStars.length * 3);
+  const colors = new Float32Array(filteredStars.length * 3);
+
+  filteredStars.forEach((s, i) => {
+    // Imported objects may not have x/y/z — place at Sun position as fallback
+    const x = s.x != null ? s.x : -8.122;
+    const y = s.y != null ? s.y : 0;
+    const z = s.z != null ? s.z : 0.02;
+
+    positions[i*3]   = x;
+    positions[i*3+1] = z;
+    positions[i*3+2] = -y;
+
+    let c;
+    if (s._imported && s.color && Array.isArray(s.color) && s.color.length === 4) {
+      c = { r: s.color[0], g: s.color[1], b: s.color[2] };
+    } else {
+      const cfg = TYPE_CONFIG[s.type] || { color: 0x888888 };
+      c = new THREE.Color(cfg.color);
+    }
+    colors[i*3]   = c.r;
+    colors[i*3+1] = c.g;
+    colors[i*3+2] = c.b;
+  });
+
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.13,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.85,
+    sizeAttenuation: true,
+  });
+
+  points = new THREE.Points(geo, mat);
+  scene.add(points);
+}
+
+function focusOnStar(s) {
+  // gently move camera target toward star
+  panOffset.x = s.x * 0.3;
+  panOffset.y = s.z * 0.3;
+  panOffset.z = -s.y * 0.3;
+}
+
+// ── CAMERA CONTROLS ──────────────────────────────────────
+function updateCamera() {
+  const x = spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+  const y = spherical.radius * Math.cos(spherical.phi);
+  const z = spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+  camera.position.set(x + panOffset.x, y + panOffset.y, z + panOffset.z);
+  camera.lookAt(panOffset.x, panOffset.y, panOffset.z);
+}
+
+function onMouseDown(e) {
+  dragStart = { x: e.clientX, y: e.clientY };
+  isDragging = false;
+  userInteracted = true;
+  if (e.button === 0) isRotating = true;
+  if (e.button === 1) { e.preventDefault(); isPanning = true; panStart = { x: e.clientX, y: e.clientY }; }
+  if (e.button === 2) { isPanning = true; panStart = { x: e.clientX, y: e.clientY }; }
+}
+
+function onMouseMove(e) {
+  const dx = e.clientX - dragStart.x;
+  const dy = e.clientY - dragStart.y;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) isDragging = true;
+
+  if (isRotating) {
+    spherical.theta -= dx * 0.005;
+    spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi - dy * 0.005));
+    dragStart = { x: e.clientX, y: e.clientY };
+    updateCamera();
+  }
+
+  if (isPanning) {
+    const pdx = e.clientX - panStart.x;
+    const pdy = e.clientY - panStart.y;
+    panOffset.x -= pdx * 0.02;
+    panOffset.y += pdy * 0.02;
+    panStart = { x: e.clientX, y: e.clientY };
+    updateCamera();
+  }
+
+  // tooltip hover
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  if (points) {
+    const hits = raycaster.intersectObject(points);
+    const tip = document.getElementById('tooltip');
+    if (hits.length > 0) {
+      const s = filteredStars[hits[0].index];
+      tip.textContent = s.NS_NAME;
+      tip.style.display = 'block';
+      tip.style.left = (e.clientX + 14) + 'px';
+      tip.style.top = (e.clientY - 10) + 'px';
+      renderer.domElement.style.cursor = 'pointer';
+    } else {
+      tip.style.display = 'none';
+      renderer.domElement.style.cursor = 'crosshair';
+    }
+  }
+}
+
+function onMouseUp(e) {
+  isRotating = false;
+  isPanning = false;
+  if (!isDragging && e.button === 0) {
+    // click — pick star
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    if (points) {
+      const hits = raycaster.intersectObject(points);
+      if (hits.length > 0) selectStar(hits[0].index);
+    }
+  }
+}
+
+function onWheel(e) {
+  e.preventDefault();
+  userInteracted = true;
+  spherical.radius = Math.max(1, Math.min(200, spherical.radius + e.deltaY * 0.05));
+  updateCamera();
+}
+
+function onResize() {
+  const wrap = document.getElementById('canvas-wrap');
+  camera.aspect = wrap.clientWidth / wrap.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+}
+
+// ── REFRAME CAMERA ───────────────────────────────────────
+function reframeCameraToVisible() {
+  if (!filteredStars.length) return;
+  const xs = filteredStars.map(s => s.x).filter(v => v != null);
+  const ys = filteredStars.map(s => s.y).filter(v => v != null);
+  const zs = filteredStars.map(s => s.z).filter(v => v != null);
+  if (!xs.length) return;
+
+  const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
+  const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+  const cz = (Math.max(...zs) + Math.min(...zs)) / 2;
+
+  panOffset.x = cx;
+  panOffset.y = cz; // three.js Y = galactic Z
+  panOffset.z = -cy;
+
+  const rangeX = Math.max(...xs) - Math.min(...xs);
+  const rangeY = Math.max(...ys) - Math.min(...ys);
+  const rangeZ = Math.max(...zs) - Math.min(...zs);
+  spherical.radius = Math.max(rangeX, rangeY, rangeZ) * 1.5;
+  updateCamera();
+}
+
+// ── ANIMATE ──────────────────────────────────────────────
+function animate() {
+  requestAnimationFrame(animate);
+
+  // gentle auto-rotate when idle
+  if (!isRotating && !isPanning && !userInteracted) {
+    spherical.theta += 0.0003;
+    updateCamera();
+  }
+
+  renderer.render(scene, camera);
+}
+
+// ── INIT ─────────────────────────────────────────────────
+initThree();
+loadData();
+</script>
+</body>
+</html>

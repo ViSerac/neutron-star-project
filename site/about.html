@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Neutron Star Project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #05070f;
+    --bg2: #0a0e1a;
+    --bg3: #0f1525;
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0,212,255,0.12);
+    --text: #e8eaf2;
+    --text-dim: #7a8299;
+    --border: rgba(0,212,255,0.12);
+    --top-h: 56px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+  }
+
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--top-h);
+    background: rgba(5,7,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 100;
+    gap: 32px;
+  }
+
+  #logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  #logo span { color: var(--text-dim); font-weight: 400; }
+
+  nav { display: flex; gap: 4px; margin-left: auto; }
+
+  nav { flex-wrap: wrap; }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  nav a:hover, nav a.active { color: var(--cyan); background: var(--cyan-dim); }
+
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: calc(var(--top-h) + 60px) 24px 80px;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.04em;
+    margin-bottom: 48px;
+  }
+
+  section { margin-bottom: 52px; }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    opacity: 0.7;
+    margin-bottom: 18px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 12px;
+    line-height: 2;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  p:last-child { margin-bottom: 0; }
+
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* influences grid */
+  .influence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .influence-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    transition: border-color 0.2s, background 0.2s;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+  }
+
+  .influence-card:hover {
+    border-color: rgba(0,212,255,0.3);
+    background: var(--bg3);
+    text-decoration: none;
+  }
+
+  .influence-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .influence-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ff4444;
+  }
+
+  .influence-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .influence-desc {
+    font-size: 10px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* contact */
+  .contact-box {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    background: var(--bg2);
+  }
+
+  .contact-email {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+
+  .contact-note {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* tech stack */
+  .stack-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .stack-tag {
+    font-size: 10px;
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 10px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.08em;
+  }
+
+  footer a { color: var(--text-dim); text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <nav>
+    <a href="index.html">Visualizer</a>
+    <a href="import-export.html">Import / Export</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html" class="active">About</a>
+    <a href="data-sources.html">Data Sources</a>
+  </nav>
+</div>
+
+<main>
+  <div class="page-title">About</div>
+
+  <section>
+    <div class="section-label">The Project</div>
+    <div class="section-title">What is the Neutron Star Project?</div>
+    <p>
+      The Neutron Star Project is an interactive, open-source 3D catalog visualizer for neutron stars one of the most extreme classes of objects in the known universe. It aggregates data from multiple astronomical catalogs and renders them in a navigable three-dimensional map of our Galaxy and its neighbors.
+    </p>
+    <p>
+      The project was born from a simple desire: to see where all the known neutron stars actually are. Catalogs exist in spreadsheets and research papers, but no accessible tool showed them together, in space, at the right scale. This is that tool.
+    </p>
+    <p>
+      It is built entirely in Python for the data pipeline and runs in any modern web browser using Three.js for rendering.
+    </p>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-label">Inspirations</div>
+    <div class="section-title">Standing on the shoulders of communicators</div>
+    <p>
+      This project would not exist without the science communicators who made neutron stars accessible, fascinating, and worth building something for. Their work explaining the incomprehensible in terms anyone can grasp is the reason projects like this one get started in the first place.
+    </p>
+    <div class="influence-grid">
+      <a class="influence-card" href="https://www.youtube.com/@whatdamath" target="_blank">
+        <div class="influence-card-top">
+          <div class="influence-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
+          </div>
+          <div class="influence-name">Anton Petrov</div>
+        </div>
+        <div class="influence-desc">Years of daily space news and accessible deep dives into exotic astrophysics, including neutron stars, magnetars, and everything in between.</div>
+      </a>
+      <a class="influence-card" href="https://www.youtube.com/@pbsspacetime" target="_blank">
+        <div class="influence-card-top">
+          <div class="influence-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
+          </div>
+          <div class="influence-name">PBS Space Time</div>
+        </div>
+        <div class="influence-desc">Graduate-level astrophysics explained with rigor and genuine intellectual depth. The gold standard of science YouTube.</div>
+      </a>
+      <a class="influence-card" href="https://www.youtube.com/@fermilab" target="_blank">
+        <div class="influence-card-top">
+          <div class="influence-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
+          </div>
+          <div class="influence-name">Fermilab</div>
+        </div>
+        <div class="influence-desc">Bringing particle physics and astrophysics to the public with clarity and enthusiasm, straight from one of the world's great research institutions.</div>
+      </a>
+      <a class="influence-card" href="https://www.youtube.com/@SabineHossenfelder" target="_blank">
+        <div class="influence-card-top">
+          <div class="influence-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
+          </div>
+          <div class="influence-name">Sabine Hossenfelder</div>
+        </div>
+        <div class="influence-desc">Critical thinking about physics and science communication, never afraid to challenge assumptions or conventional wisdom.</div>
+      </a>
+      <div class="influence-card" style="cursor:default">
+        <div class="influence-card-top">
+          <div class="influence-icon" style="color:var(--text-dim)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="influence-name">And many others</div>
+        </div>
+        <div class="influence-desc">The broader community of science communicators on YouTube and beyond, researchers, teachers, amateur astronomers and hobbyists who dedicate their work to spreading curiosity and knowledge.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-label">Acknowledgements</div>
+    <div class="section-title">Data & Research</div>
+    <p>
+      This project relies entirely on the work of researchers, observatories, and catalog maintainers who have spent careers building the datasets that make a visualization like this possible.
+    </p>
+    <p>
+      Special thanks to the teams behind the <strong style="color:var(--text)">ATNF Pulsar Catalogue</strong> (Manchester et al.), the <strong style="color:var(--text)">McGill Magnetar Catalogue</strong>, the <strong style="color:var(--text)">SIMBAD Astronomical Database</strong>, and to <strong style="color:var(--text)">Andrea De Luca</strong> for the comprehensive review of Central Compact Objects that formed the basis of the CCO dataset used here.
+    </p>
+    <p>
+      Distance measurements for the Magnificent Seven are derived from the astrometric analysis of Motch et al. (2007), which provided the most complete compiled parallax data available for this group.
+    </p>
+    <p>
+      See the <a href="data-sources.html">Data Sources</a> page for full references and links.
+    </p>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-label">Technology</div>
+    <div class="section-title">Built with</div>
+    <p>The data pipeline is written in Python. The frontend runs entirely in the browser with no backend required.</p>
+    <div class="stack-list">
+      <span class="stack-tag">Python</span>
+      <span class="stack-tag">Pandas</span>
+      <span class="stack-tag">Astropy</span>
+      <span class="stack-tag">psrqpy</span>
+      <span class="stack-tag">scikit-learn</span>
+      <span class="stack-tag">Three.js</span>
+      <span class="stack-tag">HTML / CSS / JS</span>
+      <span class="stack-tag">GitHub Pages</span>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-label">Contact</div>
+    <div class="section-title">Get in touch</div>
+    <p>Have a suggestion, found an error, or want to contribute data or code? All feedback is welcome.</p>
+    <div class="contact-box">
+      <div class="contact-email">
+        <a href="mailto:seraco.nsproj@gmail.com">seraco.nsproj@gmail.com</a>
+      </div>
+      <div class="contact-note">
+        Feel free to reach out with bug reports, suggestions for new catalogs, corrections to existing data, or just to say hello. This is a personal project built out of curiosity any contribution, however small, is appreciated.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Neutron Star Project · <a href="faq.html">FAQ</a> · <a href="data-sources.html">Data Sources</a></p>
+</footer>
+
+</body>
+</html>
