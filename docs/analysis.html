@@ -834,9 +834,6 @@ function drawHeatmap() {
       }
     };
     canvas.onmouseleave = () => { document.getElementById('ppdot-tooltip').style.display = 'none'; };
-  } else {
-    canvas.onmousemove = null;
-    canvas.onmouseleave = null;
   } else if (heatmapMode === 'hexbin') {
     // Hexbin
     const hexR = 12;
@@ -932,6 +929,8 @@ function drawHeatmap() {
       tmpCanvas.getContext('2d').putImageData(imgData, 0, 0);
       ctx.drawImage(tmpCanvas, PAD.left, PAD.top, plotW, plotH);
     }
+    canvas.onmousemove = null;
+    canvas.onmouseleave = null;
   }
   const sunX = toX(-8.122), sunY = toY(0.02);
   ctx.fillStyle = '#FFD700';
