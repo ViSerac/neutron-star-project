@@ -756,9 +756,9 @@ function typeToKey(type) {
 function drawHeatmap() {
   const canvas = document.getElementById('heatmap-canvas');
   const ctx = canvas.getContext('2d');
-  const W = canvas.parentElement.offsetWidth || 800;
+  const W = Math.min(canvas.parentElement.offsetWidth || 700, 700);
   canvas.width = W;
-  canvas.height = 600;
+  canvas.height = W;
   const H = canvas.height;
 
   const PAD = { top: 20, right: 20, bottom: 48, left: 56 };
@@ -906,8 +906,10 @@ function drawHeatmap() {
     if (n === 0) { ctx.fillStyle='#7a8299'; ctx.font='12px Space Mono,monospace'; ctx.textAlign='center'; ctx.fillText('No data', PAD.left+plotW/2, PAD.top+plotH/2); }
     else {
       // Silverman bandwidth
-      const stdX = Math.sqrt(xs.reduce((s,v)=>s+(v-xs.reduce((a,b)=>a+b)/n)**2,0)/n);
-      const stdY = Math.sqrt(ys.reduce((s,v)=>s+(v-ys.reduce((a,b)=>a+b)/n)**2,0)/n);
+      const meanX = xs.reduce((a,b) => a+b, 0) / n;
+      const meanY = ys.reduce((a,b) => a+b, 0) / n;
+      const stdX = Math.sqrt(xs.reduce((s,v) => s+(v-meanX)**2, 0) / n);
+      const stdY = Math.sqrt(ys.reduce((s,v) => s+(v-meanY)**2, 0) / n);
       const hx = 1.06 * stdX * Math.pow(n, -0.2);
       const hy = 1.06 * stdY * Math.pow(n, -0.2);
 
