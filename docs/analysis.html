@@ -934,11 +934,12 @@ function drawHeatmap() {
 
       const maxVal = Math.max(...grid);
 
-      // Render as image
+      // Render as image — j=0 is top of canvas (yMax), so invert gj
       const imgData = ctx.createImageData(gridN, gridN);
       for (let i = 0; i < gridN; i++) {
         for (let j = 0; j < gridN; j++) {
-          const t = grid[i * gridN + j] / maxVal;
+          const gj = gridN - 1 - j; // invert Y: canvas row 0 = yMax
+          const t = grid[i * gridN + gj] / maxVal;
           const idx = (j * gridN + i) * 4;
           // inferno colormap approximation
           const r = Math.min(255, Math.round(t < 0.5 ? t*2*180 : 180+(t-0.5)*2*75));
