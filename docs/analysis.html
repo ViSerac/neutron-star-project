@@ -455,7 +455,7 @@
       </div>
 
       <div class="chart-wrap">
-        <canvas id="ppdot-canvas" height="520"></canvas>
+        <canvas id="ppdot-canvas" height="260"></canvas>
         <div class="chart-loading" id="ppdot-loading">Loading catalog data...</div>
       </div>
     </div>
@@ -493,7 +493,7 @@
       </div>
 
       <div class="chart-wrap">
-        <canvas id="heatmap-canvas" height="600"></canvas>
+        <canvas id="heatmap-canvas" height="350"></canvas>
         <div class="chart-loading" id="heatmap-loading">Loading catalog data...</div>
       </div>
     </div>
@@ -572,7 +572,7 @@ function toggleIso(key, btn) {
 function drawPPdot() {
   const canvas = document.getElementById('ppdot-canvas');
   const ctx = canvas.getContext('2d');
-  const W = canvas.parentElement.offsetWidth || 800;
+  const W = Math.min(canvas.parentElement.offsetWidth || 600, 600);
   canvas.width = W;
   canvas.height = 260;
   const H = canvas.height;
