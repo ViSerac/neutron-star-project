@@ -244,8 +244,8 @@
     margin-bottom: 24px;
   }
 
-  .chart-wrap.ppdot { max-width: 700px; }
-  .chart-wrap.heatmap { max-width: 500px; }
+  .chart-wrap.ppdot { max-width: 1050px; }
+  .chart-wrap.heatmap { max-width: 750px; }
 
   .chart-wrap canvas {
     display: block;
@@ -577,7 +577,7 @@ function drawPPdot() {
   const ctx = canvas.getContext('2d');
   const content = document.getElementById('content');
   const availW = content.offsetWidth - 64 - 32;
-  const W = Math.min(availW, 700);
+  const W = Math.min(availW, 1050);
   canvas.width = W;
   canvas.height = Math.round(W * 0.5);
   const H = canvas.height;
@@ -763,7 +763,7 @@ function drawHeatmap() {
   const ctx = canvas.getContext('2d');
   const content = document.getElementById('content');
   const availW = content.offsetWidth - 64 - 32; // subtract padding
-  const W = Math.min(availW, 500);
+  const W = Math.min(availW, 750);
   canvas.width = W;
   canvas.height = W;
   const H = canvas.height;
