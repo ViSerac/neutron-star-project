@@ -244,6 +244,9 @@
     margin-bottom: 24px;
   }
 
+  .chart-wrap.ppdot { max-width: 700px; }
+  .chart-wrap.heatmap { max-width: 500px; }
+
   .chart-wrap canvas {
     display: block;
     width: 100%;
@@ -454,8 +457,8 @@
         <div class="iso-item"><div class="iso-line" style="background:#9ca3af"></div>Death line</div>
       </div>
 
-      <div class="chart-wrap">
-        <canvas id="ppdot-canvas" height="260"></canvas>
+      <div class="chart-wrap ppdot">
+        <canvas id="ppdot-canvas"></canvas>
         <div class="chart-loading" id="ppdot-loading">Loading catalog data...</div>
       </div>
     </div>
@@ -492,8 +495,8 @@
         </div>
       </div>
 
-      <div class="chart-wrap">
-        <canvas id="heatmap-canvas" height="350"></canvas>
+      <div class="chart-wrap heatmap">
+        <canvas id="heatmap-canvas"></canvas>
         <div class="chart-loading" id="heatmap-loading">Loading catalog data...</div>
       </div>
     </div>
@@ -572,9 +575,10 @@ function toggleIso(key, btn) {
 function drawPPdot() {
   const canvas = document.getElementById('ppdot-canvas');
   const ctx = canvas.getContext('2d');
-  const W = Math.min(canvas.parentElement.offsetWidth || 600, 600);
+  const W = canvas.parentElement.offsetWidth || 800;
   canvas.width = W;
-  canvas.height = 260;
+  canvas.height = Math.round(W * 0.5);
+  const H = canvas.height;
   const H = canvas.height;
 
   const PAD = { top: 24, right: 32, bottom: 52, left: 62 };
@@ -756,7 +760,7 @@ function typeToKey(type) {
 function drawHeatmap() {
   const canvas = document.getElementById('heatmap-canvas');
   const ctx = canvas.getContext('2d');
-  const W = Math.min(canvas.parentElement.offsetWidth || 350, 350);
+  const W = canvas.parentElement.offsetWidth || 600;
   canvas.width = W;
   canvas.height = W;
   const H = canvas.height;
