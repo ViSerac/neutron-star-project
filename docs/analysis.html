@@ -574,7 +574,7 @@ function drawPPdot() {
   const ctx = canvas.getContext('2d');
   const W = canvas.parentElement.offsetWidth || 800;
   canvas.width = W;
-  canvas.height = 520;
+  canvas.height = 260;
   const H = canvas.height;
 
   const PAD = { top: 24, right: 32, bottom: 52, left: 62 };
@@ -756,7 +756,7 @@ function typeToKey(type) {
 function drawHeatmap() {
   const canvas = document.getElementById('heatmap-canvas');
   const ctx = canvas.getContext('2d');
-  const W = Math.min(canvas.parentElement.offsetWidth || 700, 700);
+  const W = Math.min(canvas.parentElement.offsetWidth || 350, 350);
   canvas.width = W;
   canvas.height = W;
   const H = canvas.height;
@@ -913,35 +913,30 @@ function drawHeatmap() {
       const hx = 1.06 * stdX * Math.pow(n, -0.2);
       const hy = 1.06 * stdY * Math.pow(n, -0.2);
 
-      // Build grid
+      // Build grid — row j=0 = yMax (top of canvas), col i=0 = xMin (left)
       const grid = new Float32Array(gridN * gridN);
-      const gxStep = (xMax - xMin) / gridN;
-      const gyStep = (yMax - yMin) / gridN;
-
-      for (let gi = 0; gi < gridN; gi++) {
-        const gx = xMin + (gi + 0.5) * gxStep;
-        for (let gj = 0; gj < gridN; gj++) {
-          const gy = yMin + (gj + 0.5) * gyStep;
+      for (let row = 0; row < gridN; row++) {
+        const gy = yMax - (row + 0.5) * (yMax - yMin) / gridN; // top=yMax, bottom=yMin
+        for (let col = 0; col < gridN; col++) {
+          const gx = xMin + (col + 0.5) * (xMax - xMin) / gridN;
           let val = 0;
           for (let k = 0; k < n; k++) {
             const dx = (gx - xs[k]) / hx;
             const dy = (gy - ys[k]) / hy;
             val += Math.exp(-0.5*(dx*dx+dy*dy));
           }
-          grid[gi * gridN + gj] = val;
+          grid[row * gridN + col] = val;
         }
       }
 
       const maxVal = Math.max(...grid);
 
-      // Render as image — j=0 is top of canvas (yMax), so invert gj
+      // Render — grid[row*gridN+col] maps directly to canvas pixel (col, row)
       const imgData = ctx.createImageData(gridN, gridN);
-      for (let i = 0; i < gridN; i++) {
-        for (let j = 0; j < gridN; j++) {
-          const gj = gridN - 1 - j; // invert Y: canvas row 0 = yMax
-          const t = grid[i * gridN + gj] / maxVal;
-          const idx = (j * gridN + i) * 4;
-          // inferno colormap approximation
+      for (let row = 0; row < gridN; row++) {
+        for (let col = 0; col < gridN; col++) {
+          const t = grid[row * gridN + col] / maxVal;
+          const idx = (row * gridN + col) * 4;
           const r = Math.min(255, Math.round(t < 0.5 ? t*2*180 : 180+(t-0.5)*2*75));
           const g = Math.min(255, Math.round(t < 0.5 ? t*2*30 : 30+(t-0.5)*2*180));
           const b = Math.min(255, Math.round(t < 0.25 ? t*4*150 : t < 0.5 ? 150-(t-0.25)*4*120 : t < 0.75 ? 30 : (t-0.75)*4*10));
