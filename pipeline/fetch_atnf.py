@@ -1,6 +1,9 @@
 from psrqpy import QueryATNF
 import pandas as pd
 import numpy as np
+import os, pathlib
+
+os.chdir(pathlib.Path(__file__).parent)
 
 def fetch_atnf_data(output_path = "../data/atnf_raw.parquet"):
     query = QueryATNF(params=[
