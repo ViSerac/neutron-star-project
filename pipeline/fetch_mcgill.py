@@ -1,4 +1,7 @@
 import pandas as pd
+import os, pathlib
+
+os.chdir(pathlib.Path(__file__).parent)
 
 mcgill_csv = "https://www.physics.mcgill.ca/~pulsar/magnetar/TabO1.csv"
 output_path = "../data/mcgill_raw.parquet"
