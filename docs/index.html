@@ -531,6 +531,7 @@
     <a href="index.html" class="active">Visualizer</a>
     <a href="import-export.html">Import / Export</a>
     <a href="analysis.html">Analysis</a>
+    <a href="catalog.html">The Catalog</a>
     <a href="faq.html">FAQ</a>
     <a href="about.html">About</a>
     <a href="data-sources.html">Data Sources</a>
@@ -567,9 +568,12 @@
   </div>
 
   <div id="selected-card">
-    <div>
-      <div class="card-name" id="card-name"></div>
-      <span class="card-badge" id="card-badge"></span>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      <div>
+        <div class="card-name" id="card-name"></div>
+        <span class="card-badge" id="card-badge"></span>
+      </div>
+      <button onclick="closeCard()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;line-height:1;padding:2px;flex-shrink:0;transition:color 0.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
     </div>
     <div class="card-grid">
       <div class="card-field">
@@ -960,6 +964,14 @@ function selectStar(idx) {
     highlightMesh.position.set(s.x, s.z, -s.y);
     highlightMesh.visible = true;
   }
+}
+
+function closeCard() {
+  document.getElementById('selected-card').classList.remove('visible');
+  selectedIdx = null;
+  if (highlightMesh) highlightMesh.visible = false;
+  if (label) label.setData({ text: '' });
+  document.querySelectorAll('.star-item').forEach(el => el.classList.remove('selected'));
 }
 
 document.getElementById('copy-coords').addEventListener('click', () => {

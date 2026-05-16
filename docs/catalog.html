@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-WGGNJP9C4F");
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Catalog | Neutron Star Project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #05070f;
+    --bg2: #0a0e1a;
+    --bg3: #0f1525;
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0,212,255,0.12);
+    --text: #e8eaf2;
+    --text-dim: #7a8299;
+    --border: rgba(0,212,255,0.12);
+    --top-h: 56px;
+    --red: #ff4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+  }
+
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--top-h);
+    background: rgba(5,7,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 100;
+    gap: 32px;
+  }
+
+  #logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  #logo span { color: var(--text-dim); font-weight: 400; }
+
+  nav { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  nav a:hover, nav a.active { color: var(--cyan); background: var(--cyan-dim); }
+
+  main {
+    padding: calc(var(--top-h) + 32px) 24px 60px;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .page-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    line-height: 1.7;
+  }
+
+  /* controls */
+  .controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  #search {
+    flex: 1;
+    min-width: 240px;
+    max-width: 480px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #search:focus { border-color: var(--cyan); }
+  #search::placeholder { color: var(--text-dim); }
+
+  .cat-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .cat-chip.active { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-dim); }
+
+  .stats-row {
+    display: flex;
+    gap: 24px;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .stats-row strong { color: var(--cyan); }
+
+  /* table wrapper */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: max-content;
+    min-width: 100%;
+    font-size: 10px;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  th {
+    background: var(--bg3);
+    color: var(--text-dim);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid rgba(0,212,255,0.06);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  th:hover { color: var(--cyan); background: var(--bg2); }
+  th.sort-asc::after { content: " ↑"; color: var(--cyan); }
+  th.sort-desc::after { content: " ↓"; color: var(--cyan); }
+
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    border-right: 1px solid rgba(0,212,255,0.04);
+    white-space: nowrap;
+    color: var(--text-dim);
+  }
+
+  td.primary { color: var(--text); }
+  td.cyan { color: var(--cyan); font-weight: 700; }
+  td.err { color: #7a8299; font-size: 9px; }
+  td.lim { color: #fb923c; font-size: 9px; }
+  td.ref { color: #7a5299; font-size: 9px; }
+
+  tr:hover td { background: rgba(0,212,255,0.03); }
+
+  .badge {
+    display: inline-block;
+    font-size: 8px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .badge-atnf { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+  .badge-mcgill { background: rgba(255,77,26,0.15); color: #ff4d1a; border: 1px solid rgba(255,77,26,0.3); }
+  .badge-m7 { background: rgba(0,212,255,0.15); color: var(--cyan); border: 1px solid rgba(0,212,255,0.3); }
+  .badge-cco { background: rgba(176,109,255,0.15); color: #b06dff; border: 1px solid rgba(176,109,255,0.3); }
+
+  .null-cell { color: rgba(122,130,153,0.3); font-size: 9px; }
+
+  /* pagination */
+  .pagination {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .pg-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .pg-btn:hover { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-dim); }
+  .pg-btn.active { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-dim); }
+  .pg-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .pg-info { font-size: 10px; color: var(--text-dim); padding: 0 8px; }
+
+  /* loading */
+  #loading-msg {
+    text-align: center;
+    padding: 60px;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Cookie Banner */
+  #cookie-banner {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10,14,26,0.97);
+    border-top: 1px solid rgba(0,212,255,0.2);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    z-index: 9999;
+    font-family: Space Mono, monospace;
+    font-size: 10px;
+    color: #7a8299;
+    flex-wrap: wrap;
+  }
+
+  #cookie-banner.hidden { display: none; }
+  #cookie-banner a { color: #00d4ff; text-decoration: none; }
+
+  .cookie-btn {
+    font-family: Space Mono, monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .cookie-accept { background: rgba(0,212,255,0.15); border: 1px solid #00d4ff; color: #00d4ff; }
+  .cookie-accept:hover { background: rgba(0,212,255,0.3); }
+  .cookie-decline { background: transparent; border: 1px solid rgba(122,130,153,0.3); color: #7a8299; }
+  .cookie-decline:hover { color: #e8eaf2; border-color: #7a8299; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <nav>
+    <a href="index.html">Visualizer</a>
+    <a href="import-export.html">Import / Export</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="catalog.html" class="active">The Catalog</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html">About</a>
+    <a href="data-sources.html">Data Sources</a>
+  </nav>
+</div>
+
+<main>
+  <div class="page-title">The Catalog</div>
+  <div class="page-sub">
+    Complete unified table from ATNF and McGill catalogs. All available parameters included. Regex supported in search.
+  </div>
+
+  <div class="controls">
+    <input id="search" type="text" placeholder="Search all columns (regex supported)..." autocomplete="off">
+    <button class="cat-chip active" data-cat="ATNF" onclick="toggleCat(this)">ATNF</button>
+    <button class="cat-chip active" data-cat="McGill" onclick="toggleCat(this)">McGill</button>
+  </div>
+
+  <div class="stats-row">
+    <span>Showing <strong id="stat-showing">0</strong> of <strong id="stat-total">0</strong> objects</span>
+    <span>Page <strong id="stat-page">1</strong> of <strong id="stat-pages">1</strong></span>
+    <span id="sort-info" style="color:var(--text-dim)"></span>
+  </div>
+
+  <div id="loading-msg">Loading catalog data...</div>
+
+  <div class="table-wrap" id="table-wrap" style="display:none">
+    <table id="catalog-table">
+      <thead id="thead"></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</main>
+
+<div id="cookie-banner">
+  <span>This site uses Google Analytics to collect anonymous usage data. No personal information is stored. See our <a href="about.html">About</a> page for contact.</span>
+  <div style="display:flex;gap:8px;flex-shrink:0">
+    <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
+    <button class="cookie-btn cookie-accept" onclick="cookieAccept()">Accept</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────
+const DATA_URL = 'data/NS_catalog_full.json';
+const PAGE_SIZE = 100;
+
+const COLUMNS = [
+  { key: 'NS_NAME',    label: 'Name',       cls: 'cyan'    },
+  { key: 'source_catalog', label: 'Catalog', cls: 'primary' },
+  { key: 'RAJ',        label: 'RAJ',        cls: 'primary' },
+  { key: 'RAJ_ERR',   label: 'RAJ_ERR',    cls: 'err'     },
+  { key: 'DECJ',       label: 'DECJ',       cls: 'primary' },
+  { key: 'DECJ_ERR',  label: 'DECJ_ERR',   cls: 'err'     },
+  { key: 'DIST',       label: 'DIST (kpc)', cls: 'primary' },
+  { key: 'Dist_lim',  label: 'DIST_lim',   cls: 'lim'     },
+  { key: 'Dist_EUp',  label: 'DIST_EUp',   cls: 'err'     },
+  { key: 'Dist_EDn',  label: 'DIST_EDn',   cls: 'err'     },
+  { key: 'Ref_Dist',  label: 'Ref_Dist',   cls: 'ref'     },
+  { key: 'P',          label: 'P (s)',      cls: 'primary' },
+  { key: 'P_ERR',     label: 'P_ERR',      cls: 'err'     },
+  { key: 'PDOT',       label: 'PDOT',       cls: 'primary' },
+  { key: 'PDOT_ERR',  label: 'PDOT_ERR',   cls: 'err'     },
+  { key: 'Pdot_lim',  label: 'PDOT_lim',   cls: 'lim'     },
+  { key: 'B',          label: 'B (G)',      cls: 'primary' },
+  { key: 'B_lim',     label: 'B_lim',      cls: 'lim'     },
+  { key: 'Age',        label: 'Age (yr)',   cls: 'primary' },
+  { key: 'Age_lim',   label: 'Age_lim',    cls: 'lim'     },
+  { key: 'Edot',       label: 'Edot',       cls: 'primary' },
+  { key: 'Edot_lim',  label: 'Edot_lim',   cls: 'lim'     },
+  { key: 'Flux',       label: 'Flux',       cls: 'primary' },
+  { key: 'Flux_lim',  label: 'Flux_lim',   cls: 'lim'     },
+  { key: 'Flux_EUp',  label: 'Flux_EUp',   cls: 'err'     },
+  { key: 'Flux_EDn',  label: 'Flux_EDn',   cls: 'err'     },
+  { key: 'Ref_Xray',  label: 'Ref_Xray',   cls: 'ref'     },
+  { key: 'NH',         label: 'NH',         cls: 'primary' },
+  { key: 'NH_EUp',    label: 'NH_EUp',     cls: 'err'     },
+  { key: 'NH_EDn',    label: 'NH_EDn',     cls: 'err'     },
+  { key: 'Gamma',      label: 'Gamma',      cls: 'primary' },
+  { key: 'Gamma_EUp', label: 'Gamma_EUp',  cls: 'err'     },
+  { key: 'Gamma_EDn', label: 'Gamma_EDn',  cls: 'err'     },
+  { key: 'kT',         label: 'kT (keV)',   cls: 'primary' },
+  { key: 'kT_EUp',    label: 'kT_EUp',     cls: 'err'     },
+  { key: 'kT_EDn',    label: 'kT_EDn',     cls: 'err'     },
+  { key: 'kT2',        label: 'kT2',        cls: 'primary' },
+  { key: 'kT2_EUp',   label: 'kT2_EUp',    cls: 'err'     },
+  { key: 'kT2_EDn',   label: 'kT2_EDn',    cls: 'err'     },
+  { key: 'Lumin',      label: 'Lumin',      cls: 'primary' },
+  { key: 'Assoc',      label: 'Assoc',      cls: 'primary' },
+  { key: 'Ref_Assoc', label: 'Ref_Assoc',  cls: 'ref'     },
+  { key: 'OptIR',      label: 'OptIR',      cls: 'primary' },
+  { key: 'Bands',      label: 'Bands',      cls: 'primary' },
+  { key: 'Activity',   label: 'Activity',   cls: 'primary' },
+  { key: 'Ref_Time',  label: 'Ref_Time',   cls: 'ref'     },
+  { key: 'Ref_Pos',   label: 'Ref_Pos',    cls: 'ref'     },
+];
+
+// ── STATE ─────────────────────────────────────────────────
+let allData = [];
+let filtered = [];
+let currentPage = 1;
+let sortCol = null;
+let sortDir = 1;
+let activeCats = new Set(['ATNF', 'McGill']);
+
+// ── INIT ──────────────────────────────────────────────────
+async function init() {
+  const res = await fetch(DATA_URL);
+  allData = await res.json();
+  document.getElementById('loading-msg').style.display = 'none';
+  document.getElementById('table-wrap').style.display = 'block';
+  buildHeader();
+  applyFilters();
+
+  const consent = localStorage.getItem('nsp_cookie_consent');
+  if (consent) document.getElementById('cookie-banner').classList.add('hidden');
+}
+
+// ── HEADER ────────────────────────────────────────────────
+function buildHeader() {
+  const thead = document.getElementById('thead');
+  const tr = document.createElement('tr');
+  COLUMNS.forEach(col => {
+    const th = document.createElement('th');
+    th.textContent = col.label;
+    th.dataset.key = col.key;
+    th.addEventListener('click', () => sortBy(col.key, th));
+    tr.appendChild(th);
+  });
+  thead.appendChild(tr);
+}
+
+// ── FILTER ────────────────────────────────────────────────
+function applyFilters() {
+  const q = document.getElementById('search').value.trim();
+  let pattern = null;
+  if (q) {
+    try { pattern = new RegExp(q, 'i'); } catch {
+      pattern = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    }
+  }
+
+  filtered = allData.filter(r => {
+    if (!activeCats.has(r.source_catalog)) return false;
+    if (!pattern) return true;
+    return Object.values(r).some(v => v != null && pattern.test(String(v)));
+  });
+
+  if (sortCol) {
+    filtered.sort((a, b) => {
+      const av = a[sortCol], bv = b[sortCol];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      return (av < bv ? -1 : av > bv ? 1 : 0) * sortDir;
+    });
+  }
+
+  currentPage = 1;
+  render();
+}
+
+function toggleCat(btn) {
+  const cat = btn.dataset.cat;
+  if (activeCats.has(cat)) { activeCats.delete(cat); btn.classList.remove('active'); }
+  else { activeCats.add(cat); btn.classList.add('active'); }
+  applyFilters();
+}
+
+// ── SORT ──────────────────────────────────────────────────
+function sortBy(key, th) {
+  if (sortCol === key) { sortDir *= -1; }
+  else { sortCol = key; sortDir = 1; }
+
+  document.querySelectorAll('th').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
+  th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+
+  document.getElementById('sort-info').textContent = `Sorted by ${key} ${sortDir === 1 ? '↑' : '↓'}`;
+  applyFilters();
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function render() {
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  currentPage = Math.min(currentPage, totalPages);
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageData = filtered.slice(start, start + PAGE_SIZE);
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  pageData.forEach(row => {
+    const tr = document.createElement('tr');
+    COLUMNS.forEach(col => {
+      const td = document.createElement('td');
+      const val = row[col.key];
+
+      if (col.key === 'source_catalog') {
+        const cls = val === 'ATNF' ? 'badge-atnf' : val === 'McGill' ? 'badge-mcgill' : 'badge-m7';
+        td.innerHTML = `<span class="badge ${cls}">${val}</span>`;
+      } else if (val == null) {
+        td.innerHTML = '<span class="null-cell">—</span>';
+      } else if (col.key === 'NS_NAME') {
+        td.className = col.cls;
+        td.textContent = val;
+      } else if (typeof val === 'number') {
+        td.className = col.cls;
+        td.textContent = Math.abs(val) < 0.001 || Math.abs(val) >= 1e6
+          ? val.toExponential(3)
+          : parseFloat(val.toPrecision(5));
+      } else {
+        td.className = col.cls;
+        td.textContent = val;
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  // Stats
+  document.getElementById('stat-showing').textContent = filtered.length.toLocaleString();
+  document.getElementById('stat-total').textContent = allData.length.toLocaleString();
+  document.getElementById('stat-page').textContent = currentPage;
+  document.getElementById('stat-pages').textContent = totalPages;
+
+  renderPagination(totalPages);
+}
+
+// ── PAGINATION ────────────────────────────────────────────
+function renderPagination(totalPages) {
+  const pg = document.getElementById('pagination');
+  pg.innerHTML = '';
+
+  function btn(label, page, disabled, active) {
+    const b = document.createElement('button');
+    b.className = 'pg-btn' + (active ? ' active' : '');
+    b.textContent = label;
+    b.disabled = disabled;
+    if (!disabled) b.addEventListener('click', () => { currentPage = page; render(); window.scrollTo(0,0); });
+    return b;
+  }
+
+  pg.appendChild(btn('« First', 1, currentPage === 1));
+  pg.appendChild(btn('‹ Prev', currentPage - 1, currentPage === 1));
+
+  const span = document.createElement('span');
+  span.className = 'pg-info';
+  span.textContent = `${currentPage} / ${totalPages}`;
+  pg.appendChild(span);
+
+  // Window of pages
+  const window_size = 5;
+  let start = Math.max(1, currentPage - 2);
+  let end = Math.min(totalPages, start + window_size - 1);
+  if (end - start < window_size - 1) start = Math.max(1, end - window_size + 1);
+
+  for (let p = start; p <= end; p++) {
+    pg.appendChild(btn(p, p, false, p === currentPage));
+  }
+
+  pg.appendChild(btn('Next ›', currentPage + 1, currentPage === totalPages));
+  pg.appendChild(btn('Last »', totalPages, currentPage === totalPages));
+}
+
+// ── SEARCH ────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', applyFilters);
+
+// ── COOKIE ────────────────────────────────────────────────
+function cookieAccept() {
+  localStorage.setItem('nsp_cookie_consent', 'accepted');
+  window['ga-disable-G-WGGNJP9C4F'] = false;
+  document.getElementById('cookie-banner').classList.add('hidden');
+  gtag('consent', 'update', { analytics_storage: 'granted' });
+}
+
+function cookieDecline() {
+  localStorage.setItem('nsp_cookie_consent', 'declined');
+  window['ga-disable-G-WGGNJP9C4F'] = true;
+  document.getElementById('cookie-banner').classList.add('hidden');
+}
+
+// ── START ─────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
