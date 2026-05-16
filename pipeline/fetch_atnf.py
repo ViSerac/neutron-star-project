@@ -26,6 +26,7 @@ def fetch_atnf_data():
  
     output_path = DATA_DIR / "atnf_raw.parquet"
     df.to_parquet(output_path, index=False)
+    print(f"fetch len ATNF: {len(df)}")
     print(f"Saved raw ATNF data to {output_path}")
  
  
