@@ -317,16 +317,25 @@ async function init() {
 
   buildSidebar();
 
-  const res = await fetch(DATA_URL);
-  const json = await res.json();
+  try {
+    const res = await fetch(DATA_URL, { cache: 'no-store' });
+    const json = await res.json();
 
-  if (Array.isArray(json)) {
-    allData = json;
-  } else {
-    allData = json.records;
-    if (json.updated_at) {
-      document.getElementById('updated-at').textContent = `Last updated: ${json.updated_at}`;
+    const payload = Array.isArray(json) ? { records: json } : json;
+    allData = payload.records ?? [];
+
+    const updatedAt = payload.updated_at || payload.last_updated || null;
+    const updatedAtEl = document.getElementById('updated-at');
+    if (updatedAt) {
+      updatedAtEl.textContent = `Last updated: ${updatedAt}`;
+    } else {
+      updatedAtEl.textContent = 'Last updated: unavailable';
     }
+  } catch (err) {
+    console.error('Failed to load catalog data:', err);
+    document.getElementById('updated-at').textContent = 'Last updated: unavailable';
+    document.getElementById('loading-msg').textContent = 'Failed to load catalog data.';
+    return;
   }
 
   document.getElementById('loading-msg').style.display = 'none';
