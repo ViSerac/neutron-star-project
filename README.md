@@ -65,7 +65,7 @@ The heatmap analysis requires `analysis/milkyway-full.webp`, a top-down infrared
 If you use this project in your work, please cite:
 
 ```
-Victor Seraco. Neutron Star Project (2025). https://github.com/ViSerac/neutron-star-project
+Victor Seraco. Neutron Star Project (2026). https://github.com/ViSerac/neutron-star-project
 ```
 
 ---
