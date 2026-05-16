@@ -8,7 +8,7 @@ def concat_df_atnf():
     df_extragalactic = pd.read_parquet(DATA_DIR / "atnf_processed_extragalactic.parquet")
     df_galactic = pd.read_parquet(DATA_DIR / "atnf_processed_galactic.parquet")
     df_final = pd.concat([df_galactic, df_extragalactic], ignore_index=True)
-    df_final.to_parquet(DATA_DIR / "atnf_full.parquet", index=False)  
+    df_final.to_parquet(DATA_DIR / "atnf_full.parquet", index=False)
     
 def concat_df_mcgill():
     df_extragalactic = pd.read_parquet(DATA_DIR / "mcgill_processed_extragalactic.parquet")

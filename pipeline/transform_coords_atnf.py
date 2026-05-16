@@ -42,7 +42,6 @@ def convert_to_cartesian_galactic(
     df_galactic["wiki_url"] = df_galactic["NS_NAME"].apply(lambda name: f"https://en.wikipedia.org/wiki/{name}")
     
     df_galactic.to_parquet(output_path, index=False)
-    
     # print(df_galactic["z"].describe())
     # print(df_galactic[["x", "y", "z"]].head())
     # print(df_galactic["DIST"].describe())
