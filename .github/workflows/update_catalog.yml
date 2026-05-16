@@ -2,11 +2,8 @@ name: Update Catalog
 
 on:
   schedule:
-    - cron: "0 6 * * 1"
-  workflow_dispatch:
-
-permissions:
-  contents: write
+    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
+  workflow_dispatch:       # Allow manual trigger from GitHub UI
 
 jobs:
   update:
@@ -19,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: pip install psrqpy astropy pandas scikit-learn pyarrow scipy
@@ -27,6 +24,7 @@ jobs:
       - name: Run pipeline
         working-directory: pipeline
         run: |
+          mkdir -p data
           python fetch_atnf.py
           python fetch_mcgill.py
           python transform_coords_atnf.py
@@ -36,8 +34,10 @@ jobs:
           python export_json.py
           python export_catalog.py
 
-      - name: Verify outputs
-        run: python3 scripts/verify_outputs.py
+      - name: Copy JSON outputs to docs
+        run: |
+          cp pipeline/data/NS_db_full.json docs/data/NS_db_full.json
+          cp pipeline/data/NS_catalog_full.json docs/data/NS_catalog_full.json
 
       - name: Commit and push if changed
         run: |

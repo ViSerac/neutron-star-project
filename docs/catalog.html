@@ -187,11 +187,8 @@
   <!-- Main -->
   <div id="content">
     <div class="page-title">The Catalog</div>
-    <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:4px">
-      <div class="page-sub" style="margin-bottom:0">
-        Unified table from ATNF and McGill. Toggle columns in the sidebar. Regex supported in search.
-      </div>
-      <span id="updated-at" style="font-size:9px;color:var(--text-dim);opacity:0.6;white-space:nowrap;letter-spacing:0.08em"></span>
+    <div class="page-sub">
+      Unified table from ATNF and McGill. Toggle columns in the sidebar. Regex supported in search.
     </div>
 
     <div class="controls">
@@ -317,27 +314,8 @@ async function init() {
 
   buildSidebar();
 
-  try {
-    const res = await fetch(DATA_URL, { cache: 'no-store' });
-    const json = await res.json();
-
-    const payload = Array.isArray(json) ? { records: json } : json;
-    allData = payload.records ?? [];
-
-    const updatedAt = payload.updated_at || payload.last_updated || null;
-    const updatedAtEl = document.getElementById('updated-at');
-    if (updatedAt) {
-      updatedAtEl.textContent = `Last updated: ${updatedAt}`;
-    } else {
-      updatedAtEl.textContent = 'Last updated: unavailable';
-    }
-  } catch (err) {
-    console.error('Failed to load catalog data:', err);
-    document.getElementById('updated-at').textContent = 'Last updated: unavailable';
-    document.getElementById('loading-msg').textContent = 'Failed to load catalog data.';
-    return;
-  }
-
+  const res = await fetch(DATA_URL);
+  allData = await res.json();
   document.getElementById('loading-msg').style.display = 'none';
   document.getElementById('table-wrap').style.display = 'block';
   buildHeader();

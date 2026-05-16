@@ -2,15 +2,11 @@ import pandas as pd
 import numpy as np
 from astropy.coordinates import SkyCoord, Galactocentric
 from astropy import units as u
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
 
 def convert_to_cartesian_galactic():
-    input_path = DATA_DIR / "mcgill_raw.parquet"
-    output_path = DATA_DIR / "mcgill_processed_galactic.parquet"
-
+    input_path = "../data/mcgill_raw.parquet"
+    output_path = "../data/mcgill_processed_galactic.parquet"
+    
     df_galactic = pd.read_parquet(input_path)
     df_galactic = df_galactic.dropna(subset=["RAJ", "DECJ", "DIST"])
     
@@ -49,9 +45,9 @@ def convert_to_cartesian_galactic():
     print(f"Saved processed data to {output_path}")
 
 def convert_to_cartesian_extragalactic():
-    input_path = DATA_DIR / "mcgill_raw.parquet"
-    output_path = DATA_DIR / "mcgill_processed_extragalactic.parquet"
-
+    input_path = "../data/mcgill_raw.parquet"
+    output_path = "../data/mcgill_processed_extragalactic.parquet"
+    
     df_extragalactic = pd.read_parquet(input_path)
     df_extragalactic = df_extragalactic.dropna(subset=["RAJ", "DECJ", "DIST"])
     

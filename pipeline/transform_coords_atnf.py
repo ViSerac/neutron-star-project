@@ -3,14 +3,10 @@ import numpy as np
 from astropy.coordinates import SkyCoord, Galactocentric
 from astropy import units as u
 from sklearn.cluster import DBSCAN
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
 
 def convert_to_cartesian_galactic(
-    input_path = DATA_DIR / "atnf_raw.parquet",
-    output_path = DATA_DIR / "atnf_processed_galactic.parquet"
+    input_path = "../data/atnf_raw.parquet",
+    output_path = "../data/atnf_processed_galactic.parquet"
 ):
     df_galactic = pd.read_parquet(input_path)
 
@@ -40,16 +36,17 @@ def convert_to_cartesian_galactic(
     df_galactic["source_catalog"] = "ATNF"
 
     df_galactic["wiki_url"] = df_galactic["NS_NAME"].apply(lambda name: f"https://en.wikipedia.org/wiki/{name}")
-    print(f"Saving galactic to: {output_path} ({len(df_galactic)} records)")
+    
     df_galactic.to_parquet(output_path, index=False)
+    
     # print(df_galactic["z"].describe())
     # print(df_galactic[["x", "y", "z"]].head())
     # print(df_galactic["DIST"].describe())
     print(f"Saved processed data to {output_path}")
 
 def convert_to_cartesian_extragalactic(
-    input_path = DATA_DIR / "atnf_raw.parquet",
-    output_path = DATA_DIR / "atnf_processed_extragalactic.parquet"
+    input_path = "../data/atnf_raw.parquet",
+    output_path = "../data/atnf_processed_extragalactic.parquet"
 ):
     df_extragalactic = pd.read_parquet(input_path)
 
@@ -91,7 +88,7 @@ def convert_to_cartesian_extragalactic(
     df_extragalactic["source_catalog"] = "ATNF"
 
     df_extragalactic["wiki_url"] = df_extragalactic["NS_NAME"].apply(lambda name: f"https://en.wikipedia.org/wiki/{name}")
-    print(f"Saving extragalactic to: {output_path} ({len(df_extragalactic)} records)")
+    
     df_extragalactic.to_parquet(output_path, index=False)
     
     # print(set(labels))
