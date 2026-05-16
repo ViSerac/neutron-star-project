@@ -26,9 +26,10 @@ def concat_all():
     atnf = pd.read_parquet(DATA_DIR / "atnf_full.parquet")
     mcgill = pd.read_parquet(DATA_DIR / "mcgill_full.parquet")
     m7_and_cco = pd.read_parquet(DATA_DIR / "m7_and_cco_full.parquet")
+    print(f"ATNF: {len(atnf)} | McGill: {len(mcgill)} | M7+CCO: {len(m7_and_cco)}")
     ns_db = pd.concat([atnf, mcgill, m7_and_cco], ignore_index=True)
     ns_db.to_parquet(DATA_DIR / "NS_db_full.parquet", index=False)
-    print("Concat successful")
+    print(f"Concat successful: {len(ns_db)} total records")
     
 if __name__ == "__main__":
     concat_df_atnf()
