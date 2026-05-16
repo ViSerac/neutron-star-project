@@ -8,6 +8,7 @@ import pandas as pd
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 SITE_DATA_DIR = BASE_DIR.parent / "docs" / "data"
+SITE_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 INPUT_FILE = DATA_DIR / "NS_db_full.parquet"
 OUTPUT_FILE = SITE_DATA_DIR / "NS_db_full.json"

@@ -9,6 +9,7 @@ import pandas as pd
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 SITE_DATA_DIR = BASE_DIR.parent / "docs" / "data"
+SITE_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 ATNF_PATH = DATA_DIR / "atnf_raw.parquet"
 MCGILL_PATH = DATA_DIR / "mcgill_raw.parquet"
