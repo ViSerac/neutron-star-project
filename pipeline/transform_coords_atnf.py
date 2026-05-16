@@ -40,6 +40,7 @@ def convert_to_cartesian_galactic(
     df_galactic["source_catalog"] = "ATNF"
 
     df_galactic["wiki_url"] = df_galactic["NS_NAME"].apply(lambda name: f"https://en.wikipedia.org/wiki/{name}")
+    print(f"Saving galactic to: {output_path} ({len(df_galactic)} records)")
     df_galactic.to_parquet(output_path, index=False)
     # print(df_galactic["z"].describe())
     # print(df_galactic[["x", "y", "z"]].head())
@@ -90,6 +91,7 @@ def convert_to_cartesian_extragalactic(
     df_extragalactic["source_catalog"] = "ATNF"
 
     df_extragalactic["wiki_url"] = df_extragalactic["NS_NAME"].apply(lambda name: f"https://en.wikipedia.org/wiki/{name}")
+    print(f"Saving extragalactic to: {output_path} ({len(df_extragalactic)} records)")
     df_extragalactic.to_parquet(output_path, index=False)
     
     # print(set(labels))
