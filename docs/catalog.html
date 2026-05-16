@@ -187,8 +187,11 @@
   <!-- Main -->
   <div id="content">
     <div class="page-title">The Catalog</div>
-    <div class="page-sub">
-      Unified table from ATNF and McGill. Toggle columns in the sidebar. Regex supported in search.
+    <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:4px">
+      <div class="page-sub" style="margin-bottom:0">
+        Unified table from ATNF and McGill. Toggle columns in the sidebar. Regex supported in search.
+      </div>
+      <span id="updated-at" style="font-size:9px;color:var(--text-dim);opacity:0.6;white-space:nowrap;letter-spacing:0.08em"></span>
     </div>
 
     <div class="controls">
@@ -315,7 +318,17 @@ async function init() {
   buildSidebar();
 
   const res = await fetch(DATA_URL);
-  allData = await res.json();
+  const json = await res.json();
+
+  if (Array.isArray(json)) {
+    allData = json;
+  } else {
+    allData = json.records;
+    if (json.updated_at) {
+      document.getElementById('updated-at').textContent = `Last updated: ${json.updated_at}`;
+    }
+  }
+
   document.getElementById('loading-msg').style.display = 'none';
   document.getElementById('table-wrap').style.display = 'block';
   buildHeader();
