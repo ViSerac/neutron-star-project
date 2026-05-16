@@ -2,9 +2,13 @@ import pandas as pd
 import numpy as np
 from astropy.coordinates import SkyCoord, Galactocentric
 from astropy import units as u
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
 
 def convert_to_cartesian_m7():
-    output_path = "../data/m7_processed.parquet"
+    output_path = DATA_DIR / "m7_processed.parquet"
     
     m7data = {
         "NS_NAME": ["RX J0720.4-3125", "1RXS J214303.7+065419", "1RXS J130848.6+212708", "RX J1856.5-3754", "RX J1605.3+3249", "RX J0806.4-4123", "RX J0420.0-5022"],
@@ -43,7 +47,7 @@ def convert_to_cartesian_m7():
     print(f"Saved processed data to {output_path}")
     
 def convert_to_carterian_cco():
-    output_path = "../data/cco_processed.parquet"
+    output_path = DATA_DIR / "cco_processed.parquet"
     
     cco_data = {
         "NS_NAME": ["RX J0822.0-4300", "CXOU J085201.4-461753", "1E 1207.4-5209", "CXOU J160103.1-513353", "1WGA J1713.4-3949", "XMMU J172054.5-372652", "CXOU J185238.6+004020", "CXOU J232327.9+584842"],
