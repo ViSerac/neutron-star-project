@@ -24,18 +24,10 @@ jobs:
 
       - name: Run pipeline
         working-directory: pipeline
-        env:
-          PSRCAT_FILE: data/psrcat.db
         run: |
           mkdir -p data
+          python -c "import os; print('CWD:', os.getcwd()); print('data exists:', os.path.exists('data'))"
           python fetch_atnf.py
-          python fetch_mcgill.py
-          python transform_coords_atnf.py
-          python transform_coords_mcgill.py
-          python m7andcco.py
-          python concat_catalogs.py
-          python export_json.py
-          python export_catalog.py
 
       - name: Copy JSON outputs to docs
         run: |
