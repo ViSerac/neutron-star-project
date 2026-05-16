@@ -23,9 +23,11 @@ jobs:
           pip install psrqpy astropy pandas scikit-learn pyarrow scipy
 
       - name: Run pipeline
+        working-directory: pipeline
+        env:
+          PSRCAT_FILE: data/psrcat.db
         run: |
-          mkdir -p pipeline/data
-          cd pipeline
+          mkdir -p data
           python fetch_atnf.py
           python fetch_mcgill.py
           python transform_coords_atnf.py
