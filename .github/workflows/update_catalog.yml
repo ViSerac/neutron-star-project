@@ -2,8 +2,8 @@ name: Update Catalog
 
 on:
   schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
-  workflow_dispatch:       # Allow manual trigger from GitHub UI
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
 
 jobs:
   update:
@@ -16,15 +16,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install psrqpy astropy pandas scikit-learn pyarrow scipy
+        run: |
+          pip install \
+            psrqpy \
+            astropy \
+            pandas \
+            scikit-learn \
+            pyarrow \
+            scipy
 
       - name: Run pipeline
         working-directory: pipeline
         run: |
-          mkdir -p data
           python fetch_atnf.py
           python fetch_mcgill.py
           python transform_coords_atnf.py
@@ -34,15 +40,15 @@ jobs:
           python export_json.py
           python export_catalog.py
 
-      - name: Copy JSON outputs to docs
-        run: |
-          cp pipeline/data/NS_db_full.json docs/data/NS_db_full.json
-          cp pipeline/data/NS_catalog_full.json docs/data/NS_catalog_full.json
-
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/NS_db_full.json docs/data/NS_catalog_full.json
+
+          git add \
+            site/data/NS_db_full.json \
+            site/data/NS_catalog_full.json
+
           git diff --cached --quiet || git commit -m "auto: update catalog data $(date -u '+%Y-%m-%d')"
+
           git push
