@@ -19,23 +19,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install psrqpy astropy pandas scikit-learn pyarrow scipy
-
-      - name: Fix working directory issue in fetch_atnf
-        run: |
-          python3 -c "
-import pathlib
-f = pathlib.Path('pipeline/fetch_atnf.py')
-content = f.read_text()
-fix = 'import os, pathlib\nos.chdir(pathlib.Path(__file__).parent)\n'
-if 'os.chdir' not in content:
-    content = fix + content
-    f.write_text(content)
-    print('Patched fetch_atnf.py')
-else:
-    print('Already patched')
-"
+        run: pip install psrqpy astropy pandas scikit-learn pyarrow scipy
 
       - name: Run pipeline
         working-directory: pipeline
