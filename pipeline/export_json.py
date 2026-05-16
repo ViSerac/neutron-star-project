@@ -7,7 +7,7 @@ import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
-SITE_DATA_DIR = BASE_DIR.parent / "site" / "data"
+SITE_DATA_DIR = BASE_DIR.parent / "docs" / "data"
 
 INPUT_FILE = DATA_DIR / "NS_db_full.parquet"
 OUTPUT_FILE = SITE_DATA_DIR / "NS_db_full.json"
