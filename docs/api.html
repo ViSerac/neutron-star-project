@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-WGGNJP9C4F");
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API | Neutron Star Project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #05070f; --bg2: #0a0e1a; --bg3: #0f1525;
+    --cyan: #00d4ff; --cyan-dim: rgba(0,212,255,0.12); --cyan-glow: rgba(0,212,255,0.3);
+    --text: #e8eaf2; --text-dim: #7a8299;
+    --border: rgba(0,212,255,0.12); --top-h: 56px;
+    --green: #00ff88; --orange: #fb923c;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Space Mono',monospace; min-height:100vh; }
+
+  #topbar {
+    position:fixed; top:0; left:0; right:0; height:var(--top-h);
+    background:rgba(5,7,15,0.95); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; padding:0 24px; z-index:100; gap:32px;
+  }
+  #logo { font-family:'Syne',sans-serif; font-weight:800; font-size:15px; letter-spacing:0.08em; color:var(--cyan); text-transform:uppercase; text-decoration:none; }
+  #logo span { color:var(--text-dim); font-weight:400; }
+  nav { display:flex; gap:4px; margin-left:auto; flex-wrap:wrap; }
+  nav a { color:var(--text-dim); text-decoration:none; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; padding:6px 14px; border-radius:3px; transition:color 0.2s,background 0.2s; }
+  nav a:hover, nav a.active { color:var(--cyan); background:var(--cyan-dim); }
+
+  main { padding:calc(var(--top-h) + 48px) 0 80px; max-width:860px; margin:0 auto; padding-left:24px; padding-right:24px; }
+
+  .page-title { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; color:var(--cyan); letter-spacing:0.04em; margin-bottom:8px; }
+  .page-sub { font-size:11px; color:var(--text-dim); line-height:1.8; margin-bottom:40px; max-width:600px; }
+
+  .base-url {
+    display:inline-flex; align-items:center; gap:12px;
+    background:var(--bg2); border:1px solid var(--border);
+    border-radius:6px; padding:12px 20px; margin-bottom:40px;
+    font-size:13px; color:var(--cyan); letter-spacing:0.04em;
+  }
+  .base-url .label { font-size:9px; color:var(--text-dim); letter-spacing:0.15em; text-transform:uppercase; }
+
+  .section-title {
+    font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
+    letter-spacing:0.2em; text-transform:uppercase; color:var(--cyan);
+    opacity:0.7; margin-bottom:16px; margin-top:48px;
+    padding-bottom:8px; border-bottom:1px solid var(--border);
+  }
+
+  .endpoint {
+    background:var(--bg2); border:1px solid var(--border);
+    border-radius:8px; margin-bottom:16px; overflow:hidden;
+  }
+
+  .endpoint-header {
+    display:flex; align-items:center; gap:12px;
+    padding:14px 20px; cursor:pointer;
+    transition:background 0.15s;
+  }
+  .endpoint-header:hover { background:rgba(0,212,255,0.04); }
+
+  .method {
+    font-size:9px; font-weight:700; letter-spacing:0.12em;
+    padding:3px 8px; border-radius:3px; flex-shrink:0;
+    background:rgba(0,255,136,0.15); color:var(--green);
+    border:1px solid rgba(0,255,136,0.3);
+  }
+
+  .endpoint-path { font-size:12px; color:var(--text); flex:1; }
+  .endpoint-path .param { color:var(--orange); }
+  .endpoint-desc { font-size:10px; color:var(--text-dim); }
+
+  .endpoint-body { display:none; border-top:1px solid var(--border); }
+  .endpoint-body.open { display:block; }
+
+  .params-table { width:100%; border-collapse:collapse; }
+  .params-table th {
+    font-size:9px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--text-dim); padding:10px 20px; text-align:left;
+    background:var(--bg3); border-bottom:1px solid var(--border);
+  }
+  .params-table td { font-size:10px; padding:10px 20px; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:top; }
+  .params-table td:first-child { color:var(--orange); font-weight:700; width:120px; }
+  .params-table td:nth-child(2) { color:var(--text-dim); width:100px; }
+  .params-table td:nth-child(3) { color:var(--text); }
+  .params-table tr:last-child td { border-bottom:none; }
+
+  .code-block {
+    background:var(--bg3); padding:16px 20px;
+    font-size:11px; line-height:1.7; color:var(--text-dim);
+    overflow-x:auto; white-space:pre;
+    border-top:1px solid var(--border);
+  }
+
+  .code-block .k { color:var(--cyan); }
+  .code-block .s { color:var(--green); }
+  .code-block .c { color:#4a5568; }
+  .code-block .n { color:var(--orange); }
+
+  .try-btn {
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.08em;
+    padding:4px 12px; border-radius:3px; border:1px solid var(--border);
+    background:transparent; color:var(--text-dim); cursor:pointer;
+    transition:all 0.18s; margin:12px 20px;
+  }
+  .try-btn:hover { color:var(--cyan); border-color:var(--cyan); background:var(--cyan-dim); }
+
+  .response-box {
+    margin:0 20px 16px;
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:4px; padding:12px; font-size:10px;
+    color:var(--text-dim); display:none; overflow-x:auto;
+    white-space:pre; max-height:300px; overflow-y:auto;
+    scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+  }
+  .response-box.visible { display:block; }
+  .response-box.loading { color:var(--text-dim); font-style:italic; }
+  .response-box.error { color:#ff4444; }
+  .response-box.success { color:var(--green); }
+
+  .python-section { margin-top:16px; }
+
+  .tab-row { display:flex; gap:2px; margin-bottom:0; }
+  .tab {
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.08em;
+    padding:6px 14px; border-radius:4px 4px 0 0;
+    border:1px solid var(--border); border-bottom:none;
+    background:var(--bg3); color:var(--text-dim); cursor:pointer;
+    transition:all 0.15s;
+  }
+  .tab.active { background:var(--bg2); color:var(--cyan); border-color:var(--cyan); }
+
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  .info-box {
+    background:var(--bg2); border:1px solid var(--border);
+    border-left:3px solid var(--cyan); border-radius:4px;
+    padding:14px 18px; font-size:10px; color:var(--text-dim);
+    line-height:1.8; margin-bottom:20px;
+  }
+  .info-box strong { color:var(--text); }
+
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+  #cookie-banner { position:fixed; bottom:0; left:0; right:0; background:rgba(10,14,26,0.97); border-top:1px solid rgba(0,212,255,0.2); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; z-index:9999; font-family:'Space Mono',monospace; font-size:10px; color:#7a8299; flex-wrap:wrap; }
+  #cookie-banner.hidden { display:none; }
+  #cookie-banner a { color:#00d4ff; text-decoration:none; }
+  .cookie-btn { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.08em; padding:6px 16px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; }
+  .cookie-accept { background:rgba(0,212,255,0.15); border:1px solid #00d4ff; color:#00d4ff; }
+  .cookie-accept:hover { background:rgba(0,212,255,0.3); }
+  .cookie-decline { background:transparent; border:1px solid rgba(122,130,153,0.3); color:#7a8299; }
+  .cookie-decline:hover { color:#e8eaf2; border-color:#7a8299; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <nav>
+    <a href="index.html">Visualizer</a>
+    <a href="catalog.html">The Catalog</a>
+    <a href="import-export.html">Import / Export</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="api.html" class="active">API</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html">About</a>
+    <a href="data-sources.html">Data Sources</a>
+  </nav>
+</div>
+
+<main>
+  <div class="page-title">REST API</div>
+  <div class="page-sub">
+    Programmatic access to the neutron star catalog. Free, no authentication required, updated weekly. Suitable for Python scripts, Jupyter notebooks, and research pipelines.
+  </div>
+
+  <div class="base-url">
+    <span class="label">Base URL</span>
+    <span>https://neutron-star-api.mistyck.workers.dev</span>
+  </div>
+
+  <div class="info-box">
+    <strong>No rate limiting</strong> for reasonable use. All responses include CORS headers — the API can be called directly from browser JavaScript. Data is cached for 1 hour per worker instance. Updated every Monday from ATNF and McGill.
+  </div>
+
+  <div class="section-title">Endpoints</div>
+
+  <!-- / -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/</span>
+      <span class="endpoint-desc">API info and available endpoints</span>
+    </div>
+    <div class="endpoint-body">
+      <button class="try-btn" onclick="tryEndpoint(this, '/')">Try it</button>
+      <div class="response-box"></div>
+    </div>
+  </div>
+
+  <!-- /stats -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/stats</span>
+      <span class="endpoint-desc">Catalog statistics by type and catalog</span>
+    </div>
+    <div class="endpoint-body">
+      <button class="try-btn" onclick="tryEndpoint(this, '/stats')">Try it</button>
+      <div class="response-box"></div>
+    </div>
+  </div>
+
+  <!-- /search -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/search<span class="param">?name=</span></span>
+      <span class="endpoint-desc">Search objects by name (regex supported)</span>
+    </div>
+    <div class="endpoint-body">
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        <tr><td>name</td><td>string</td><td>Name or regex pattern to match against NS_NAME. Case insensitive.</td></tr>
+      </table>
+      <button class="try-btn" onclick="tryEndpoint(this, '/search?name=J0534')">Try it — /search?name=J0534</button>
+      <div class="response-box"></div>
+    </div>
+  </div>
+
+  <!-- /object -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/object<span class="param">?name=</span></span>
+      <span class="endpoint-desc">Get a single object by exact name</span>
+    </div>
+    <div class="endpoint-body">
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        <tr><td>name</td><td>string</td><td>Exact NS_NAME value.</td></tr>
+      </table>
+      <button class="try-btn" onclick="tryEndpoint(this, '/object?name=J0534+2200')">Try it — /object?name=J0534+2200</button>
+      <div class="response-box"></div>
+    </div>
+  </div>
+
+  <!-- /cone -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/cone<span class="param">?ra=&dec=&radius=</span></span>
+      <span class="endpoint-desc">Cone search — all objects within a radius of a sky position</span>
+    </div>
+    <div class="endpoint-body">
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        <tr><td>ra</td><td>float</td><td>Right ascension in decimal degrees (0–360).</td></tr>
+        <tr><td>dec</td><td>float</td><td>Declination in decimal degrees (-90 to +90).</td></tr>
+        <tr><td>radius</td><td>float</td><td>Search radius in degrees. Default: 1.0.</td></tr>
+      </table>
+      <button class="try-btn" onclick="tryEndpoint(this, '/cone?ra=83.8&dec=22.0&radius=2.0')">Try it — Crab pulsar region</button>
+      <div class="response-box"></div>
+    </div>
+  </div>
+
+  <!-- /catalog -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/catalog<span class="param">?type=&catalog=&galaxy=&limit=&offset=</span></span>
+      <span class="endpoint-desc">Filtered catalog with pagination</span>
+    </div>
+    <div class="endpoint-body">
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        <tr><td>type</td><td>string</td><td>Object type: pulsar, magnetar, candidate_magnetar, pulsar_outburst_2006, M7 isolated neutron star, central compact object (CCO).</td></tr>
+        <tr><td>catalog</td><td>string</td><td>Source catalog: ATNF or McGill.</td></tr>
+        <tr><td>galaxy</td><td>string</td><td>Galaxy: milky_way, lmc, smc.</td></tr>
+        <tr><td>limit</td><td>int</td><td>Max results to return. Default: 100.</td></tr>
+        <tr><td>offset</td><td>int</td><td>Pagination offset. Default: 0.</td></tr>
+      </table>
+      <button class="try-btn" onclick="tryEndpoint(this, '/catalog?type=magnetar')">Try it — All magnetars</button>
+      <div class="response-box"></div>
+    </div>
+  </div>
+
+  <!-- /types -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/types</span>
+      <span class="endpoint-desc">List all available object types</span>
+    </div>
+    <div class="endpoint-body">
+      <button class="try-btn" onclick="tryEndpoint(this, '/types')">Try it</button>
+      <div class="response-box"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Python examples</div>
+
+  <div class="info-box">
+    No dependencies beyond <strong>requests</strong>. Compatible with Python 3.7+.
+  </div>
+
+  <div class="code-block"><span class="k">import</span> requests
+
+BASE = <span class="s">"https://neutron-star-api.mistyck.workers.dev"</span>
+
+<span class="c"># --- Catalog statistics ---</span>
+stats = requests.get(<span class="s">f"{BASE}/stats"</span>).json()
+<span class="k">print</span>(stats[<span class="s">"total"</span>], <span class="s">"objects"</span>)
+
+<span class="c"># --- Search by name (regex) ---</span>
+results = requests.get(<span class="s">f"{BASE}/search"</span>, params={<span class="s">"name"</span>: <span class="s">"^J0534"</span>}).json()
+<span class="k">for</span> obj <span class="k">in</span> results[<span class="s">"results"</span>]:
+    <span class="k">print</span>(obj[<span class="s">"NS_NAME"</span>], obj[<span class="s">"DIST"</span>], <span class="s">"kpc"</span>)
+
+<span class="c"># --- Cone search around the Crab pulsar ---</span>
+crab_region = requests.get(<span class="s">f"{BASE}/cone"</span>, params={
+    <span class="s">"ra"</span>: <span class="n">83.8</span>, <span class="s">"dec"</span>: <span class="n">22.0</span>, <span class="s">"radius"</span>: <span class="n">5.0</span>
+}).json()
+<span class="k">print</span>(crab_region[<span class="s">"count"</span>], <span class="s">"objects within 5 degrees"</span>)
+
+<span class="c"># --- Get all magnetars as a DataFrame ---</span>
+<span class="k">import</span> pandas <span class="k">as</span> pd
+r = requests.get(<span class="s">f"{BASE}/catalog"</span>, params={<span class="s">"type"</span>: <span class="s">"magnetar"</span>, <span class="s">"limit"</span>: <span class="n">500</span>}).json()
+df = pd.DataFrame(r[<span class="s">"results"</span>])
+<span class="k">print</span>(df[[<span class="s">"NS_NAME"</span>, <span class="s">"P"</span>, <span class="s">"PDOT"</span>, <span class="s">"DIST"</span>]])
+
+<span class="c"># --- Paginate through full catalog ---</span>
+all_objects = []
+offset = <span class="n">0</span>
+<span class="k">while True</span>:
+    page = requests.get(<span class="s">f"{BASE}/catalog"</span>, params={<span class="s">"limit"</span>: <span class="n">500</span>, <span class="s">"offset"</span>: offset}).json()
+    all_objects.extend(page[<span class="s">"results"</span>])
+    <span class="k">if</span> len(all_objects) >= page[<span class="s">"total"</span>]: <span class="k">break</span>
+    offset += <span class="n">500</span>
+<span class="k">print</span>(len(all_objects), <span class="s">"total objects loaded"</span>)</div>
+
+</main>
+
+<div id="cookie-banner">
+  <span>This site uses Google Analytics to collect anonymous usage data. No personal information is stored. See our <a href="about.html">About</a> page for contact.</span>
+  <div style="display:flex;gap:8px;flex-shrink:0">
+    <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
+    <button class="cookie-btn cookie-accept" onclick="cookieAccept()">Accept</button>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://neutron-star-api.mistyck.workers.dev";
+
+function toggleEndpoint(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+async function tryEndpoint(btn, path) {
+  const box = btn.nextElementSibling;
+  box.classList.add('visible', 'loading');
+  box.classList.remove('error', 'success');
+  box.textContent = 'Loading...';
+  try {
+    const res = await fetch(API_BASE + path);
+    const data = await res.json();
+    box.textContent = JSON.stringify(data, null, 2);
+    box.classList.remove('loading');
+    box.classList.add('success');
+  } catch (e) {
+    box.textContent = 'Error: ' + e.message;
+    box.classList.remove('loading');
+    box.classList.add('error');
+  }
+}
+
+function cookieAccept() {
+  localStorage.setItem('nsp_cookie_consent', 'accepted');
+  window['ga-disable-G-WGGNJP9C4F'] = false;
+  document.getElementById('cookie-banner').classList.add('hidden');
+  gtag('consent', 'update', { analytics_storage: 'granted' });
+}
+function cookieDecline() {
+  localStorage.setItem('nsp_cookie_consent', 'declined');
+  window['ga-disable-G-WGGNJP9C4F'] = true;
+  document.getElementById('cookie-banner').classList.add('hidden');
+}
+
+const consent = localStorage.getItem('nsp_cookie_consent');
+if (consent) document.getElementById('cookie-banner').classList.add('hidden');
+</script>
+</body>
+</html>
