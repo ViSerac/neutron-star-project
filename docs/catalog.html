@@ -144,17 +144,66 @@
   .cookie-accept:hover { background:rgba(0,212,255,0.3); }
   .cookie-decline { background:transparent; border:1px solid rgba(122,130,153,0.3); color:#7a8299; }
   .cookie-decline:hover { color:#e8eaf2; border-color:#7a8299; }
+
+  /* ── MOBILE ── */
+  #menu-toggle {
+    display: none; background: none; border: none;
+    cursor: pointer; padding: 6px; margin-left: auto; flex-shrink: 0;
+  }
+  #menu-toggle svg { fill: var(--text-dim); }
+
+  @media (max-width: 768px) {
+    #topbar { padding: 0 16px; gap: 8px; }
+    #logo { font-size: 13px; }
+    #menu-toggle { display: block; }
+    nav {
+      display: none !important;
+      position: fixed; top: var(--top-h); left: 0; right: 0;
+      background: rgba(5,7,15,0.98); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column; padding: 8px 0; z-index: 99;
+    }
+    nav.open { display: flex !important; }
+    nav a { padding: 14px 24px; font-size: 12px; border-radius: 0; }
+  }
+
+  #sidebar-toggle {
+    display: none; background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: 'Space Mono',monospace; font-size: 10px;
+    padding: 8px 14px; cursor: pointer; border-radius: 4px;
+    letter-spacing: 0.08em;
+  }
+  @media (max-width: 768px) {
+    #sidebar-toggle { display: inline-block; }
+  }
+  @media (max-width: 768px) {
+    .page-wrap { flex-direction: column; }
+    #sidebar {
+      width: 100%; max-height: 40vh; overflow-y: auto;
+      border-right: none; border-bottom: 1px solid var(--border);
+      display: none;
+    }
+    #sidebar.open { display: block; }
+    #main { padding: 12px; }
+    .toolbar { flex-wrap: wrap; gap: 8px; }
+    #search { min-width: 0; width: 100%; }
+    #table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  }
 </style>
 </head>
 <body>
 
 <div id="topbar">
   <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <button id="menu-toggle" onclick="document.querySelector('nav').classList.toggle('open')">
+    <svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
+  </button>
   <nav>
     <a href="index.html">Visualizer</a>
     <a href="catalog.html" class="active">The Catalog</a>
     <a href="import-export.html">Import / Export</a>
     <a href="analysis.html">Analysis</a>
+    <a href="api.html">API</a>
     <a href="faq.html">FAQ</a>
     <a href="about.html">About</a>
     <a href="data-sources.html">Data Sources</a>
@@ -187,8 +236,11 @@
   <!-- Main -->
   <div id="content">
     <div class="page-title">The Catalog</div>
-    <div class="page-sub">
-      Unified table from ATNF and McGill. Toggle columns in the sidebar. Regex supported in search.
+    <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:4px">
+      <div class="page-sub" style="margin-bottom:0">
+        Unified table from ATNF and McGill. Toggle columns in the sidebar. Regex supported in search.
+      </div>
+      <span id="updated-at" style="font-size:9px;color:var(--text-dim);opacity:0.6;white-space:nowrap;letter-spacing:0.08em"></span>
     </div>
 
     <div class="controls">
@@ -314,8 +366,27 @@ async function init() {
 
   buildSidebar();
 
-  const res = await fetch(DATA_URL);
-  allData = await res.json();
+  try {
+    const res = await fetch(DATA_URL, { cache: 'no-store' });
+    const json = await res.json();
+
+    const payload = Array.isArray(json) ? { records: json } : json;
+    allData = payload.records ?? [];
+
+    const updatedAt = payload.updated_at || payload.last_updated || null;
+    const updatedAtEl = document.getElementById('updated-at');
+    if (updatedAt) {
+      updatedAtEl.textContent = `Last updated: ${updatedAt}`;
+    } else {
+      updatedAtEl.textContent = 'Last updated: unavailable';
+    }
+  } catch (err) {
+    console.error('Failed to load catalog data:', err);
+    document.getElementById('updated-at').textContent = 'Last updated: unavailable';
+    document.getElementById('loading-msg').textContent = 'Failed to load catalog data.';
+    return;
+  }
+
   document.getElementById('loading-msg').style.display = 'none';
   document.getElementById('table-wrap').style.display = 'block';
   buildHeader();
@@ -596,5 +667,6 @@ function cookieDecline() {
 document.getElementById('search').addEventListener('input', applyFilters);
 init();
 </script>
+<script>document.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){document.querySelector("nav").classList.remove("open")})});</script>
 </body>
 </html>

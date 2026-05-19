@@ -303,17 +303,47 @@
 
   .cookie-decline:hover { color: #e8eaf2; border-color: #7a8299; }
 
+
+  /* ── MOBILE ── */
+  #menu-toggle {
+    display: none; background: none; border: none;
+    cursor: pointer; padding: 6px; margin-left: auto; flex-shrink: 0;
+  }
+  #menu-toggle svg { fill: var(--text-dim); }
+
+  @media (max-width: 768px) {
+    #topbar { padding: 0 16px; gap: 8px; }
+    #logo { font-size: 13px; }
+    #menu-toggle { display: block; }
+    nav {
+      display: none !important;
+      position: fixed; top: var(--top-h); left: 0; right: 0;
+      background: rgba(5,7,15,0.98); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column; padding: 8px 0; z-index: 99;
+    }
+    nav.open { display: flex !important; }
+    nav a { padding: 14px 24px; font-size: 12px; border-radius: 0; }
+  }
+
+  @media (max-width: 768px) {
+    main { padding-left: 16px; padding-right: 16px; }
+  }
 </style>
 </head>
 <body>
 
 <div id="topbar">
   <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
+  <button id="menu-toggle" onclick="document.querySelector('nav').classList.toggle('open')">
+    <svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
+  </button>
   <nav>
     <a href="index.html">Visualizer</a>
     <a href="catalog.html">The Catalog</a>
     <a href="import-export.html">Import / Export</a>
     <a href="analysis.html">Analysis</a>
+    <a href="api.html">API</a>
     <a href="faq.html" class="active">FAQ</a>
     <a href="about.html">About</a>
     <a href="data-sources.html">Data Sources</a>
@@ -588,5 +618,6 @@
     if (consent) document.getElementById("cookie-banner").classList.add("hidden");
   });
 </script>
+<script>document.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){document.querySelector("nav").classList.remove("open")})});</script>
 </body>
 </html>
