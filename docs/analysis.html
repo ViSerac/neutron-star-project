@@ -402,78 +402,12 @@
 
   .cookie-decline:hover { color: #e8eaf2; border-color: #7a8299; }
 
-
-  /* ── MOBILE ── */
-  #menu-toggle {
-    display: none; background: none; border: none;
-    cursor: pointer; padding: 6px; margin-left: auto; flex-shrink: 0;
-  }
-  #menu-toggle svg { fill: var(--text-dim); }
-
-  @media (max-width: 768px) {
-    #topbar { padding: 0 16px; gap: 8px; }
-    #logo { font-size: 13px; }
-    #menu-toggle { display: block; }
-    nav {
-      display: none !important;
-      position: fixed; top: var(--top-h); left: 0; right: 0;
-      background: rgba(5,7,15,0.98); backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      flex-direction: column; padding: 8px 0; z-index: 99;
-    }
-    nav.open { display: flex !important; }
-    nav a { padding: 14px 24px; font-size: 12px; border-radius: 0; }
-  }
-
-  @media (max-width: 768px) {
-    .page-wrap {
-      flex-direction: column;
-      height: auto;
-      overflow: auto;
-    }
-    #sidebar {
-      width: 100%;
-      flex-direction: row;
-      overflow-x: auto;
-      padding: 8px 12px;
-      gap: 4px;
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-    }
-    .sidebar-label, .sidebar-divider, .sidebar-badge { display: none; }
-    .sidebar-item {
-      white-space: nowrap;
-      padding: 8px 14px;
-      font-size: 10px;
-      border-left: none;
-      border-bottom: 2px solid transparent;
-      flex-shrink: 0;
-    }
-    .sidebar-item.active {
-      border-left-color: transparent;
-      border-bottom-color: var(--cyan);
-    }
-    .sidebar-item.coming-soon { display: none; }
-    #content { overflow-y: auto; }
-    .analysis-panel { padding: 16px; }
-    .panel-title { font-size: 18px; }
-    .chart-wrap { max-width: 100% !important; }
-    .chart-wrap canvas { max-width: 100%; height: auto !important; }
-    .stats-bar { flex-wrap: wrap; gap: 8px; }
-    .controls-bar { flex-wrap: wrap; }
-    .control-group { min-width: 0; }
-    .toggle-row { flex-wrap: wrap; }
-    .legend-grid { max-width: 100%; }
-  }
 </style>
 </head>
 <body>
 
 <div id="topbar">
   <a href="index.html" id="logo">Neutron Star <span>Project</span></a>
-  <button id="menu-toggle" onclick="document.querySelector('nav').classList.toggle('open')">
-    <svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
-  </button>
   <nav>
     <a href="index.html">Visualizer</a>
     <a href="catalog.html">The Catalog</a>
@@ -501,27 +435,18 @@
     </div>
 
     <hr class="sidebar-divider">
-    <div class="sidebar-label">Coming soon</div>
 
-    <div class="sidebar-item coming-soon">
+    <div class="sidebar-item" onclick="showPanel('neighbor', this)">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       Nearest Neighbor
-      <span class="sidebar-badge">soon</span>
     </div>
-    <div class="sidebar-item coming-soon">
+    <div class="sidebar-item" onclick="showPanel('clustering', this)">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
       Clustering
-      <span class="sidebar-badge">soon</span>
     </div>
-    <div class="sidebar-item coming-soon">
+    <div class="sidebar-item" onclick="showPanel('los', this)">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2v20"/></svg>
       Line of Sight
-      <span class="sidebar-badge">soon</span>
-    </div>
-    <div class="sidebar-item coming-soon">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-      Cross-Match
-      <span class="sidebar-badge">soon</span>
     </div>
   </div>
 
@@ -629,6 +554,111 @@
       </div>
     </div>
 
+    <!-- NEAREST NEIGHBOR PANEL -->
+    <div class="analysis-panel" id="panel-neighbor">
+      <div class="panel-title">Nearest Neighbor</div>
+      <div class="panel-sub">
+        Select an object and find its K nearest neighbors in 3D Galactocentric space (Euclidean distance in x, y, z). Lines connect the selected object to each neighbor.
+      </div>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-label">Mean distance</div><div class="stat-value" id="nn-mean">—</div></div>
+        <div class="stat"><div class="stat-label">Median distance</div><div class="stat-value" id="nn-median">—</div></div>
+        <div class="stat"><div class="stat-label">Min / Max</div><div class="stat-value" id="nn-range">—</div></div>
+      </div>
+      <div class="controls-row">
+        <div class="control-group" style="flex:1;max-width:320px">
+          <div class="control-label">Object</div>
+          <input type="text" id="nn-search" placeholder="Search by name..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:11px;padding:8px 12px;border-radius:4px;outline:none">
+          <select id="nn-select" size="5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:10px;padding:4px;border-radius:4px;margin-top:4px;outline:none;scrollbar-width:thin;scrollbar-color:var(--border) transparent"></select>
+        </div>
+        <div class="control-group">
+          <div class="control-label">K neighbors: <span id="nn-k-val">5</span></div>
+          <input type="range" id="nn-k" min="1" max="20" value="5" oninput="document.getElementById('nn-k-val').textContent=this.value;drawNeighbor()">
+        </div>
+      </div>
+      <div class="chart-wrap heatmap">
+        <canvas id="neighbor-canvas"></canvas>
+      </div>
+      <div id="nn-table-wrap" style="max-height:200px;overflow-y:auto;margin-top:12px;scrollbar-width:thin;scrollbar-color:var(--border) transparent">
+        <table id="nn-table" style="width:100%;border-collapse:collapse;font-size:10px">
+          <thead><tr style="color:var(--text-dim);border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px">Name</th><th style="text-align:left;padding:6px">Type</th><th style="text-align:right;padding:6px">Distance (kpc)</th><th style="text-align:right;padding:6px">3D dist (kpc)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CLUSTERING PANEL -->
+    <div class="analysis-panel" id="panel-clustering">
+      <div class="panel-title">Clustering (DBSCAN)</div>
+      <div class="panel-sub">
+        Density-based clustering of neutron stars in 3D Galactocentric coordinates. Adjust eps (neighborhood radius) and min_samples (minimum cluster size). Noise points are shown in gray.
+      </div>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-label">Clusters found</div><div class="stat-value" id="cl-clusters">—</div></div>
+        <div class="stat"><div class="stat-label">In clusters</div><div class="stat-value" id="cl-in">—</div></div>
+        <div class="stat"><div class="stat-label">Noise</div><div class="stat-value" id="cl-noise">—</div></div>
+      </div>
+      <div class="controls-row">
+        <div class="control-group">
+          <div class="control-label">eps (kpc): <span id="cl-eps-val">3.0</span></div>
+          <input type="range" id="cl-eps" min="0.5" max="15" step="0.5" value="3" oninput="document.getElementById('cl-eps-val').textContent=parseFloat(this.value).toFixed(1);drawClustering()">
+        </div>
+        <div class="control-group">
+          <div class="control-label">min_samples: <span id="cl-min-val">5</span></div>
+          <input type="range" id="cl-min" min="2" max="30" value="5" oninput="document.getElementById('cl-min-val').textContent=this.value;drawClustering()">
+        </div>
+        <div class="control-group">
+          <div class="control-label">Projection</div>
+          <div class="toggle-row">
+            <button class="toggle-chip active" id="cl-xy" onclick="setClProj('xy',this)">X-Y</button>
+            <button class="toggle-chip" id="cl-xz" onclick="setClProj('xz',this)">X-Z</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap heatmap">
+        <canvas id="clustering-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- LINE OF SIGHT PANEL -->
+    <div class="analysis-panel" id="panel-los">
+      <div class="panel-title">Line of Sight</div>
+      <div class="panel-sub">
+        Enter equatorial coordinates (RA, Dec) and an angular search radius. Shows all objects within that cone and a histogram of their distances along the line of sight.
+      </div>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-label">Objects found</div><div class="stat-value" id="los-count">—</div></div>
+        <div class="stat"><div class="stat-label">Mean distance</div><div class="stat-value" id="los-mean">—</div></div>
+        <div class="stat"><div class="stat-label">Median distance</div><div class="stat-value" id="los-median">—</div></div>
+      </div>
+      <div class="controls-row">
+        <div class="control-group">
+          <div class="control-label">RA (deg)</div>
+          <input type="number" id="los-ra" value="83.63" step="0.1" style="width:100px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:11px;padding:6px 10px;border-radius:4px;outline:none" onchange="drawLoS()">
+        </div>
+        <div class="control-group">
+          <div class="control-label">Dec (deg)</div>
+          <input type="number" id="los-dec" value="22.01" step="0.1" style="width:100px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:11px;padding:6px 10px;border-radius:4px;outline:none" onchange="drawLoS()">
+        </div>
+        <div class="control-group">
+          <div class="control-label">Radius (deg): <span id="los-r-val">5.0</span></div>
+          <input type="range" id="los-radius" min="0.5" max="30" step="0.5" value="5" oninput="document.getElementById('los-r-val').textContent=parseFloat(this.value).toFixed(1);drawLoS()">
+        </div>
+        <div class="control-group" style="align-self:flex-end">
+          <button class="toggle-chip active" onclick="drawLoS()" style="padding:8px 16px">Search</button>
+        </div>
+      </div>
+      <div class="chart-wrap heatmap">
+        <canvas id="los-canvas"></canvas>
+      </div>
+      <div id="los-table-wrap" style="max-height:200px;overflow-y:auto;margin-top:12px;scrollbar-width:thin;scrollbar-color:var(--border) transparent">
+        <table id="los-table" style="width:100%;border-collapse:collapse;font-size:10px">
+          <thead><tr style="color:var(--text-dim);border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px">Name</th><th style="text-align:left;padding:6px">Type</th><th style="text-align:right;padding:6px">Sep (deg)</th><th style="text-align:right;padding:6px">Dist (kpc)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
     <footer>Neutron Star Project · <a href="about.html" style="color:var(--text-dim);text-decoration:none">About</a> · <a href="data-sources.html" style="color:var(--text-dim);text-decoration:none">Data Sources</a></footer>
 
   </div>
@@ -647,6 +677,8 @@ let isoVisible = { b12: true, b14: true, b15: true, t3: true, t6: true, t9: true
 let heatmapMode = 'scatter';
 let heatmapTypes = { pulsar: true, magnetar: true, m7: true, cco: true };
 let milkywayImg = null;
+let clProjection = 'xy';
+let nnSelected = null;
 
 const TYPE_COLORS = {
   pulsar: '#60a5fa',
@@ -678,12 +710,15 @@ async function init() {
 // ── PANEL SWITCH ──────────────────────────────────────────
 function showPanel(id, el) {
   document.querySelectorAll('.analysis-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sidebar-item:not(.coming-soon)').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   el.classList.add('active');
   requestAnimationFrame(() => {
     if (id === 'ppdot') drawPPdot();
     if (id === 'heatmap') drawHeatmap();
+    if (id === 'neighbor') { populateNNSelect(); drawNeighbor(); }
+    if (id === 'clustering') drawClustering();
+    if (id === 'los') drawLoS();
   });
 }
 
@@ -1137,10 +1172,459 @@ function drawHeatmap() {
   ctx.restore();
 }
 
+// ── NEAREST NEIGHBOR ──────────────────────────────────────
+function populateNNSelect() {
+  const sel = document.getElementById('nn-select');
+  const search = document.getElementById('nn-search');
+  if (sel.options.length > 0) return;
+  const valid = allData.filter(s => s.x != null && s.y != null && s.z != null);
+  valid.forEach((s, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = s.NS_NAME;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', () => { nnSelected = parseInt(sel.value); drawNeighbor(); });
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase();
+    Array.from(sel.options).forEach(opt => {
+      opt.style.display = opt.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+}
+
+function drawNeighbor() {
+  const canvas = document.getElementById('neighbor-canvas');
+  const ctx = canvas.getContext('2d');
+  const content = document.getElementById('content');
+  const W = Math.min(content.offsetWidth - 96, 700);
+  canvas.width = W; canvas.height = W;
+  const H = W;
+  const PAD = { top: 30, right: 30, bottom: 50, left: 60 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  ctx.fillStyle = '#05070f'; ctx.fillRect(0, 0, W, H);
+
+  const valid = allData.filter(s => s.x != null && s.y != null && s.z != null);
+  if (nnSelected == null || !valid[nnSelected]) {
+    ctx.fillStyle = '#7a8299'; ctx.font = '12px Space Mono'; ctx.textAlign = 'center';
+    ctx.fillText('Select an object from the list', W/2, H/2);
+    return;
+  }
+
+  const K = parseInt(document.getElementById('nn-k').value);
+  const target = valid[nnSelected];
+
+  // Compute distances
+  const dists = valid.map((s, i) => ({
+    idx: i, s,
+    d: Math.sqrt((s.x - target.x)**2 + (s.y - target.y)**2 + (s.z - target.z)**2)
+  })).filter(d => d.idx !== nnSelected).sort((a, b) => a.d - b.d);
+
+  const neighbors = dists.slice(0, K);
+  const allPts = [{ s: target, d: 0 }, ...neighbors.map(n => ({ s: n.s, d: n.d }))];
+
+  // Stats
+  const ds = neighbors.map(n => n.d);
+  const mean = ds.reduce((a, b) => a + b, 0) / ds.length;
+  const sorted = [...ds].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  document.getElementById('nn-mean').textContent = mean.toFixed(3) + ' kpc';
+  document.getElementById('nn-median').textContent = median.toFixed(3) + ' kpc';
+  document.getElementById('nn-range').textContent = sorted[0].toFixed(3) + ' / ' + sorted[sorted.length-1].toFixed(3);
+
+  // Axis range
+  const xs = allPts.map(p => p.s.x), ys = allPts.map(p => p.s.y);
+  const pad = Math.max((Math.max(...xs) - Math.min(...xs)), (Math.max(...ys) - Math.min(...ys))) * 0.2 + 0.5;
+  const xMin = Math.min(...xs) - pad, xMax = Math.max(...xs) + pad;
+  const yMin = Math.min(...ys) - pad, yMax = Math.max(...ys) + pad;
+  const range = Math.max(xMax - xMin, yMax - yMin);
+  const cx = (xMin + xMax) / 2, cy = (yMin + yMax) / 2;
+
+  function toX(v) { return PAD.left + ((v - (cx - range/2)) / range) * plotW; }
+  function toY(v) { return PAD.top + plotH - ((v - (cy - range/2)) / range) * plotH; }
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,212,255,0.06)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const gx = PAD.left + (i/4) * plotW;
+    const gy = PAD.top + (i/4) * plotH;
+    ctx.beginPath(); ctx.moveTo(gx, PAD.top); ctx.lineTo(gx, PAD.top + plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD.left, gy); ctx.lineTo(PAD.left + plotW, gy); ctx.stroke();
+  }
+
+  // Connection lines
+  ctx.strokeStyle = 'rgba(0,212,255,0.3)'; ctx.lineWidth = 1;
+  neighbors.forEach(n => {
+    ctx.beginPath();
+    ctx.moveTo(toX(target.x), toY(target.y));
+    ctx.lineTo(toX(n.s.x), toY(n.s.y));
+    ctx.stroke();
+  });
+
+  // Background points (dim)
+  ctx.globalAlpha = 0.15;
+  valid.forEach(s => {
+    ctx.fillStyle = TYPE_COLORS[s.type] || '#888';
+    ctx.fillRect(toX(s.x) - 1, toY(s.y) - 1, 2, 2);
+  });
+  ctx.globalAlpha = 1;
+
+  // Neighbor points
+  neighbors.forEach(n => {
+    ctx.fillStyle = TYPE_COLORS[n.s.type] || '#888';
+    ctx.beginPath(); ctx.arc(toX(n.s.x), toY(n.s.y), 4, 0, Math.PI*2); ctx.fill();
+  });
+
+  // Target point
+  ctx.fillStyle = '#00ff88';
+  ctx.beginPath(); ctx.arc(toX(target.x), toY(target.y), 6, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(toX(target.x), toY(target.y), 6, 0, Math.PI*2); ctx.stroke();
+
+  // Axes labels
+  ctx.fillStyle = '#7a8299'; ctx.font = '10px Space Mono'; ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const v = cx - range/2 + (i/4)*range;
+    ctx.fillText(v.toFixed(1), PAD.left + (i/4)*plotW, H - 14);
+  }
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = cy - range/2 + (i/4)*range;
+    ctx.fillText(v.toFixed(1), PAD.left - 6, PAD.top + plotH - (i/4)*plotH + 3);
+  }
+  ctx.fillStyle = '#e8eaf2'; ctx.font = '11px Space Mono'; ctx.textAlign = 'center';
+  ctx.fillText('x (kpc)', PAD.left + plotW/2, H - 2);
+  ctx.save(); ctx.translate(14, PAD.top + plotH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('y (kpc)', 0, 0); ctx.restore();
+
+  // Table
+  const tbody = document.querySelector('#nn-table tbody');
+  tbody.innerHTML = '';
+  neighbors.forEach(n => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid rgba(0,212,255,0.06)';
+    tr.innerHTML = `<td style="padding:4px 6px;color:var(--text)">${n.s.NS_NAME}</td>
+      <td style="padding:4px 6px;color:${TYPE_COLORS[n.s.type]||'#888'}">${n.s.type}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-dim)">${n.s.DIST != null ? parseFloat(n.s.DIST).toFixed(3) : '—'}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--cyan)">${n.d.toFixed(3)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── CLUSTERING (DBSCAN) ──────────────────────────────────
+function setClProj(p, btn) {
+  clProjection = p;
+  document.querySelectorAll('#panel-clustering .toggle-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  drawClustering();
+}
+
+function dbscan(points, eps, minPts) {
+  const n = points.length;
+  const labels = new Int32Array(n).fill(-2); // -2=unvisited, -1=noise
+  let clusterId = 0;
+
+  function regionQuery(idx) {
+    const neighbors = [];
+    const p = points[idx];
+    for (let i = 0; i < n; i++) {
+      if (i === idx) continue;
+      const d = Math.sqrt((p[0]-points[i][0])**2 + (p[1]-points[i][1])**2 + (p[2]-points[i][2])**2);
+      if (d <= eps) neighbors.push(i);
+    }
+    return neighbors;
+  }
+
+  for (let i = 0; i < n; i++) {
+    if (labels[i] !== -2) continue;
+    const neighbors = regionQuery(i);
+    if (neighbors.length < minPts) { labels[i] = -1; continue; }
+    labels[i] = clusterId;
+    const seed = [...neighbors];
+    for (let j = 0; j < seed.length; j++) {
+      const q = seed[j];
+      if (labels[q] === -1) labels[q] = clusterId;
+      if (labels[q] !== -2) continue;
+      labels[q] = clusterId;
+      const qn = regionQuery(q);
+      if (qn.length >= minPts) seed.push(...qn.filter(x => !seed.includes(x)));
+    }
+    clusterId++;
+  }
+  return { labels: Array.from(labels), nClusters: clusterId };
+}
+
+function drawClustering() {
+  const canvas = document.getElementById('clustering-canvas');
+  const ctx = canvas.getContext('2d');
+  const content = document.getElementById('content');
+  const W = Math.min(content.offsetWidth - 96, 700);
+  canvas.width = W; canvas.height = W;
+  const H = W;
+  const PAD = { top: 30, right: 30, bottom: 50, left: 60 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  ctx.fillStyle = '#05070f'; ctx.fillRect(0, 0, W, H);
+
+  const valid = allData.filter(s => s.x != null && s.y != null && s.z != null);
+  if (!valid.length) return;
+
+  const eps = parseFloat(document.getElementById('cl-eps').value);
+  const minPts = parseInt(document.getElementById('cl-min').value);
+
+  const pts3d = valid.map(s => [s.x, s.y, s.z]);
+  const { labels, nClusters } = dbscan(pts3d, eps, minPts);
+
+  const noise = labels.filter(l => l === -1).length;
+  document.getElementById('cl-clusters').textContent = nClusters;
+  document.getElementById('cl-in').textContent = valid.length - noise;
+  document.getElementById('cl-noise').textContent = noise;
+
+  // Projection
+  const ax = clProjection === 'xy' ? 'x' : 'x';
+  const ay = clProjection === 'xy' ? 'y' : 'z';
+  const axLabel = 'x (kpc)';
+  const ayLabel = clProjection === 'xy' ? 'y (kpc)' : 'z (kpc)';
+
+  const xs = valid.map(s => s[ax]), ys = valid.map(s => s[ay]);
+  const xMin = Math.min(...xs) - 1, xMax = Math.max(...xs) + 1;
+  const yMin = Math.min(...ys) - 1, yMax = Math.max(...ys) + 1;
+
+  function toX(v) { return PAD.left + (v - xMin) / (xMax - xMin) * plotW; }
+  function toY(v) { return PAD.top + plotH - (v - yMin) / (yMax - yMin) * plotH; }
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,212,255,0.06)'; ctx.lineWidth = 1;
+  const stepX = Math.ceil((xMax - xMin) / 5);
+  for (let v = Math.ceil(xMin); v <= xMax; v += stepX) {
+    ctx.beginPath(); ctx.moveTo(toX(v), PAD.top); ctx.lineTo(toX(v), PAD.top + plotH); ctx.stroke();
+  }
+  const stepY = Math.ceil((yMax - yMin) / 5);
+  for (let v = Math.ceil(yMin); v <= yMax; v += stepY) {
+    ctx.beginPath(); ctx.moveTo(PAD.left, toY(v)); ctx.lineTo(PAD.left + plotW, toY(v)); ctx.stroke();
+  }
+
+  // Cluster colors
+  const clColors = ['#00d4ff','#ff4d1a','#00ff88','#fb923c','#d4f542','#b06dff','#ff6b9d','#fbbf24','#7dd3fc','#f87171','#34d399','#c084fc'];
+
+  // Draw noise first (dim)
+  valid.forEach((s, i) => {
+    if (labels[i] !== -1) return;
+    ctx.fillStyle = 'rgba(122,130,153,0.3)';
+    ctx.fillRect(toX(s[ax]) - 1, toY(s[ay]) - 1, 2, 2);
+  });
+
+  // Draw clustered points
+  valid.forEach((s, i) => {
+    if (labels[i] === -1) return;
+    ctx.fillStyle = clColors[labels[i] % clColors.length];
+    ctx.beginPath(); ctx.arc(toX(s[ax]), toY(s[ay]), 2.5, 0, Math.PI*2); ctx.fill();
+  });
+
+  // Axes
+  ctx.fillStyle = '#7a8299'; ctx.font = '10px Space Mono'; ctx.textAlign = 'center';
+  for (let v = Math.ceil(xMin); v <= xMax; v += stepX) ctx.fillText(v, toX(v), H - 14);
+  ctx.textAlign = 'right';
+  for (let v = Math.ceil(yMin); v <= yMax; v += stepY) ctx.fillText(v, PAD.left - 6, toY(v) + 3);
+  ctx.fillStyle = '#e8eaf2'; ctx.font = '11px Space Mono'; ctx.textAlign = 'center';
+  ctx.fillText(axLabel, PAD.left + plotW/2, H - 2);
+  ctx.save(); ctx.translate(14, PAD.top + plotH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText(ayLabel, 0, 0); ctx.restore();
+}
+
+// ── LINE OF SIGHT ────────────────────────────────────────
+function angSep(ra1, dec1, ra2, dec2) {
+  const toRad = d => d * Math.PI / 180;
+  const dDec = toRad(dec2 - dec1);
+  const dRa = toRad(ra2 - ra1);
+  const a = Math.sin(dDec/2)**2 + Math.cos(toRad(dec1)) * Math.cos(toRad(dec2)) * Math.sin(dRa/2)**2;
+  return 2 * Math.asin(Math.sqrt(a)) * 180 / Math.PI;
+}
+
+function parseCoord(val) {
+  if (val == null) return null;
+  const s = String(val).trim();
+  const parts = s.split(/[\s:]+/);
+  if (parts.length === 3) {
+    const sign = s.startsWith('-') ? -1 : 1;
+    return sign * (Math.abs(parseFloat(parts[0])) + parseFloat(parts[1])/60 + parseFloat(parts[2])/3600);
+  }
+  return parseFloat(s);
+}
+
+function drawLoS() {
+  const canvas = document.getElementById('los-canvas');
+  const ctx = canvas.getContext('2d');
+  const content = document.getElementById('content');
+  const W = Math.min(content.offsetWidth - 96, 700);
+  canvas.width = W; canvas.height = Math.round(W * 0.55);
+  const H = canvas.height;
+  const PAD = { top: 30, right: 30, bottom: 50, left: 60 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  ctx.fillStyle = '#05070f'; ctx.fillRect(0, 0, W, H);
+
+  const ra0 = parseFloat(document.getElementById('los-ra').value);
+  const dec0 = parseFloat(document.getElementById('los-dec').value);
+  const radius = parseFloat(document.getElementById('los-radius').value);
+
+  // Find matching objects
+  const matches = [];
+  allData.forEach(s => {
+    if (s.DIST == null || s.DIST <= 0) return;
+    let sra = parseCoord(s.RAJ);
+    let sdec = parseCoord(s.DECJ);
+    if (sra == null || sdec == null) return;
+    // If RAJ looks like hours (0-24 range), convert to degrees
+    if (sra >= 0 && sra <= 24 && typeof s.RAJ === 'string' && s.RAJ.includes(':')) sra *= 15;
+    const sep = angSep(ra0, dec0, sra, sdec);
+    if (sep <= radius) matches.push({ ...s, sep, ra_deg: sra, dec_deg: sdec });
+  });
+
+  matches.sort((a, b) => a.DIST - b.DIST);
+
+  // Stats
+  document.getElementById('los-count').textContent = matches.length;
+  if (matches.length > 0) {
+    const ds = matches.map(m => m.DIST);
+    const mean = ds.reduce((a, b) => a + b, 0) / ds.length;
+    const sorted = [...ds].sort((a, b) => a - b);
+    document.getElementById('los-mean').textContent = mean.toFixed(2) + ' kpc';
+    document.getElementById('los-median').textContent = sorted[Math.floor(sorted.length/2)].toFixed(2) + ' kpc';
+  } else {
+    document.getElementById('los-mean').textContent = '—';
+    document.getElementById('los-median').textContent = '—';
+  }
+
+  if (matches.length === 0) {
+    ctx.fillStyle = '#7a8299'; ctx.font = '12px Space Mono'; ctx.textAlign = 'center';
+    ctx.fillText('No objects found in this cone', W/2, H/2);
+    document.querySelector('#los-table tbody').innerHTML = '';
+    return;
+  }
+
+  // Histogram
+  const maxDist = Math.max(...matches.map(m => m.DIST));
+  const nBins = Math.min(20, Math.max(5, Math.ceil(matches.length / 3)));
+  const binW = maxDist / nBins;
+  const bins = new Array(nBins).fill(0);
+  matches.forEach(m => {
+    const b = Math.min(Math.floor(m.DIST / binW), nBins - 1);
+    bins[b]++;
+  });
+  const maxBin = Math.max(...bins);
+
+  function toX(v) { return PAD.left + (v / maxDist) * plotW; }
+  function toY(v) { return PAD.top + plotH - (v / maxBin) * plotH; }
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,212,255,0.06)'; ctx.lineWidth = 1;
+  for (let i = 1; i <= 4; i++) {
+    const y = PAD.top + (i/5) * plotH;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + plotW, y); ctx.stroke();
+  }
+
+  // Bars
+  const barPx = plotW / nBins;
+  bins.forEach((count, i) => {
+    if (count === 0) return;
+    const x = PAD.left + i * barPx;
+    const h = (count / maxBin) * plotH;
+    ctx.fillStyle = 'rgba(0,212,255,0.5)';
+    ctx.fillRect(x + 1, PAD.top + plotH - h, barPx - 2, h);
+    ctx.strokeStyle = 'rgba(0,212,255,0.8)'; ctx.lineWidth = 1;
+    ctx.strokeRect(x + 1, PAD.top + plotH - h, barPx - 2, h);
+  });
+
+  // Axes
+  ctx.fillStyle = '#7a8299'; ctx.font = '10px Space Mono'; ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const v = (i/4) * maxDist;
+    ctx.fillText(v.toFixed(1), PAD.left + (i/4)*plotW, H - 14);
+  }
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = Math.round((i/4) * maxBin);
+    ctx.fillText(v, PAD.left - 6, PAD.top + plotH - (i/4)*plotH + 3);
+  }
+  ctx.fillStyle = '#e8eaf2'; ctx.font = '11px Space Mono'; ctx.textAlign = 'center';
+  ctx.fillText('Distance (kpc)', PAD.left + plotW/2, H - 2);
+  ctx.save(); ctx.translate(14, PAD.top + plotH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Count', 0, 0); ctx.restore();
+
+  // Table
+  const tbody = document.querySelector('#los-table tbody');
+  tbody.innerHTML = '';
+  matches.slice(0, 50).forEach(m => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid rgba(0,212,255,0.06)';
+    tr.innerHTML = `<td style="padding:4px 6px;color:var(--text)">${m.NS_NAME}</td>
+      <td style="padding:4px 6px;color:${TYPE_COLORS[m.type]||'#888'}">${m.type}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--text-dim)">${m.sep.toFixed(3)}</td>
+      <td style="padding:4px 6px;text-align:right;color:var(--cyan)">${parseFloat(m.DIST).toFixed(3)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── ZOOM (drag-select on any canvas) ─────────────────────
+(function setupZoom() {
+  let zoomState = {};
+
+  function attachZoom(canvasId, drawFn) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    let startX, startY, dragging = false;
+
+    canvas.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      const r = canvas.getBoundingClientRect();
+      startX = e.clientX - r.left; startY = e.clientY - r.top;
+      dragging = true;
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const r = canvas.getBoundingClientRect();
+      const cx = e.clientX - r.left, cy = e.clientY - r.top;
+      // Redraw then overlay selection rect
+      drawFn();
+      const ctx = canvas.getContext('2d');
+      ctx.strokeStyle = 'rgba(0,212,255,0.6)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.strokeRect(startX, startY, cx - startX, cy - startY);
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(0,212,255,0.05)';
+      ctx.fillRect(startX, startY, cx - startX, cy - startY);
+    });
+
+    canvas.addEventListener('mouseup', e => { dragging = false; });
+    canvas.addEventListener('dblclick', () => drawFn());
+  }
+
+  // Attach after DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      attachZoom('ppdot-canvas', drawPPdot);
+      attachZoom('heatmap-canvas', drawHeatmap);
+      attachZoom('neighbor-canvas', drawNeighbor);
+      attachZoom('clustering-canvas', drawClustering);
+      attachZoom('los-canvas', drawLoS);
+    }, 1000);
+  });
+})();
+
 // ── RESIZE ────────────────────────────────────────────────
 window.addEventListener('resize', () => {
   if (document.getElementById('panel-ppdot').classList.contains('active')) drawPPdot();
   if (document.getElementById('panel-heatmap').classList.contains('active')) drawHeatmap();
+  if (document.getElementById('panel-neighbor').classList.contains('active')) drawNeighbor();
+  if (document.getElementById('panel-clustering').classList.contains('active')) drawClustering();
+  if (document.getElementById('panel-los').classList.contains('active')) drawLoS();
 });
 
 // ── START ─────────────────────────────────────────────────
@@ -1191,6 +1675,5 @@ init();
     if (consent) document.getElementById("cookie-banner").classList.add("hidden");
   });
 </script>
-<script>document.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){document.querySelector("nav").classList.remove("open")})});</script>
 </body>
 </html>
