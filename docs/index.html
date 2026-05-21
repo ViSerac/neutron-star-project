@@ -724,6 +724,7 @@ let allStars = [];
 let filteredStars = [];
 let selectedIdx = null;
 let scene, camera, renderer, points, highlightMesh, orbitControls;
+let nsGroup, nsBeamGroup, selectedPeriod = null;
 let raycaster, mouse;
 let positionAttr, colorAttr;
 let isDragging = false, dragStart = {x:0,y:0};
@@ -1019,6 +1020,7 @@ function selectStar(idx) {
   if (highlightMesh) {
     highlightMesh.position.set(s.x, s.z, -s.y);
     highlightMesh.visible = true;
+    selectedPeriod = (s.P != null && s.P > 0) ? parseFloat(s.P) : null;
   }
 }
 
@@ -1026,6 +1028,7 @@ function closeCard() {
   document.getElementById('selected-card').classList.remove('visible');
   selectedIdx = null;
   if (highlightMesh) highlightMesh.visible = false;
+  selectedPeriod = null;
   if (label) label.setData({ text: '' });
   document.querySelectorAll('.star-item').forEach(el => el.classList.remove('selected'));
 }
@@ -1087,12 +1090,37 @@ function initThree() {
   sunLight.position.copy(sun.position);
   scene.add(sunLight);
 
-  // Highlight sphere
-  const hlGeo = new THREE.SphereGeometry(0.12, 8, 8);
-  const hlMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.9 });
-  highlightMesh = new THREE.Mesh(hlGeo, hlMat);
-  highlightMesh.visible = false;
-  scene.add(highlightMesh);
+  // ── NEUTRON STAR MODEL ──
+  nsGroup = new THREE.Group();
+
+  // Core body — bright emissive sphere
+  const bodyGeo = new THREE.SphereGeometry(0.12, 16, 16);
+  const bodyMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.95 });
+  nsGroup.add(new THREE.Mesh(bodyGeo, bodyMat));
+
+  // Outer glow
+  const glowGeo = new THREE.SphereGeometry(0.22, 16, 16);
+  const glowMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.12 });
+  nsGroup.add(new THREE.Mesh(glowGeo, glowMat));
+
+  // Emission beams — two opposite cones tilted 45° from rotation axis
+  nsBeamGroup = new THREE.Group();
+  const beamGeo = new THREE.ConeGeometry(0.05, 0.7, 8, 1, true);
+  const beamMat = new THREE.MeshBasicMaterial({ color: 0x44eeff, transparent: true, opacity: 0.35, side: THREE.DoubleSide });
+  const beam1 = new THREE.Mesh(beamGeo, beamMat);
+  beam1.position.y = 0.45;
+  const beam2 = new THREE.Mesh(beamGeo, beamMat.clone());
+  beam2.rotation.x = Math.PI;
+  beam2.position.y = -0.45;
+  nsBeamGroup.add(beam1, beam2);
+  nsBeamGroup.rotation.z = Math.PI * 0.25; // magnetic axis tilt
+  nsGroup.add(nsBeamGroup);
+
+  nsGroup.visible = false;
+  scene.add(nsGroup);
+
+  // Keep highlightMesh reference for compatibility
+  highlightMesh = nsGroup;
 
   window.addEventListener('resize', onResize);
   canvas.addEventListener('mousedown', onMouseDown);
@@ -1280,6 +1308,14 @@ function animate() {
   if (!isRotating && !isPanning && !userInteracted) {
     spherical.theta += 0.0003;
     updateCamera();
+  }
+
+  // ── Rotate neutron star beams ──
+  if (nsBeamGroup && nsGroup.visible && selectedPeriod != null) {
+    // Cap visual period: min 0.5s so fast pulsars don't blur
+    const visualPeriod = Math.max(selectedPeriod, 0.5);
+    const angularSpeed = (2.0 * Math.PI) / visualPeriod;
+    nsBeamGroup.rotation.y += angularSpeed / 60.0; // assume ~60fps
   }
 
   renderer.render(scene, camera);
