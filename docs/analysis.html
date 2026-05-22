@@ -759,12 +759,19 @@ function drawPPdot() {
     lpdot: Math.log10(s.PDOT)
   }));
 
-  // Axis ranges
-  const lpMin = -3.2, lpMax = 2.4;
-  const lpdotMin = -23, lpdotMax = -8.5;
+  // Axis ranges (use zoom if set)
+  const z = getZoom('ppdot-canvas');
+  const lpMin = z ? z.xMin : -3.2, lpMax = z ? z.xMax : 2.4;
+  const lpdotMin = z ? z.yMin : -23, lpdotMax = z ? z.yMax : -8.5;
 
   function toX(lp) { return PAD.left + (lp - lpMin) / (lpMax - lpMin) * plotW; }
   function toY(lpdot) { return PAD.top + (1 - (lpdot - lpdotMin) / (lpdotMax - lpdotMin)) * plotH; }
+
+  // Register mapping for zoom
+  registerChart('ppdot-canvas',
+    px => lpMin + (px - PAD.left) / plotW * (lpMax - lpMin),
+    py => lpdotMax - (py - PAD.top) / plotH * (lpdotMax - lpdotMin),
+    { xMin: -3.2, xMax: 2.4, yMin: -23, yMax: -8.5 });
 
   // Background
   ctx.fillStyle = '#05070f';
@@ -932,10 +939,17 @@ function drawHeatmap() {
   const plotW = W - PAD.left - PAD.right;
   const plotH = H - PAD.top - PAD.bottom;
 
-  const xMin = -20, xMax = 20, yMin = -20, yMax = 20;
+  const zh = getZoom('heatmap-canvas');
+  const xMin = zh ? zh.xMin : -20, xMax = zh ? zh.xMax : 20;
+  const yMin = zh ? zh.yMin : -20, yMax = zh ? zh.yMax : 20;
 
   function toX(x) { return PAD.left + (x - xMin) / (xMax - xMin) * plotW; }
   function toY(y) { return PAD.top + (1 - (y - yMin) / (yMax - yMin)) * plotH; }
+
+  registerChart('heatmap-canvas',
+    px => xMin + (px - PAD.left) / plotW * (xMax - xMin),
+    py => yMax - (py - PAD.top) / plotH * (yMax - yMin),
+    { xMin: -20, xMax: 20, yMin: -20, yMax: 20 });
 
   ctx.fillStyle = '#05070f';
   ctx.fillRect(0, 0, W, H);
@@ -1233,14 +1247,20 @@ function drawNeighbor() {
 
   // Axis range
   const xs = allPts.map(p => p.s.x), ys = allPts.map(p => p.s.y);
-  const pad = Math.max((Math.max(...xs) - Math.min(...xs)), (Math.max(...ys) - Math.min(...ys))) * 0.2 + 0.5;
-  const xMin = Math.min(...xs) - pad, xMax = Math.max(...xs) + pad;
-  const yMin = Math.min(...ys) - pad, yMax = Math.max(...ys) + pad;
-  const range = Math.max(xMax - xMin, yMax - yMin);
-  const cx = (xMin + xMax) / 2, cy = (yMin + yMax) / 2;
+  const pad2 = Math.max((Math.max(...xs) - Math.min(...xs)), (Math.max(...ys) - Math.min(...ys))) * 0.2 + 0.5;
+  const defXMin = Math.min(...xs) - pad2, defXMax = Math.max(...xs) + pad2;
+  const defYMin = Math.min(...ys) - pad2, defYMax = Math.max(...ys) + pad2;
+  const zn = getZoom('neighbor-canvas');
+  const xMin = zn ? zn.xMin : defXMin, xMax = zn ? zn.xMax : defXMax;
+  const yMin = zn ? zn.yMin : defYMin, yMax = zn ? zn.yMax : defYMax;
 
-  function toX(v) { return PAD.left + ((v - (cx - range/2)) / range) * plotW; }
-  function toY(v) { return PAD.top + plotH - ((v - (cy - range/2)) / range) * plotH; }
+  function toX(v) { return PAD.left + (v - xMin) / (xMax - xMin) * plotW; }
+  function toY(v) { return PAD.top + plotH - (v - yMin) / (yMax - yMin) * plotH; }
+
+  registerChart('neighbor-canvas',
+    px => xMin + (px - PAD.left) / plotW * (xMax - xMin),
+    py => yMin + (1 - (py - PAD.top) / plotH) * (yMax - yMin),
+    null);
 
   // Grid
   ctx.strokeStyle = 'rgba(0,212,255,0.06)'; ctx.lineWidth = 1;
@@ -1283,12 +1303,12 @@ function drawNeighbor() {
   // Axes labels
   ctx.fillStyle = '#7a8299'; ctx.font = '10px Space Mono'; ctx.textAlign = 'center';
   for (let i = 0; i <= 4; i++) {
-    const v = cx - range/2 + (i/4)*range;
+    const v = xMin + (i/4) * (xMax - xMin);
     ctx.fillText(v.toFixed(1), PAD.left + (i/4)*plotW, H - 14);
   }
   ctx.textAlign = 'right';
   for (let i = 0; i <= 4; i++) {
-    const v = cy - range/2 + (i/4)*range;
+    const v = yMin + (i/4) * (yMax - yMin);
     ctx.fillText(v.toFixed(1), PAD.left - 6, PAD.top + plotH - (i/4)*plotH + 3);
   }
   ctx.fillStyle = '#e8eaf2'; ctx.font = '11px Space Mono'; ctx.textAlign = 'center';
@@ -1387,11 +1407,17 @@ function drawClustering() {
   const ayLabel = clProjection === 'xy' ? 'y (kpc)' : 'z (kpc)';
 
   const xs = valid.map(s => s[ax]), ys = valid.map(s => s[ay]);
-  const xMin = Math.min(...xs) - 1, xMax = Math.max(...xs) + 1;
-  const yMin = Math.min(...ys) - 1, yMax = Math.max(...ys) + 1;
+  const zc = getZoom('clustering-canvas');
+  const xMin = zc ? zc.xMin : Math.min(...xs) - 1, xMax = zc ? zc.xMax : Math.max(...xs) + 1;
+  const yMin = zc ? zc.yMin : Math.min(...ys) - 1, yMax = zc ? zc.yMax : Math.max(...ys) + 1;
 
   function toX(v) { return PAD.left + (v - xMin) / (xMax - xMin) * plotW; }
   function toY(v) { return PAD.top + plotH - (v - yMin) / (yMax - yMin) * plotH; }
+
+  registerChart('clustering-canvas',
+    px => xMin + (px - PAD.left) / plotW * (xMax - xMin),
+    py => yMin + (1 - (py - PAD.top) / plotH) * (yMax - yMin),
+    null);
 
   // Grid
   ctx.strokeStyle = 'rgba(0,212,255,0.06)'; ctx.lineWidth = 1;
@@ -1568,9 +1594,16 @@ function drawLoS() {
 }
 
 // ── ZOOM (drag-select on any canvas) ─────────────────────
-(function setupZoom() {
-  let zoomState = {};
+const chartMaps = {};   // canvasId → {toDataX, toDataY, defaults}
+const zoomBounds = {};  // canvasId → {xMin,xMax,yMin,yMax} or null
 
+function registerChart(canvasId, toDataX, toDataY, defaults) {
+  chartMaps[canvasId] = { toDataX, toDataY, defaults };
+}
+
+function getZoom(canvasId) { return zoomBounds[canvasId] || null; }
+
+(function setupZoom() {
   function attachZoom(canvasId, drawFn) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -1587,7 +1620,6 @@ function drawLoS() {
       if (!dragging) return;
       const r = canvas.getBoundingClientRect();
       const cx = e.clientX - r.left, cy = e.clientY - r.top;
-      // Redraw then overlay selection rect
       drawFn();
       const ctx = canvas.getContext('2d');
       ctx.strokeStyle = 'rgba(0,212,255,0.6)';
@@ -1599,11 +1631,30 @@ function drawLoS() {
       ctx.fillRect(startX, startY, cx - startX, cy - startY);
     });
 
-    canvas.addEventListener('mouseup', e => { dragging = false; });
-    canvas.addEventListener('dblclick', () => drawFn());
+    canvas.addEventListener('mouseup', e => {
+      if (!dragging) return;
+      dragging = false;
+      const r = canvas.getBoundingClientRect();
+      const endX = e.clientX - r.left, endY = e.clientY - r.top;
+      const dx = Math.abs(endX - startX), dy = Math.abs(endY - startY);
+      if (dx < 10 || dy < 10) return; // too small
+
+      const m = chartMaps[canvasId];
+      if (!m) return;
+      const x1 = m.toDataX(Math.min(startX, endX));
+      const x2 = m.toDataX(Math.max(startX, endX));
+      const y1 = m.toDataY(Math.max(startY, endY));
+      const y2 = m.toDataY(Math.min(startY, endY));
+      zoomBounds[canvasId] = { xMin: Math.min(x1,x2), xMax: Math.max(x1,x2), yMin: Math.min(y1,y2), yMax: Math.max(y1,y2) };
+      drawFn();
+    });
+
+    canvas.addEventListener('dblclick', () => {
+      zoomBounds[canvasId] = null;
+      drawFn();
+    });
   }
 
-  // Attach after DOM ready
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       attachZoom('ppdot-canvas', drawPPdot);
