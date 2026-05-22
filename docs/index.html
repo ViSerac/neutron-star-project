@@ -1312,8 +1312,8 @@ function animate() {
 
   // ── Rotate neutron star beams ──
   if (nsBeamGroup && nsGroup.visible && selectedPeriod != null) {
-    // Cap visual period: min 0.5s so fast pulsars don't blur
-    const visualPeriod = Math.max(selectedPeriod, 0.5);
+    // Cap visual period: min 0.1s so fast pulsars don't blur
+    const visualPeriod = Math.max(selectedPeriod, 0.1);
     const angularSpeed = (2.0 * Math.PI) / visualPeriod;
     nsBeamGroup.rotation.y += angularSpeed / 60.0; // assume ~60fps
   }

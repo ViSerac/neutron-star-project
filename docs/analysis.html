@@ -600,8 +600,8 @@
       </div>
       <div class="controls-row">
         <div class="control-group">
-          <div class="control-label">eps (kpc): <span id="cl-eps-val">3.0</span></div>
-          <input type="range" id="cl-eps" min="0.5" max="15" step="0.5" value="3" oninput="document.getElementById('cl-eps-val').textContent=parseFloat(this.value).toFixed(1);drawClustering()">
+          <div class="control-label">eps (kpc): <span id="cl-eps-val">1.0</span></div>
+          <input type="range" id="cl-eps" min="0.1" max="5" step="0.1" value="1" oninput="document.getElementById('cl-eps-val').textContent=parseFloat(this.value).toFixed(1);drawClustering()">
         </div>
         <div class="control-group">
           <div class="control-label">min_samples: <span id="cl-min-val">5</span></div>
@@ -643,9 +643,6 @@
         <div class="control-group">
           <div class="control-label">Radius (deg): <span id="los-r-val">5.0</span></div>
           <input type="range" id="los-radius" min="0.5" max="30" step="0.5" value="5" oninput="document.getElementById('los-r-val').textContent=parseFloat(this.value).toFixed(1);drawLoS()">
-        </div>
-        <div class="control-group" style="align-self:flex-end">
-          <button class="toggle-chip active" onclick="drawLoS()" style="padding:8px 16px">Search</button>
         </div>
       </div>
       <div class="chart-wrap heatmap">
