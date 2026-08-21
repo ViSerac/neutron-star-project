@@ -3,103 +3,73 @@ import numpy as np
 from astropy.coordinates import SkyCoord, Galactocentric
 from astropy import units as u
 from sklearn.cluster import DBSCAN
+from pathlib import Path
 
-def convert_to_cartesian_galactic(
-    input_path = "../data/atnf_raw.parquet",
-    output_path = "../data/atnf_processed_galactic.parquet"
-):
-    df_galactic = pd.read_parquet(input_path)
+DATA_DIR = Path(__file__).resolve().parent / "data"
 
-    df_galactic = df_galactic.dropna(subset=["DIST", "RAJ", "DECJ"])
+GALCEN = Galactocentric(
+    galcen_distance=8.122 * u.kpc,
+    z_sun=20.8 * u.pc,
+)
 
-    coords = SkyCoord(
-        ra=df_galactic["RAJ"].values,
-        dec=df_galactic["DECJ"].values,
-        distance=df_galactic["DIST"].values * u.kpc,
-        unit=(u.hourangle, u.deg),
-        frame="icrs"
-    )
+def convert_to_cartesian_galactic():
+    input_path  = DATA_DIR / "atnf_raw.parquet"
+    output_path = DATA_DIR / "atnf_processed_galactic.parquet"
 
-    gal = coords.transform_to(Galactocentric())
+    df = pd.read_parquet(input_path)
+    df = df.dropna(subset=["DIST", "RAJ", "DECJ"])
 
-    df_galactic["x"] = gal.x.to(u.kpc).value
-    df_galactic["y"] = gal.y.to(u.kpc).value
-    df_galactic["z"] = gal.z.to(u.kpc).value
-    df_galactic = df_galactic[df_galactic["z"].between(-5, 5)]
-    df_galactic = df_galactic[df_galactic["DIST"] < 20]
-    
-    df_galactic["P"] = df_galactic["P"].fillna(np.nan)
-    df_galactic["PDOT"] = df_galactic["PDOT"].fillna(np.nan)
-    
-    df_galactic["galaxy"] = "milky_way"
-    df_galactic["type"] = "pulsar"
-    df_galactic["source_catalog"] = "ATNF"
+    coords = SkyCoord(ra=df["RAJ"].values, dec=df["DECJ"].values,
+                      distance=df["DIST"].values * u.kpc,
+                      unit=(u.deg, u.deg), frame="icrs")
+    gal = coords.transform_to(GALCEN)
 
-    df_galactic["wiki_url"] = df_galactic["NS_NAME"].apply(lambda name: f"https://en.wikipedia.org/wiki/{name}")
-    
-    df_galactic.to_parquet(output_path, index=False)
-    
-    # print(df_galactic["z"].describe())
-    # print(df_galactic[["x", "y", "z"]].head())
-    # print(df_galactic["DIST"].describe())
-    print(f"Saved processed data to {output_path}")
+    df["x"] = gal.x.to(u.kpc).value
+    df["y"] = gal.y.to(u.kpc).value
+    df["z"] = gal.z.to(u.kpc).value
+    df = df[df["z"].between(-5, 5)]
+    df = df[df["DIST"] < 20]
+    df["P"]    = df["P"].fillna(np.nan)
+    df["PDOT"] = df["PDOT"].fillna(np.nan)
+    df["galaxy"]         = "milky_way"
+    df["type"]           = "pulsar"
+    df["source_catalog"] = "ATNF"
+    df["wiki_url"]       = df["NS_NAME"].apply(lambda n: f"https://en.wikipedia.org/wiki/{n}")
+    df.reset_index(drop=True).to_parquet(output_path, index=False)
+    print(f"Saved {len(df)} galactic records to {output_path}")
 
-def convert_to_cartesian_extragalactic(
-    input_path = "../data/atnf_raw.parquet",
-    output_path = "../data/atnf_processed_extragalactic.parquet"
-):
-    df_extragalactic = pd.read_parquet(input_path)
+def convert_to_cartesian_extragalactic():
+    input_path  = DATA_DIR / "atnf_raw.parquet"
+    output_path = DATA_DIR / "atnf_processed_extragalactic.parquet"
 
-    df_extragalactic = df_extragalactic.dropna(subset=["DIST", "RAJ", "DECJ"])
+    df = pd.read_parquet(input_path)
+    df = df.dropna(subset=["DIST", "RAJ", "DECJ"])
 
-    coords = SkyCoord(
-        ra=df_extragalactic["RAJ"].values,
-        dec=df_extragalactic["DECJ"].values,
-        distance=df_extragalactic["DIST"].values * u.kpc,
-        unit=(u.hourangle, u.deg),
-        frame="icrs"
-    )
+    coords = SkyCoord(ra=df["RAJ"].values, dec=df["DECJ"].values,
+                      distance=df["DIST"].values * u.kpc,
+                      unit=(u.deg, u.deg), frame="icrs")
+    gal = coords.transform_to(GALCEN)
 
-    gal = coords.transform_to(Galactocentric())
+    df["x"] = gal.x.to(u.kpc).value
+    df["y"] = gal.y.to(u.kpc).value
+    df["z"] = gal.z.to(u.kpc).value
+    df = df[df["DIST"].between(40, 70)]
 
-    df_extragalactic["x"] = gal.x.to(u.kpc).value
-    df_extragalactic["y"] = gal.y.to(u.kpc).value
-    df_extragalactic["z"] = gal.z.to(u.kpc).value
-    df_extragalactic = df_extragalactic[df_extragalactic["DIST"].between(40, 70)]
-    
-    coords_array = df_extragalactic[["x", "y", "z"]].values
+    clustering = DBSCAN(eps=5, min_samples=5).fit(df[["x","y","z"]].values)
+    df["cluster"] = clustering.labels_
+    counts = df.groupby("cluster")["NS_NAME"].count()
+    df["galaxy"] = "unknown"
+    df.loc[df["cluster"] == counts.idxmax(), "galaxy"] = "lmc"
+    df.loc[df["cluster"] == counts.idxmin(), "galaxy"] = "smc"
 
-    clustering = DBSCAN(eps=5, min_samples=5).fit(coords_array)
-    labels = clustering.labels_
-    df_extragalactic["cluster"] = labels
-    
-    counts = df_extragalactic.groupby("cluster")["NS_NAME"].count()
-    cluster_lmc = counts.idxmax()
-    cluster_smc = counts.idxmin()
-    
-    df_extragalactic["P"] = df_extragalactic["P"].fillna(np.nan)
-    df_extragalactic["PDOT"] = df_extragalactic["PDOT"].fillna(np.nan)
-    
-    df_extragalactic["galaxy"] = "unknown" 
-    df_extragalactic.loc[df_extragalactic["cluster"] == cluster_lmc, "galaxy"] = "lmc"
-    df_extragalactic.loc[df_extragalactic["cluster"] == cluster_smc, "galaxy"] = "smc"
+    df["P"]    = df["P"].fillna(np.nan)
+    df["PDOT"] = df["PDOT"].fillna(np.nan)
+    df["type"]           = "pulsar"
+    df["source_catalog"] = "ATNF"
+    df["wiki_url"]       = df["NS_NAME"].apply(lambda n: f"https://en.wikipedia.org/wiki/{n}")
+    df.reset_index(drop=True).to_parquet(output_path, index=False)
+    print(f"Saved {len(df)} extragalactic records to {output_path}")
 
-    df_extragalactic["type"] = "pulsar"
-    df_extragalactic["source_catalog"] = "ATNF"
-
-    df_extragalactic["wiki_url"] = df_extragalactic["NS_NAME"].apply(lambda name: f"https://en.wikipedia.org/wiki/{name}")
-    
-    df_extragalactic.to_parquet(output_path, index=False)
-    
-    # print(set(labels))
-    # print(df_extragalactic["galaxy"].value_counts())
-    # print(df_extragalactic["cluster"].value_counts())
-    # print(df_extragalactic.groupby("galaxy")[["x","y","z"]].mean())
-    # print(df_extragalactic["z"].describe())
-    # print(df_extragalactic[["x", "y", "z"]].head())
-    # print(df_extragalactic["DIST"].describe())
-    print(f"Saved processed data to {output_path}")
-    
 if __name__ == "__main__":
     convert_to_cartesian_galactic()
     convert_to_cartesian_extragalactic()
