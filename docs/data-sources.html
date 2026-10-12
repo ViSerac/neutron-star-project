@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<!-- Google tag (gtag.js): only loaded after the visitor accepts the cookie banner -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-WGGNJP9C4F");
+  function loadGA() {
+    if (window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F";
+    document.head.appendChild(s);
+    gtag("js", new Date());
+    gtag("config", "G-WGGNJP9C4F");
+  }
+  try { if (localStorage.getItem("nsp_cookie_consent") === "accepted") loadGA(); } catch (e) {}
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -417,9 +425,9 @@
     <div class="source-header">
       <div>
         <div class="source-title">ATNF Pulsar Catalogue</div>
-        <div class="source-subtitle">Australia Telescope National Facility · v2.4.0</div>
+        <div class="source-subtitle">Australia Telescope National Facility · latest release, refreshed weekly</div>
       </div>
-      <div class="source-badge">~4,056 pulsars</div>
+      <div class="source-badge"><span data-stat="ATNF">4,217</span> pulsars</div>
     </div>
     <div class="source-body">
       <div class="source-meta">
@@ -429,7 +437,7 @@
         </div>
         <div class="meta-item">
           <div class="meta-label">Parameters Used</div>
-          <div class="meta-value">JNAME, RAJ, DECJ, DIST</div>
+          <div class="meta-value">JNAME, RAJ, DECJ, DIST, P0, P1, TYPE</div>
         </div>
         <div class="meta-item">
           <div class="meta-label">Access Method</div>
@@ -447,7 +455,9 @@
         Distances are primarily derived from pulsar dispersion measures (DM) combined with models of the Galactic free electron density. Objects without distance estimates, or with distances exceeding 20 kpc, or with |z| > 5 kpc above the Galactic plane, are excluded from the visualization.
       </p>
       <div class="processing-note">
-        <strong>Overlap note:</strong> Seven pulsars in the ATNF catalogue correspond to members of the Magnificent Seven (M7) isolated neutron stars. These are removed from the ATNF dataset and represented instead by the more precise M7 entries sourced from SIMBAD astrometry.
+        <strong>Overlap note:</strong> ATNF also lists neutron stars that this project takes from other sources, usually under a different name (ATNF uses J-names, the other catalogs use historical names). To avoid duplicates these are removed from the ATNF dataset:
+        the seven Magnificent Seven members; the three CCOs with detected pulsations (Puppis A, 1E 1207.4-5209 and Kes 79); every magnetar (ATNF <code>TYPE = AXP</code>), which comes from McGill instead; and PSR J1846-0258, which McGill lists for its 2006 magnetar-like outburst.
+        The ATNF period and period derivative of the M7 and of those three CCOs are kept and attached to their entries.
       </div>
       <div class="source-links">
         <a class="src-link" href="https://www.atnf.csiro.au/research/pulsar/psrcat/" target="_blank">
@@ -521,7 +531,7 @@
         </div>
         <div class="meta-item">
           <div class="meta-label">Distance Method</div>
-          <div class="meta-value">Parallax (HST/Chandra)</div>
+          <div class="meta-value">Compiled estimates (parallax where available)</div>
         </div>
         <div class="meta-item">
           <div class="meta-label">Distance Source</div>
@@ -536,7 +546,10 @@
         The Magnificent Seven (M7) are seven nearby, thermally-emitting, radio-quiet isolated neutron stars discovered by ROSAT. Their precise equatorial coordinates were retrieved from the SIMBAD Astronomical Database.
       </p>
       <p>
-        Distances are derived from parallax measurements compiled in Table 1 of Motch et al. (2007), converted via <code>d(pc) = 1000 / parallax(mas)</code>. For objects with distance ranges or asymmetric uncertainties, the midpoint of the reported range was used.
+        Distances are taken from the compilation in Table 1 of Motch et al. (2007), which lists them in parsecs (converted to kpc by dividing by 1000). For RBS 1223 the midpoint of the reported 76–670 pc range is used, and for RX J1605.3+3249 and RX J0420.0-5022 the published upper limits (410 and 340 pc).
+      </p>
+      <p>
+        Spin period and period derivative come from the ATNF catalogue. RX J1605.3+3249 is left without a period: the 6.88 s candidate listed by ATNF was not confirmed by later observations (Pires et al. 2019; Malacaria et al. 2019).
       </p>
       <div class="source-links">
         <a class="src-link" href="https://simbad.u-strasbg.fr/simbad/" target="_blank">
@@ -613,30 +626,15 @@
   </div>
 </div>
 <script>
-  (function() {
-    const consent = localStorage.getItem("nsp_cookie_consent");
-    if (consent === "accepted") {
-      // Already accepted — GA runs normally
-    } else if (consent === "declined") {
-      // Declined — disable GA
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    } else {
-      // No choice yet — disable GA until accepted
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    }
-  })();
 
   function cookieAccept() {
     localStorage.setItem("nsp_cookie_consent", "accepted");
-    window["ga-disable-G-WGGNJP9C4F"] = false;
     document.getElementById("cookie-banner").classList.add("hidden");
-    // Re-init GA
-    gtag("consent", "update", { analytics_storage: "granted" });
+    loadGA();
   }
 
   function cookieDecline() {
     localStorage.setItem("nsp_cookie_consent", "declined");
-    window["ga-disable-G-WGGNJP9C4F"] = true;
     document.getElementById("cookie-banner").classList.add("hidden");
   }
 
@@ -647,5 +645,17 @@
   });
 </script>
 <script>document.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){document.querySelector("nav").classList.remove("open")})});</script>
+<script>
+  // Fill [data-stat] placeholders with live counts from the 3D dataset
+  fetch("data/NS_db_full.json").then(function(r) { return r.json(); }).then(function(rows) {
+    var n = { total: rows.length };
+    rows.forEach(function(r) { n[r.source_catalog] = (n[r.source_catalog] || 0) + 1; });
+    n.other = n.total - (n.ATNF || 0);
+    document.querySelectorAll("[data-stat]").forEach(function(el) {
+      var v = n[el.dataset.stat];
+      if (v != null) el.textContent = v.toLocaleString("en-US");
+    });
+  }).catch(function() {});
+</script>
 </body>
 </html>

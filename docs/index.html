@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<!-- Google tag (gtag.js): only loaded after the visitor accepts the cookie banner -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-WGGNJP9C4F");
+  function loadGA() {
+    if (window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F";
+    document.head.appendChild(s);
+    gtag("js", new Date());
+    gtag("config", "G-WGGNJP9C4F");
+  }
+  try { if (localStorage.getItem("nsp_cookie_consent") === "accepted") loadGA(); } catch (e) {}
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -101,6 +109,7 @@
     height: 100%;
     display: block;
     cursor: crosshair;
+    touch-action: none;
   }
 
   /* ── SIDE PANEL ── */
@@ -765,7 +774,7 @@ function icrsToGalactocentric(raj, decj, dist_kpc) {
     const z_g =  -0.867666*xi - 0.198076*yi + 0.455984*zi;
 
     // Shift to Galactocentric (Sun at x=-8.122, z=0.0208)
-    const x_gc = x_g + 8.122;
+    const x_gc = x_g - 8.122;
     const y_gc = y_g;
     const z_gc = z_g + 0.0208;
 
@@ -940,20 +949,23 @@ function typeRank(t) {
 function updateList() {
   const list = document.getElementById('star-list');
   list.innerHTML = '';
-  const sorted = [...filteredStars].sort((a,b) => typeRank(a.type) - typeRank(b.type));
+  const sorted = filteredStars
+    .map((s, idx) => ({ s, idx }))
+    .sort((a, b) => typeRank(a.s.type) - typeRank(b.s.type));
   const show = sorted.slice(0, 300);
-  show.forEach((s, i) => {
+  show.forEach(({ s, idx }) => {
     const cfg = TYPE_CONFIG[s.type] || { color: 0x888888 };
     const hex = '#' + cfg.color.toString(16).padStart(6,'0');
     const item = document.createElement('div');
-    item.className = 'star-item' + (selectedIdx === i ? ' selected' : '');
+    item.className = 'star-item' + (selectedIdx === idx ? ' selected' : '');
+    item.dataset.idx = idx;
     item.innerHTML = `
       <div class="star-dot" style="background:${hex}"></div>
       <div>
         <div class="star-name">${s.NS_NAME}</div>
         <div class="star-type">${cfg.label || s.type}</div>
       </div>`;
-    item.addEventListener('click', () => selectStar(i));
+    item.addEventListener('click', () => selectStar(idx));
     list.appendChild(item);
   });
   if (filteredStars.length > 300) {
@@ -971,8 +983,8 @@ function selectStar(idx) {
   if (!s) return;
 
   // highlight in list
-  document.querySelectorAll('.star-item').forEach((el,i) => {
-    el.classList.toggle('selected', i === idx);
+  document.querySelectorAll('.star-item').forEach(el => {
+    el.classList.toggle('selected', Number(el.dataset.idx) === idx);
   });
 
   // fill card
@@ -1029,7 +1041,6 @@ function closeCard() {
   selectedIdx = null;
   if (highlightMesh) highlightMesh.visible = false;
   selectedPeriod = null;
-  if (label) label.setData({ text: '' });
   document.querySelectorAll('.star-item').forEach(el => el.classList.remove('selected'));
 }
 
@@ -1127,6 +1138,10 @@ function initThree() {
   canvas.addEventListener('mousemove', onMouseMove);
   canvas.addEventListener('mouseup', onMouseUp);
   canvas.addEventListener('wheel', onWheel, { passive: false });
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onTouchEnd);
+  canvas.addEventListener('touchcancel', onTouchEnd);
   canvas.addEventListener('contextmenu', e => e.preventDefault());
   canvas.addEventListener('auxclick', e => e.preventDefault());
 
@@ -1250,16 +1265,78 @@ function onMouseMove(e) {
 function onMouseUp(e) {
   isRotating = false;
   isPanning = false;
-  if (!isDragging && e.button === 0) {
-    // click — pick star
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    if (points) {
-      const hits = raycaster.intersectObject(points);
-      if (hits.length > 0) selectStar(hits[0].index);
-    }
+  if (!isDragging && e.button === 0) pickAt(e.clientX, e.clientY);
+}
+
+function pickAt(clientX, clientY) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  if (points) {
+    const hits = raycaster.intersectObject(points);
+    if (hits.length > 0) selectStar(hits[0].index);
+  }
+}
+
+// ── TOUCH CONTROLS ───────────────────────────────────────
+// One finger rotates, two fingers pinch-zoom and pan, a tap selects.
+let touchState = null;
+
+function touchCenter(t) {
+  return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 };
+}
+
+function touchDist(t) {
+  return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+}
+
+function onTouchStart(e) {
+  e.preventDefault();
+  userInteracted = true;
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    touchState = { mode: 'rotate', x: t.clientX, y: t.clientY, moved: false };
+  } else if (e.touches.length === 2) {
+    touchState = { mode: 'pinch', dist: touchDist(e.touches), center: touchCenter(e.touches) };
+  }
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  if (!touchState) return;
+  if (touchState.mode === 'rotate' && e.touches.length === 1) {
+    const t = e.touches[0];
+    const dx = t.clientX - touchState.x;
+    const dy = t.clientY - touchState.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) touchState.moved = true;
+    spherical.theta -= dx * 0.005;
+    spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi - dy * 0.005));
+    touchState.x = t.clientX;
+    touchState.y = t.clientY;
+    updateCamera();
+  } else if (touchState.mode === 'pinch' && e.touches.length === 2) {
+    const d = touchDist(e.touches);
+    const c = touchCenter(e.touches);
+    spherical.radius = Math.max(1, Math.min(200, spherical.radius * touchState.dist / d));
+    panOffset.x -= (c.x - touchState.center.x) * 0.02;
+    panOffset.y += (c.y - touchState.center.y) * 0.02;
+    touchState.dist = d;
+    touchState.center = c;
+    updateCamera();
+  }
+}
+
+function onTouchEnd(e) {
+  if (touchState && touchState.mode === 'rotate' && !touchState.moved && e.changedTouches.length) {
+    const t = e.changedTouches[0];
+    pickAt(t.clientX, t.clientY);
+  }
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    touchState = { mode: 'rotate', x: t.clientX, y: t.clientY, moved: true };
+  } else if (e.touches.length === 0) {
+    touchState = null;
   }
 }
 
@@ -1337,30 +1414,15 @@ loadData();
   </div>
 </div>
 <script>
-  (function() {
-    const consent = localStorage.getItem("nsp_cookie_consent");
-    if (consent === "accepted") {
-      // Already accepted — GA runs normally
-    } else if (consent === "declined") {
-      // Declined — disable GA
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    } else {
-      // No choice yet — disable GA until accepted
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    }
-  })();
 
   function cookieAccept() {
     localStorage.setItem("nsp_cookie_consent", "accepted");
-    window["ga-disable-G-WGGNJP9C4F"] = false;
     document.getElementById("cookie-banner").classList.add("hidden");
-    // Re-init GA
-    gtag("consent", "update", { analytics_storage: "granted" });
+    loadGA();
   }
 
   function cookieDecline() {
     localStorage.setItem("nsp_cookie_consent", "declined");
-    window["ga-disable-G-WGGNJP9C4F"] = true;
     document.getElementById("cookie-banner").classList.add("hidden");
   }
 

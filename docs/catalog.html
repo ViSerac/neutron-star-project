@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<!-- Google tag (gtag.js): only loaded after the visitor accepts the cookie banner -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-WGGNJP9C4F");
+  function loadGA() {
+    if (window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F";
+    document.head.appendChild(s);
+    gtag("js", new Date());
+    gtag("config", "G-WGGNJP9C4F");
+  }
+  try { if (localStorage.getItem("nsp_cookie_consent") === "accepted") loadGA(); } catch (e) {}
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -122,6 +130,8 @@
   .badge { display:inline-block; font-size:8px; padding:1px 6px; border-radius:10px; letter-spacing:0.06em; }
   .badge-atnf { background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3); }
   .badge-mcgill { background:rgba(255,77,26,0.15); color:#ff4d1a; border:1px solid rgba(255,77,26,0.3); }
+  .badge-m7 { background:rgba(0,212,255,0.15); color:#00d4ff; border:1px solid rgba(0,212,255,0.3); }
+  .badge-cco { background:rgba(176,109,255,0.15); color:#b06dff; border:1px solid rgba(176,109,255,0.3); }
 
   #loading-msg { text-align:center; padding:60px; font-size:11px; color:var(--text-dim); letter-spacing:0.1em; }
 
@@ -238,15 +248,18 @@
     <div class="page-title">The Catalog</div>
     <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:4px">
       <div class="page-sub" style="margin-bottom:0">
-        Unified table from ATNF and McGill. Toggle columns in the sidebar. Regex supported in search.
+        Unified table from ATNF, McGill, the Magnificent Seven and CCOs. Toggle columns in the sidebar. Regex supported in search.
       </div>
       <span id="updated-at" style="font-size:9px;color:var(--text-dim);opacity:0.6;white-space:nowrap;letter-spacing:0.08em"></span>
     </div>
 
     <div class="controls">
+      <button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">Columns &amp; Export</button>
       <input id="search" type="text" placeholder="Search all columns (regex)..." autocomplete="off">
       <button class="cat-chip active" data-cat="ATNF" onclick="toggleCat(this)">ATNF</button>
       <button class="cat-chip active" data-cat="McGill" onclick="toggleCat(this)">McGill</button>
+      <button class="cat-chip active" data-cat="SIMBAD Magnificent Seven" onclick="toggleCat(this)">M7</button>
+      <button class="cat-chip active" data-cat="SIMBAD CCOs" onclick="toggleCat(this)">CCOs</button>
     </div>
 
     <div class="stats-row">
@@ -285,6 +298,8 @@ const COL_GROUPS = [
   { name: 'Identity', cols: [
     { key: 'NS_NAME',       label: 'NS_NAME',       cls: 'cyan',    def: true },
     { key: 'source_catalog',label: 'Catalog',        cls: 'primary', def: true },
+    { key: 'type',          label: 'Type',           cls: 'primary', def: true },
+    { key: 'galaxy',        label: 'Galaxy',         cls: 'primary', def: false },
   ]},
   { name: 'Position', cols: [
     { key: 'RAJ',           label: 'RAJ',            cls: 'primary', def: true },
@@ -353,7 +368,13 @@ let filtered = [];
 let currentPage = 1;
 let sortCol = null;
 let sortDir = 1;
-let activeCats = new Set(['ATNF', 'McGill']);
+let activeCats = new Set(['ATNF', 'McGill', 'SIMBAD Magnificent Seven', 'SIMBAD CCOs']);
+const CAT_BADGE = {
+  'ATNF': 'badge-atnf',
+  'McGill': 'badge-mcgill',
+  'SIMBAD Magnificent Seven': 'badge-m7',
+  'SIMBAD CCOs': 'badge-cco',
+};
 let visibleCols = new Set();
 
 // All columns flat
@@ -558,7 +579,7 @@ function render() {
       const val = row[col.key];
 
       if (col.key === 'source_catalog') {
-        const cls = val === 'ATNF' ? 'badge-atnf' : 'badge-mcgill';
+        const cls = CAT_BADGE[val] || 'badge-mcgill';
         td.innerHTML = `<span class="badge ${cls}">${val}</span>`;
       } else if (val == null) {
         td.innerHTML = '<span class="null-cell">—</span>';
@@ -654,13 +675,11 @@ function exportData(format) {
 // ── COOKIE ────────────────────────────────────────────────
 function cookieAccept() {
   localStorage.setItem('nsp_cookie_consent','accepted');
-  window['ga-disable-G-WGGNJP9C4F'] = false;
   document.getElementById('cookie-banner').classList.add('hidden');
-  gtag('consent','update',{analytics_storage:'granted'});
+  loadGA();
 }
 function cookieDecline() {
   localStorage.setItem('nsp_cookie_consent','declined');
-  window['ga-disable-G-WGGNJP9C4F'] = true;
   document.getElementById('cookie-banner').classList.add('hidden');
 }
 

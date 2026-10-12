@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<!-- Google tag (gtag.js): only loaded after the visitor accepts the cookie banner -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-WGGNJP9C4F");
+  function loadGA() {
+    if (window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F";
+    document.head.appendChild(s);
+    gtag("js", new Date());
+    gtag("config", "G-WGGNJP9C4F");
+  }
+  try { if (localStorage.getItem("nsp_cookie_consent") === "accepted") loadGA(); } catch (e) {}
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -422,7 +430,7 @@
       Special thanks to the teams behind the <strong style="color:var(--text)">ATNF Pulsar Catalogue</strong> (Manchester et al.), the <strong style="color:var(--text)">McGill Magnetar Catalogue</strong>, the <strong style="color:var(--text)">SIMBAD Astronomical Database</strong>, and to <strong style="color:var(--text)">Andrea De Luca</strong> for the comprehensive review of Central Compact Objects that formed the basis of the CCO dataset used here.
     </p>
     <p>
-      Distance measurements for the Magnificent Seven are derived from the astrometric analysis of Motch et al. (2007), which provided the most complete compiled parallax data available for this group.
+      Distances for the Magnificent Seven are taken from the compilation in Motch et al. (2007), which gathers the distance estimates available for this group.
     </p>
     <p>
       See the <a href="data-sources.html">Data Sources</a> page for full references and links.
@@ -481,30 +489,15 @@
   </div>
 </div>
 <script>
-  (function() {
-    const consent = localStorage.getItem("nsp_cookie_consent");
-    if (consent === "accepted") {
-      // Already accepted — GA runs normally
-    } else if (consent === "declined") {
-      // Declined — disable GA
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    } else {
-      // No choice yet — disable GA until accepted
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    }
-  })();
 
   function cookieAccept() {
     localStorage.setItem("nsp_cookie_consent", "accepted");
-    window["ga-disable-G-WGGNJP9C4F"] = false;
     document.getElementById("cookie-banner").classList.add("hidden");
-    // Re-init GA
-    gtag("consent", "update", { analytics_storage: "granted" });
+    loadGA();
   }
 
   function cookieDecline() {
     localStorage.setItem("nsp_cookie_consent", "declined");
-    window["ga-disable-G-WGGNJP9C4F"] = true;
     document.getElementById("cookie-banner").classList.add("hidden");
   }
 

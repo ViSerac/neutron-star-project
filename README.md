@@ -11,8 +11,8 @@ An interactive 3D catalog visualizer for neutron stars, built with Python and Th
 The Neutron Star Project aggregates data from multiple astronomical catalogs and renders known neutron stars in a navigable three-dimensional map of the Milky Way and its neighboring galaxies. Objects are color-coded by type and can be filtered, searched, and selected to view detailed information including coordinates, distance, period, period derivative, and links to Wikipedia and SIMBAD.
 
 **Catalogs included:**
-- [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/) — ~4,056 pulsars
-- [McGill Magnetar Catalogue](https://www.physics.mcgill.ca/~pulsar/magnetar/main.html) — ~25 magnetars
+- [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/) — ~4,200 pulsars with a usable distance (magnetars, the M7 and CCOs that ATNF also lists are taken from the sources below instead)
+- [McGill Magnetar Catalogue](https://www.physics.mcgill.ca/~pulsar/magnetar/main.html) — ~30 magnetars and candidates (~25 with a distance)
 - The Magnificent Seven — 7 isolated neutron stars (SIMBAD + Motch et al. 2007)
 - Confirmed CCOs — 8 central compact objects (SIMBAD + De Luca)
 
@@ -25,14 +25,18 @@ neutron-star-project/
 ├── pipeline/          # Data pipeline (fetch, transform, concat, export)
 ├── analysis/          # Python analysis scripts + Milky Way background image
 ├── docs/              # Static site served by GitHub Pages
-│   ├── index.html
+│   ├── index.html           # 3D visualizer
+│   ├── catalog.html         # full catalog table
 │   ├── import-export.html
 │   ├── analysis.html
+│   ├── api.html             # REST API documentation
 │   ├── faq.html
 │   ├── about.html
 │   ├── data-sources.html
 │   └── data/
-│       └── NS_db_full.json
+│       ├── NS_db_full.json       # objects with a distance (3D map, analysis)
+│       └── NS_catalog_full.json  # every object (catalog table, API)
+├── worker/            # Cloudflare Worker serving the REST API
 ├── LICENSE
 └── README.md
 ```

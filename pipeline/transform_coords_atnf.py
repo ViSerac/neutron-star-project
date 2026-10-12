@@ -34,7 +34,7 @@ def convert_to_cartesian_galactic():
     df["galaxy"]         = "milky_way"
     df["type"]           = "pulsar"
     df["source_catalog"] = "ATNF"
-    df["wiki_url"]       = df["NS_NAME"].apply(lambda n: f"https://en.wikipedia.org/wiki/{n}")
+    df["wiki_url"]       = df["NS_NAME"].apply(lambda n: f"https://en.wikipedia.org/wiki/PSR_{n}")
     df.reset_index(drop=True).to_parquet(output_path, index=False)
     print(f"Saved {len(df)} galactic records to {output_path}")
 
@@ -66,7 +66,7 @@ def convert_to_cartesian_extragalactic():
     df["PDOT"] = df["PDOT"].fillna(np.nan)
     df["type"]           = "pulsar"
     df["source_catalog"] = "ATNF"
-    df["wiki_url"]       = df["NS_NAME"].apply(lambda n: f"https://en.wikipedia.org/wiki/{n}")
+    df["wiki_url"]       = df["NS_NAME"].apply(lambda n: f"https://en.wikipedia.org/wiki/PSR_{n}")
     df.reset_index(drop=True).to_parquet(output_path, index=False)
     print(f"Saved {len(df)} extragalactic records to {output_path}")
 

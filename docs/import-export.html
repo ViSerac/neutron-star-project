@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<!-- Google tag (gtag.js): only loaded after the visitor accepts the cookie banner -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-WGGNJP9C4F");
+  function loadGA() {
+    if (window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F";
+    document.head.appendChild(s);
+    gtag("js", new Date());
+    gtag("config", "G-WGGNJP9C4F");
+  }
+  try { if (localStorage.getItem("nsp_cookie_consent") === "accepted") loadGA(); } catch (e) {}
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1306,30 +1314,15 @@ init();
   </div>
 </div>
 <script>
-  (function() {
-    const consent = localStorage.getItem("nsp_cookie_consent");
-    if (consent === "accepted") {
-      // Already accepted — GA runs normally
-    } else if (consent === "declined") {
-      // Declined — disable GA
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    } else {
-      // No choice yet — disable GA until accepted
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    }
-  })();
 
   function cookieAccept() {
     localStorage.setItem("nsp_cookie_consent", "accepted");
-    window["ga-disable-G-WGGNJP9C4F"] = false;
     document.getElementById("cookie-banner").classList.add("hidden");
-    // Re-init GA
-    gtag("consent", "update", { analytics_storage: "granted" });
+    loadGA();
   }
 
   function cookieDecline() {
     localStorage.setItem("nsp_cookie_consent", "declined");
-    window["ga-disable-G-WGGNJP9C4F"] = true;
     document.getElementById("cookie-banner").classList.add("hidden");
   }
 

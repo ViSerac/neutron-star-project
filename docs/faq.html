@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<!-- Google tag (gtag.js): only loaded after the visitor accepts the cookie banner -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-WGGNJP9C4F");
+  function loadGA() {
+    if (window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F";
+    document.head.appendChild(s);
+    gtag("js", new Date());
+    gtag("config", "G-WGGNJP9C4F");
+  }
+  try { if (localStorage.getItem("nsp_cookie_consent") === "accepted") loadGA(); } catch (e) {}
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -382,7 +390,7 @@
       </div>
       <div class="faq-a"><div class="faq-a-inner">
         <p>A pulsar is a rotating neutron star that emits beams of electromagnetic radiation usually radio waves from its magnetic poles. Because the star spins and the beam sweeps through space like a lighthouse, we detect it as regular pulses of radiation.</p>
-        <p>Some pulsars rotate hundreds of times per second with such precision that they rival atomic clocks in accuracy. The first pulsar was discovered in 1967 by Jocelyn Bell Burnell, and today we know of over 4,300 of them, most catalogued by the <a href="https://www.atnf.csiro.au/research/pulsar/psrcat/" target="_blank">ATNF Pulsar Catalogue</a>.</p>
+        <p>Some pulsars rotate hundreds of times per second with such precision that they rival atomic clocks in accuracy. The first pulsar was discovered in 1967 by Jocelyn Bell Burnell, and today we know of over 4,500 of them, most catalogued by the <a href="https://www.atnf.csiro.au/research/pulsar/psrcat/" target="_blank">ATNF Pulsar Catalogue</a>.</p>
       </div></div>
     </div>
 
@@ -515,8 +523,8 @@
         <div class="faq-icon">+</div>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        <p>M7 distances are derived from parallax measurements where available, primarily from HST astrometry. The values used in this project are taken from Table 1 of <a href="https://arxiv.org/pdf/0712.0342" target="_blank">Motch et al. (2007)</a>, converted from parsecs to kiloparsecs via <code>d(pc) = 1000 / parallax(mas)</code>.</p>
-        <p>For objects with distance ranges or asymmetric uncertainties (e.g. RBS 1223: 76–670 pc), the midpoint of the reported range was used. These distances carry substantial uncertainties and should be treated as approximate in the 3D visualization.</p>
+        <p>M7 distances are taken from the compilation in Table 1 of <a href="https://arxiv.org/pdf/0712.0342" target="_blank">Motch et al. (2007)</a>, which lists them in parsecs; parallaxes are behind the values for RX J1856.5-3754 and RX J0720.4-3125. They are converted to kiloparsecs by dividing by 1000, which places all seven within about 400 pc of the Sun.</p>
+        <p>For RBS 1223 the midpoint of the reported 76–670 pc range was used, and for RX J1605.3+3249 and RX J0420.0-5022 the published upper limits. These distances carry substantial uncertainties and should be treated as approximate in the 3D visualization.</p>
       </div></div>
     </div>
 
@@ -544,12 +552,12 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        Why are only ~4,000 objects shown when ATNF has over 4,300 pulsars?
+        Why does the visualizer show fewer objects than ATNF lists?
         <div class="faq-icon">+</div>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        <p>The ATNF catalogue contains over 4,300 pulsars, but many lack measured distances. After applying <code>dropna</code> on <code>DIST</code>, <code>RAJ</code>, and <code>DECJ</code>, and filtering out objects beyond 20 kpc or with |z| > 5 kpc, approximately 4,056 pulsars remain.</p>
-        <p>The remaining ~40 objects come from the McGill magnetar catalogue, the Magnificent Seven, and the confirmed CCO sample. The total of 4,096 objects represents all neutron stars in the combined catalog with sufficient astrometric information for 3D placement.</p>
+        <p>The ATNF catalogue contains over 4,500 pulsars, but many lack measured distances. After applying <code>dropna</code> on <code>DIST</code>, <code>RAJ</code>, and <code>DECJ</code>, filtering out objects beyond 20 kpc or with |z| > 5 kpc, and removing the objects this project takes from other catalogs (the Magnificent Seven, magnetars and some CCOs, which ATNF also lists), <span data-stat="ATNF">4,217</span> pulsars remain.</p>
+        <p>The other <span data-stat="other">40</span> objects come from the McGill magnetar catalogue, the Magnificent Seven, and the confirmed CCO sample. The total of <span data-stat="total">4,257</span> objects represents all neutron stars in the combined catalog with sufficient astrometric information for 3D placement. Objects without a distance still appear in <a href="catalog.html">The Catalog</a> table.</p>
       </div></div>
     </div>
 
@@ -585,30 +593,15 @@
   </div>
 </div>
 <script>
-  (function() {
-    const consent = localStorage.getItem("nsp_cookie_consent");
-    if (consent === "accepted") {
-      // Already accepted — GA runs normally
-    } else if (consent === "declined") {
-      // Declined — disable GA
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    } else {
-      // No choice yet — disable GA until accepted
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    }
-  })();
 
   function cookieAccept() {
     localStorage.setItem("nsp_cookie_consent", "accepted");
-    window["ga-disable-G-WGGNJP9C4F"] = false;
     document.getElementById("cookie-banner").classList.add("hidden");
-    // Re-init GA
-    gtag("consent", "update", { analytics_storage: "granted" });
+    loadGA();
   }
 
   function cookieDecline() {
     localStorage.setItem("nsp_cookie_consent", "declined");
-    window["ga-disable-G-WGGNJP9C4F"] = true;
     document.getElementById("cookie-banner").classList.add("hidden");
   }
 
@@ -619,5 +612,17 @@
   });
 </script>
 <script>document.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){document.querySelector("nav").classList.remove("open")})});</script>
+<script>
+  // Fill [data-stat] placeholders with live counts from the 3D dataset
+  fetch("data/NS_db_full.json").then(function(r) { return r.json(); }).then(function(rows) {
+    var n = { total: rows.length };
+    rows.forEach(function(r) { n[r.source_catalog] = (n[r.source_catalog] || 0) + 1; });
+    n.other = n.total - (n.ATNF || 0);
+    document.querySelectorAll("[data-stat]").forEach(function(el) {
+      var v = n[el.dataset.stat];
+      if (v != null) el.textContent = v.toLocaleString("en-US");
+    });
+  }).catch(function() {});
+</script>
 </body>
 </html>

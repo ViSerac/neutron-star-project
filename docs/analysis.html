@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F"></script>
+<!-- Google tag (gtag.js): only loaded after the visitor accepts the cookie banner -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-WGGNJP9C4F");
+  function loadGA() {
+    if (window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=G-WGGNJP9C4F";
+    document.head.appendChild(s);
+    gtag("js", new Date());
+    gtag("config", "G-WGGNJP9C4F");
+  }
+  try { if (localStorage.getItem("nsp_cookie_consent") === "accepted") loadGA(); } catch (e) {}
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -457,13 +465,14 @@
     <div class="analysis-panel active" id="panel-ppdot">
       <div class="panel-title">P-Pdot Diagram</div>
       <div class="panel-sub">
-        Period vs period derivative for pulsars and magnetars. Isolines show constant magnetic field strength (B) and characteristic age (τ). The death line marks the theoretical boundary below which radio emission ceases.
+        Period vs period derivative for pulsars, magnetars, the Magnificent Seven and CCOs. Isolines show constant magnetic field strength (B) and characteristic age (τ). The death line marks the theoretical boundary below which radio emission ceases.
       </div>
 
       <div class="stats-bar">
         <div class="stat"><div class="stat-label">Objects plotted</div><div class="stat-value" id="ppdot-count">—</div></div>
         <div class="stat"><div class="stat-label">ATNF pulsars</div><div class="stat-value" id="ppdot-atnf">—</div></div>
         <div class="stat"><div class="stat-label">McGill magnetars</div><div class="stat-value" id="ppdot-mcgill">—</div></div>
+        <div class="stat"><div class="stat-label">M7 + CCOs</div><div class="stat-value" id="ppdot-m7cco">—</div></div>
       </div>
 
       <div class="controls-row">
@@ -472,6 +481,8 @@
           <div class="toggle-row">
             <button class="toggle-chip active" id="chip-atnf" onclick="toggleCatalog('ATNF', this)">ATNF</button>
             <button class="toggle-chip active" id="chip-mcgill" onclick="toggleCatalog('McGill', this)">McGill</button>
+            <button class="toggle-chip active" id="chip-m7" onclick="toggleCatalog('SIMBAD Magnificent Seven', this)">M7</button>
+            <button class="toggle-chip active" id="chip-cco" onclick="toggleCatalog('SIMBAD CCOs', this)">CCOs</button>
           </div>
         </div>
         <div class="control-group">
@@ -501,6 +512,8 @@
       <div class="iso-legend">
         <div class="iso-item"><div class="iso-line" style="background:#60a5fa;opacity:0.7"></div>ATNF pulsars</div>
         <div class="iso-item"><div class="iso-line" style="background:#ff4d1a"></div>McGill magnetars</div>
+        <div class="iso-item"><div class="iso-line" style="background:#00d4ff"></div>Magnificent Seven</div>
+        <div class="iso-item"><div class="iso-line" style="background:#b06dff"></div>CCOs</div>
         <div class="iso-item"><svg width="32" height="6"><line x1="0" y1="3" x2="32" y2="3" stroke="#7dd3fc" stroke-width="2" stroke-dasharray="6,4"/></svg><span style="font-size:10px;color:var(--text-dim)">B = 10^12 G</span></div>
         <div class="iso-item"><svg width="32" height="6"><line x1="0" y1="3" x2="32" y2="3" stroke="#fb923c" stroke-width="2" stroke-dasharray="6,4"/></svg><span style="font-size:10px;color:var(--text-dim)">B = 10^14 G</span></div>
         <div class="iso-item"><svg width="32" height="6"><line x1="0" y1="3" x2="32" y2="3" stroke="#4ade80" stroke-width="2" stroke-dasharray="2,3"/></svg><span style="font-size:10px;color:var(--text-dim)">B = 10^15 G</span></div>
@@ -669,7 +682,13 @@ const DATA_URL = 'data/NS_db_full.json';
 
 // ── STATE ─────────────────────────────────────────────────
 let allData = [];
-let ppdotVisible = { ATNF: true, McGill: true };
+let ppdotVisible = { ATNF: true, McGill: true, 'SIMBAD Magnificent Seven': true, 'SIMBAD CCOs': true };
+const PPDOT_STYLE = {
+  ATNF:                       { color: '#60a5fa', r: 2 },
+  McGill:                     { color: '#ff4d1a', r: 3.5 },
+  'SIMBAD Magnificent Seven': { color: '#00d4ff', r: 4 },
+  'SIMBAD CCOs':              { color: '#b06dff', r: 4 },
+};
 let isoVisible = { b12: true, b14: true, b15: true, t3: true, t6: true, t9: true, death: true };
 let heatmapMode = 'scatter';
 let heatmapTypes = { pulsar: true, magnetar: true, m7: true, cco: true };
@@ -749,10 +768,7 @@ function drawPPdot() {
   // Filter data
   const pts = allData.filter(s => {
     if (!s.P || !s.PDOT || s.PDOT <= 0) return false;
-    const cat = s.source_catalog;
-    if (cat === 'ATNF' && !ppdotVisible.ATNF) return false;
-    if (cat === 'McGill' && !ppdotVisible.McGill) return false;
-    return true;
+    return ppdotVisible[s.source_catalog] !== false;
   }).map(s => ({
     ...s,
     lp: Math.log10(s.P),
@@ -823,15 +839,16 @@ function drawPPdot() {
   // Death line
   if (isoVisible.death) drawIsoline(lp => Math.log10(1.7e-20) + (11/4)*lp, '#9ca3af', [4,4], 1.5);
 
-  // Points
-  for (const pt of pts) {
+  // Points (ATNF first so the rarer classes are drawn on top)
+  const drawOrder = [...pts].sort((a, b) => (a.source_catalog === 'ATNF' ? 0 : 1) - (b.source_catalog === 'ATNF' ? 0 : 1));
+  for (const pt of drawOrder) {
     const x = toX(pt.lp), y = toY(pt.lpdot);
     if (x < PAD.left || x > PAD.left+plotW || y < PAD.top || y > PAD.top+plotH) continue;
-    const color = pt.source_catalog === 'McGill' ? '#ff4d1a' : '#60a5fa';
+    const style = PPDOT_STYLE[pt.source_catalog] || { color: '#888', r: 2 };
     ctx.globalAlpha = 0.7;
-    ctx.fillStyle = color;
+    ctx.fillStyle = style.color;
     ctx.beginPath();
-    ctx.arc(x, y, pt.source_catalog === 'McGill' ? 3.5 : 2, 0, Math.PI*2);
+    ctx.arc(x, y, style.r, 0, Math.PI*2);
     ctx.fill();
   }
   ctx.globalAlpha = 1;
@@ -874,6 +891,8 @@ function drawPPdot() {
   document.getElementById('ppdot-count').textContent = pts.length.toLocaleString();
   document.getElementById('ppdot-atnf').textContent = atnfPts.length.toLocaleString();
   document.getElementById('ppdot-mcgill').textContent = mcgillPts.length.toLocaleString();
+  document.getElementById('ppdot-m7cco').textContent =
+    pts.filter(p => p.source_catalog.startsWith('SIMBAD')).length.toLocaleString();
 
   // Tooltip
   canvas.onmousemove = (e) => {
@@ -954,20 +973,21 @@ function drawHeatmap() {
   ctx.fillStyle = '#05070f';
   ctx.fillRect(0, 0, W, H);
 
-  // Milky Way background image
+  // Milky Way background image. The illustration has the Sun below the Galactic
+  // centre (pixel 2793,3879), so it is rotated 90° clockwise to put the Sun at
+  // x = -8.122 kpc: image "up" maps to +x and image "left" (l = 90°) to +y.
   if (milkywayImg) {
     const kpcPerPx = 0.007461;
-    const gcOffsetX_kpc = 2808 * kpcPerPx;
-    const gcOffsetY_kpc = 2790 * kpcPerPx;
-    const imgW_kpc = milkywayImg.width * kpcPerPx;
-    const imgH_kpc = milkywayImg.height * kpcPerPx;
-    const px_left   = toX(-gcOffsetX_kpc);
-    const px_right  = toX(imgW_kpc - gcOffsetX_kpc);
-    const px_top    = toY(gcOffsetY_kpc);
-    const px_bottom = toY(-(imgH_kpc - gcOffsetY_kpc));
+    const gcPx = 2808, gcPy = 2790;
+    const sx = plotW / (xMax - xMin), sy = plotH / (yMax - yMin);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(PAD.left, PAD.top, plotW, plotH);
+    ctx.clip();
     ctx.globalAlpha = 0.55;
-    ctx.drawImage(milkywayImg, px_left, px_top, px_right - px_left, px_bottom - px_top);
-    ctx.globalAlpha = 1;
+    ctx.transform(0, kpcPerPx * sy, -kpcPerPx * sx, 0, toX(0), toY(0));
+    ctx.drawImage(milkywayImg, -gcPx, -gcPy);
+    ctx.restore();
   }
 
   // Grid
@@ -1341,36 +1361,66 @@ function setClProj(p, btn) {
 function dbscan(points, eps, minPts) {
   const n = points.length;
   const labels = new Int32Array(n).fill(-2); // -2=unvisited, -1=noise
+  const eps2 = eps * eps;
   let clusterId = 0;
+
+  // Uniform grid with cell size eps: neighbours can only be in the 27 adjacent cells
+  const cellOf = p => [Math.floor(p[0] / eps), Math.floor(p[1] / eps), Math.floor(p[2] / eps)];
+  const cells = new Map();
+  points.forEach((p, idx) => {
+    const key = cellOf(p).join(',');
+    if (!cells.has(key)) cells.set(key, []);
+    cells.get(key).push(idx);
+  });
 
   function regionQuery(idx) {
     const neighbors = [];
     const p = points[idx];
-    for (let i = 0; i < n; i++) {
-      if (i === idx) continue;
-      const d = Math.sqrt((p[0]-points[i][0])**2 + (p[1]-points[i][1])**2 + (p[2]-points[i][2])**2);
-      if (d <= eps) neighbors.push(i);
-    }
+    const [ci, cj, ck] = cellOf(p);
+    for (let di = -1; di <= 1; di++)
+      for (let dj = -1; dj <= 1; dj++)
+        for (let dk = -1; dk <= 1; dk++) {
+          const bucket = cells.get(`${ci+di},${cj+dj},${ck+dk}`);
+          if (!bucket) continue;
+          for (const i of bucket) {
+            if (i === idx) continue;
+            const q = points[i];
+            if ((p[0]-q[0])**2 + (p[1]-q[1])**2 + (p[2]-q[2])**2 <= eps2) neighbors.push(i);
+          }
+        }
     return neighbors;
   }
 
+  const seedMark = new Int32Array(n).fill(-1);
   for (let i = 0; i < n; i++) {
     if (labels[i] !== -2) continue;
     const neighbors = regionQuery(i);
     if (neighbors.length < minPts) { labels[i] = -1; continue; }
     labels[i] = clusterId;
-    const seed = [...neighbors];
+    const seed = [];
+    for (const q of neighbors) { seedMark[q] = clusterId; seed.push(q); }
     for (let j = 0; j < seed.length; j++) {
       const q = seed[j];
       if (labels[q] === -1) labels[q] = clusterId;
       if (labels[q] !== -2) continue;
       labels[q] = clusterId;
       const qn = regionQuery(q);
-      if (qn.length >= minPts) seed.push(...qn.filter(x => !seed.includes(x)));
+      if (qn.length >= minPts) {
+        for (const x of qn) {
+          if (seedMark[x] !== clusterId) { seedMark[x] = clusterId; seed.push(x); }
+        }
+      }
     }
     clusterId++;
   }
   return { labels: Array.from(labels), nClusters: clusterId };
+}
+
+let clCache = null;
+function cachedDbscan(pts3d, eps, minPts) {
+  const key = `${eps}|${minPts}|${pts3d.length}`;
+  if (!clCache || clCache.key !== key) clCache = { key, ...dbscan(pts3d, eps, minPts) };
+  return clCache;
 }
 
 function drawClustering() {
@@ -1393,7 +1443,7 @@ function drawClustering() {
   const minPts = parseInt(document.getElementById('cl-min').value);
 
   const pts3d = valid.map(s => [s.x, s.y, s.z]);
-  const { labels, nClusters } = dbscan(pts3d, eps, minPts);
+  const { labels, nClusters } = cachedDbscan(pts3d, eps, minPts);
 
   const noise = labels.filter(l => l === -1).length;
   document.getElementById('cl-clusters').textContent = nClusters;
@@ -1690,30 +1740,15 @@ init();
   </div>
 </div>
 <script>
-  (function() {
-    const consent = localStorage.getItem("nsp_cookie_consent");
-    if (consent === "accepted") {
-      // Already accepted — GA runs normally
-    } else if (consent === "declined") {
-      // Declined — disable GA
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    } else {
-      // No choice yet — disable GA until accepted
-      window["ga-disable-G-WGGNJP9C4F"] = true;
-    }
-  })();
 
   function cookieAccept() {
     localStorage.setItem("nsp_cookie_consent", "accepted");
-    window["ga-disable-G-WGGNJP9C4F"] = false;
     document.getElementById("cookie-banner").classList.add("hidden");
-    // Re-init GA
-    gtag("consent", "update", { analytics_storage: "granted" });
+    loadGA();
   }
 
   function cookieDecline() {
     localStorage.setItem("nsp_cookie_consent", "declined");
-    window["ga-disable-G-WGGNJP9C4F"] = true;
     document.getElementById("cookie-banner").classList.add("hidden");
   }
 

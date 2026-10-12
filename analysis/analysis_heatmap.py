@@ -16,12 +16,17 @@ def load_milkyway_background():
     dist_px = np.sqrt((sx_px - cx_px)**2 + (sy_px - cy_px)**2)
     kpc_per_px = sun_dist_kpc / dist_px
 
-    img_h, img_w = img.shape[:2]
-    # pixel y cresce para baixo → y_kpc = -(py - cy_px) * kpc_per_px
-    left   = -cx_px * kpc_per_px
-    right  = (img_w - cx_px) * kpc_per_px
-    top    =  cy_px * kpc_per_px
-    bottom = -(img_h - cy_px) * kpc_per_px
+    # The illustration has the Sun below the Galactic centre; rotate it 90° clockwise
+    # so the Sun lands at x = -8.122 kpc (image "up" -> +x, image "left" -> +y).
+    img_h = img.shape[0]
+    img = np.rot90(img, k=-1)
+    gx_px, gy_px = img_h - 1 - cy_px, cx_px
+    rot_h, rot_w = img.shape[:2]
+    # pixel y cresce para baixo → y_kpc = -(py - gy_px) * kpc_per_px
+    left   = -gx_px * kpc_per_px
+    right  = (rot_w - gx_px) * kpc_per_px
+    top    =  gy_px * kpc_per_px
+    bottom = -(rot_h - gy_px) * kpc_per_px
     return img, [left, right, bottom, top]
 
 def add_milkyway_background(ax, alpha=0.6):
