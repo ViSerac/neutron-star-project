@@ -4,12 +4,10 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 from pathlib import Path
 
+from magellanic import disk_distance
 from xrb import GALCEN, read_vizier_tsv
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
-
-# Mean distances: SMC 62.44 kpc (Graczyk+2020), LMC 49.59 kpc (Pietrzynski+2019)
-SMC_DIST, LMC_DIST = 62.44, 49.59
 
 # Haberl & Sturm 2016 has no name column. Names were matched once in SIMBAD by
 # position: the SXP identifier closest to the catalogue spin period (within 2%),
@@ -60,7 +58,7 @@ def smc_pulsars():
         "NS_NAME": df["Seq"].map(SXP_NAMES).fillna(fallback).values,
         "RAJ": np.where(opt, ra_o, ra_x),
         "DECJ": np.where(opt, de_o, de_x),
-        "DIST": SMC_DIST,
+        "DIST": np.nan,
         "P": p.values,
         "galaxy": "smc",
         "source_catalog": "SMC HMXB (Haberl+2016)",
@@ -77,7 +75,7 @@ def lmc_pulsars():
         "NS_NAME": df["XrayName"].values,
         "RAJ": np.where(gaia, df["RAGdeg"].astype(float), ra_x),
         "DECJ": np.where(gaia, df["DEGdeg"].astype(float), de_x),
-        "DIST": LMC_DIST,
+        "DIST": np.nan,
         "P": df["Pspin"].astype(float).values,
         "galaxy": "lmc",
         "source_catalog": "LMC HMXB (eRASS1)",
@@ -87,6 +85,10 @@ def lmc_pulsars():
 if __name__ == "__main__":
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     df = pd.concat([smc_pulsars(), lmc_pulsars()], ignore_index=True)
+    # no individual distances: place each pulsar on its galaxy's tilted plane
+    for galaxy in ("smc", "lmc"):
+        sel = df["galaxy"] == galaxy
+        df.loc[sel, "DIST"] = disk_distance(df.loc[sel, "RAJ"], df.loc[sel, "DECJ"], galaxy)
     df["PDOT"] = np.nan
     df["type"] = "high-mass X-ray binary (NS)"
     df["wiki_url"] = df["NS_NAME"].str.replace(" ", "_").apply(lambda n: f"https://en.wikipedia.org/wiki/{n}")

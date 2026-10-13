@@ -458,6 +458,9 @@
       <p>
         Distances are primarily derived from pulsar dispersion measures (DM) combined with models of the Galactic free electron density. Objects without distance estimates, or with distances exceeding 20 kpc, or with |z| > 5 kpc above the Galactic plane, are excluded from the visualization.
       </p>
+      <p>
+        ATNF distances are always kept as published. For most pulsars in the Magellanic Clouds ATNF lists the distance of the galaxy itself (49.7 kpc for the LMC and 59.7 kpc for the SMC), so those pulsars appear on a thin surface at that distance in the 3D view. The tilted-plane model used for the Magellanic Cloud X-ray pulsars below is not applied to ATNF objects.
+      </p>
       <div class="processing-note">
         <strong>Overlap note:</strong> ATNF also lists neutron stars that this project takes from other sources, usually under a different name (ATNF uses J-names, the other catalogs use historical names). To avoid duplicates these are removed from the ATNF dataset:
         the seven Magnificent Seven members; the three CCOs with detected pulsations (Puppis A, 1E 1207.4-5209 and Kes 79); every magnetar (ATNF <code>TYPE = AXP</code>), which comes from McGill instead; PSR J1846-0258, which McGill lists for its 2006 magnetar-like outburst; and the LMC X-ray pulsar 1A 0535-66, taken from the LMC HMXB catalogue.
@@ -681,7 +684,7 @@
         </div>
         <div class="meta-item">
           <div class="meta-label">Distance Method</div>
-          <div class="meta-value">Mean galaxy distance</div>
+          <div class="meta-value">Tilted-plane model of each galaxy</div>
         </div>
       </div>
       <p>
@@ -691,7 +694,7 @@
         The LMC catalogue comes from the first eROSITA all-sky survey (53 confirmed and candidate HMXBs) and gives 19 pulsars, with Gaia positions of the optical counterparts. Because it is flux limited, LMC pulsars that were faint during that survey are not included. The three likely Be/white dwarf systems in it have no spin period and are not included.
       </p>
       <p>
-        Every object is placed at the mean distance of its galaxy: 62.44 kpc for the SMC (Graczyk et al. 2020) and 49.59 kpc for the LMC (Pietrzyński et al. 2019). The depth of each galaxy along the line of sight is not resolved.
+        These systems have no individual distance measurements. Each one is placed where its line of sight crosses the tilted plane traced by the galaxy's young stars (Classical Cepheids), centred on the mean galaxy distance. For the LMC that plane is inclined by 25° with its north-eastern side closer to us (Inno et al. 2016; mean distance 49.59 kpc, Pietrzyński et al. 2019), which spreads the pulsars over about 2 kpc in depth. For the SMC it is inclined by 74°, again with the north-eastern side closer (Haschke et al. 2012; mean distance 62.44 kpc, Graczyk et al. 2020), which spreads them over about 13 kpc. The young population of the SMC is really an elongated structure rather than a thin disk (Ripepi et al. 2017), so for the SMC the plane is an approximation of its large depth along the line of sight. Individual distances can still be off by several kpc.
       </p>
       <div class="source-links">
         <a class="src-link" href="https://ui.adsabs.harvard.edu/abs/2016A%26A...586A..81H" target="_blank">
@@ -699,6 +702,9 @@
           Haberl &amp; Sturm 2016 (SMC)
         </a>
         <a class="src-link secondary" href="https://ui.adsabs.harvard.edu/abs/2026A%26A...707A.225K" target="_blank">Kaltenbrunner et al. 2026 (LMC)</a>
+        <a class="src-link secondary" href="https://arxiv.org/abs/1609.03554" target="_blank">Inno et al. 2016 (LMC geometry)</a>
+        <a class="src-link secondary" href="https://arxiv.org/abs/1209.3769" target="_blank">Haschke et al. 2012 (SMC geometry)</a>
+        <a class="src-link secondary" href="https://arxiv.org/abs/1707.04500" target="_blank">Ripepi et al. 2017 (SMC 3D structure)</a>
       </div>
     </div>
   </div>
@@ -728,10 +734,10 @@
         </div>
       </div>
       <p>
-        Ultraluminous X-ray (ULX) pulsars: M82 X-2, NGC 7793 P13, NGC 5907 ULX1, NGC 300 ULX1, NGC 1313 X-2 and M51 ULX-7, at 2 to 17 Mpc, appear only in <a href="catalog.html">The Catalog</a>, since they are far outside the 3D view. SMC X-3 and RX J0209.6-7427 in the Small Magellanic Cloud (62 kpc) are placed in the visualizer. The listed spin period is the one at discovery; these pulsars spin up quickly, so it changes between observations.
+        Ultraluminous X-ray (ULX) pulsars: M82 X-2, NGC 7793 P13, NGC 5907 ULX1, NGC 300 ULX1, NGC 1313 X-2 and M51 ULX-7, at 2 to 17 Mpc, appear only in <a href="catalog.html">The Catalog</a>, since they are far outside the 3D view. SMC X-3 and RX J0209.6-7427 in the Small Magellanic Cloud are placed in the visualizer, using the same tilted-plane model of the SMC as the Magellanic Cloud X-ray pulsars above. The listed spin period is the one at discovery; these pulsars spin up quickly, so it changes between observations.
       </p>
       <p>
-        SN 1987A compact object: JWST spectra show emission lines ionised by a compact source at the centre of the remnant, most likely a neutron star (Fransson et al. 2024). It is marked as a candidate and placed in the Large Magellanic Cloud (51.4 kpc).
+        SN 1987A compact object: JWST spectra show emission lines ionised by a compact source at the centre of the remnant, most likely a neutron star (Fransson et al. 2024). It is marked as a candidate and placed in the Large Magellanic Cloud at the distance measured for SN 1987A itself (51.4 kpc), so it does not use the plane model.
       </p>
       <div class="source-links">
         <a class="src-link" href="https://simbad.u-strasbg.fr/simbad/" target="_blank">

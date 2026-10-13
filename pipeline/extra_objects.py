@@ -4,6 +4,8 @@ from astropy.coordinates import SkyCoord, Galactocentric
 from astropy import units as u
 from pathlib import Path
 
+from magellanic import disk_distance
+
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
 GALCEN = Galactocentric(
@@ -12,7 +14,8 @@ GALCEN = Galactocentric(
 )
 
 # Neutron stars that no regularly updated catalogue covers. Positions from SIMBAD;
-# distances are those of the host galaxy; P is the spin period at discovery
+# distances are those of the host galaxy (nan: placed on the Magellanic Cloud plane
+# by magellanic.py); P is the spin period at discovery
 # (ULX pulsars spin up quickly, so it changes between epochs).
 OBJECTS = [
     # name,                       RA (deg),    Dec (deg),   DIST (kpc), P (s), galaxy,     type
@@ -22,9 +25,10 @@ OBJECTS = [
     ("NGC 300 ULX1",               13.77025,  -37.69547,    2000, 31.6,   "NGC 300",  "ULX pulsar"),
     ("NGC 1313 X-2",               49.59167,  -66.60119,    4200,  1.5,   "NGC 1313", "ULX pulsar"),
     ("M51 ULX-7",                 202.50421,   47.22886,    8600,  2.8,   "M51",      "ULX pulsar"),
-    ("SMC X-3",                    13.02344,  -72.43451,   62.44,  7.8,   "smc",      "ULX pulsar"),
-    ("RX J0209.6-7427",            32.39390,  -74.45328,   62.44,  9.3,   "smc",      "ULX pulsar"),
-    # JWST emission lines ionised by a compact source (Fransson+2024, Science 383, 898)
+    ("SMC X-3",                    13.02344,  -72.43451,  np.nan,  7.8,   "smc",      "ULX pulsar"),
+    ("RX J0209.6-7427",            32.39390,  -74.45328,  np.nan,  9.3,   "smc",      "ULX pulsar"),
+    # JWST emission lines ionised by a compact source (Fransson+2024, Science 383, 898);
+    # 51.4 kpc is the distance measured for SN 1987A itself (Panagia 1999)
     ("SN 1987A compact object",    83.86662,  -69.26975,    51.4, np.nan, "lmc",      "SN 1987A compact object (candidate)"),
 ]
 
@@ -45,6 +49,8 @@ def build():
 if __name__ == "__main__":
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     raw = build()
+    smc = raw["DIST"].isna() & (raw["galaxy"] == "smc")
+    raw.loc[smc, "DIST"] = disk_distance(raw.loc[smc, "RAJ"], raw.loc[smc, "DECJ"], "smc")
     raw.to_parquet(DATA_DIR / "extra_raw.parquet", index=False)
 
     # Only the Magellanic Cloud objects fit in the 3D scene; the rest are Mpc away
