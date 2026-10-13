@@ -132,6 +132,9 @@
   .badge-mcgill { background:rgba(255,77,26,0.15); color:#ff4d1a; border:1px solid rgba(255,77,26,0.3); }
   .badge-m7 { background:rgba(0,212,255,0.15); color:#00d4ff; border:1px solid rgba(0,212,255,0.3); }
   .badge-cco { background:rgba(176,109,255,0.15); color:#b06dff; border:1px solid rgba(176,109,255,0.3); }
+  .badge-hmxb { background:rgba(244,114,182,0.15); color:#f472b6; border:1px solid rgba(244,114,182,0.3); }
+  .badge-lmxb { background:rgba(52,211,153,0.15); color:#34d399; border:1px solid rgba(52,211,153,0.3); }
+  .badge-lit { background:rgba(245,245,245,0.12); color:#f5f5f5; border:1px solid rgba(245,245,245,0.3); }
 
   #loading-msg { text-align:center; padding:60px; font-size:11px; color:var(--text-dim); letter-spacing:0.1em; }
 
@@ -248,7 +251,7 @@
     <div class="page-title">The Catalog</div>
     <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:4px">
       <div class="page-sub" style="margin-bottom:0">
-        Unified table from ATNF, McGill, the Magnificent Seven and CCOs. Toggle columns in the sidebar. Regex supported in search.
+        Unified table from ATNF, McGill, the Magnificent Seven, CCOs, X-ray binaries with a neutron star (XRBcats in the Milky Way, plus the Magellanic Cloud pulsars) and individual objects from the literature. Toggle columns in the sidebar. Regex supported in search.
       </div>
       <span id="updated-at" style="font-size:9px;color:var(--text-dim);opacity:0.6;white-space:nowrap;letter-spacing:0.08em"></span>
     </div>
@@ -260,6 +263,11 @@
       <button class="cat-chip active" data-cat="McGill" onclick="toggleCat(this)">McGill</button>
       <button class="cat-chip active" data-cat="SIMBAD Magnificent Seven" onclick="toggleCat(this)">M7</button>
       <button class="cat-chip active" data-cat="SIMBAD CCOs" onclick="toggleCat(this)">CCOs</button>
+      <button class="cat-chip active" data-cat="XRBcats HMXB" onclick="toggleCat(this)">HMXB</button>
+      <button class="cat-chip active" data-cat="XRBcats LMXB" onclick="toggleCat(this)">LMXB</button>
+      <button class="cat-chip active" data-cat="SMC HMXB (Haberl+2016)" onclick="toggleCat(this)">SMC HMXB</button>
+      <button class="cat-chip active" data-cat="LMC HMXB (eRASS1)" onclick="toggleCat(this)">LMC HMXB</button>
+      <button class="cat-chip active" data-cat="Literature" onclick="toggleCat(this)">Literature</button>
     </div>
 
     <div class="stats-row">
@@ -300,6 +308,7 @@ const COL_GROUPS = [
     { key: 'source_catalog',label: 'Catalog',        cls: 'primary', def: true },
     { key: 'type',          label: 'Type',           cls: 'primary', def: true },
     { key: 'galaxy',        label: 'Galaxy',         cls: 'primary', def: false },
+    { key: 'xray_type',     label: 'X-ray type',     cls: 'primary', def: false },
   ]},
   { name: 'Position', cols: [
     { key: 'RAJ',           label: 'RAJ',            cls: 'primary', def: true },
@@ -368,13 +377,18 @@ let filtered = [];
 let currentPage = 1;
 let sortCol = null;
 let sortDir = 1;
-let activeCats = new Set(['ATNF', 'McGill', 'SIMBAD Magnificent Seven', 'SIMBAD CCOs']);
 const CAT_BADGE = {
   'ATNF': 'badge-atnf',
   'McGill': 'badge-mcgill',
   'SIMBAD Magnificent Seven': 'badge-m7',
   'SIMBAD CCOs': 'badge-cco',
+  'XRBcats HMXB': 'badge-hmxb',
+  'XRBcats LMXB': 'badge-lmxb',
+  'SMC HMXB (Haberl+2016)': 'badge-hmxb',
+  'LMC HMXB (eRASS1)': 'badge-hmxb',
+  'Literature': 'badge-lit',
 };
+let activeCats = new Set(Object.keys(CAT_BADGE));
 let visibleCols = new Set();
 
 // All columns flat

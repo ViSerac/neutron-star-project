@@ -465,7 +465,7 @@
     <div class="analysis-panel active" id="panel-ppdot">
       <div class="panel-title">P-Pdot Diagram</div>
       <div class="panel-sub">
-        Period vs period derivative for pulsars, magnetars, the Magnificent Seven and CCOs. Isolines show constant magnetic field strength (B) and characteristic age (τ). The death line marks the theoretical boundary below which radio emission ceases.
+        Period vs period derivative for pulsars, magnetars, the Magnificent Seven and CCOs. Accreting neutron stars in X-ray binaries are not plotted, since their spin evolution is driven by accretion and no Ṗ is listed for them. Isolines show constant magnetic field strength (B) and characteristic age (τ). The death line marks the theoretical boundary below which radio emission ceases.
       </div>
 
       <div class="stats-bar">
@@ -557,6 +557,7 @@
             <button class="toggle-chip active" id="hm-magnetar" onclick="toggleHeatmapType('magnetar', this)">Magnetars</button>
             <button class="toggle-chip active" id="hm-m7" onclick="toggleHeatmapType('m7', this)">M7</button>
             <button class="toggle-chip active" id="hm-cco" onclick="toggleHeatmapType('cco', this)">CCOs</button>
+            <button class="toggle-chip active" id="hm-xrb" onclick="toggleHeatmapType('xrb', this)">X-ray binaries</button>
           </div>
         </div>
       </div>
@@ -691,7 +692,7 @@ const PPDOT_STYLE = {
 };
 let isoVisible = { b12: true, b14: true, b15: true, t3: true, t6: true, t9: true, death: true };
 let heatmapMode = 'scatter';
-let heatmapTypes = { pulsar: true, magnetar: true, m7: true, cco: true };
+let heatmapTypes = { pulsar: true, magnetar: true, m7: true, cco: true, xrb: true };
 let milkywayImg = null;
 let clProjection = 'xy';
 let nnSelected = null;
@@ -703,6 +704,10 @@ const TYPE_COLORS = {
   pulsar_outburst_2006: '#d4f542',
   'M7 isolated neutron star': '#00d4ff',
   'central compact object (CCO)': '#b06dff',
+  'high-mass X-ray binary (NS)': '#f472b6',
+  'low-mass X-ray binary (NS)': '#34d399',
+  'ULX pulsar': '#f5f5f5',
+  'SN 1987A compact object (candidate)': '#94a3b8',
 };
 
 // ── INIT ──────────────────────────────────────────────────
@@ -941,6 +946,7 @@ function typeToKey(type) {
   if (['magnetar','candidate_magnetar','pulsar_outburst_2006'].includes(type)) return 'magnetar';
   if (type === 'M7 isolated neutron star') return 'm7';
   if (type === 'central compact object (CCO)') return 'cco';
+  if (type === 'high-mass X-ray binary (NS)' || type === 'low-mass X-ray binary (NS)') return 'xrb';
   return null;
 }
 

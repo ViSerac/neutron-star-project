@@ -34,6 +34,9 @@ jobs:
           python transform_coords_atnf.py
           python transform_coords_mcgill.py
           python m7andcco.py
+          python xrb.py
+          python mc_hmxb.py
+          python extra_objects.py
           python concat_catalogs.py
           python export_json.py
           python export_catalog.py

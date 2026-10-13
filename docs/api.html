@@ -233,7 +233,7 @@
   </div>
 
   <div class="info-box">
-    <strong>No rate limiting</strong> for reasonable use. All responses include CORS headers — the API can be called directly from browser JavaScript. Data is cached for 1 hour per worker instance. Updated every Monday from ATNF and McGill, plus the Magnificent Seven and CCO samples. The API serves the same table as <a href="catalog.html">The Catalog</a>, including objects without a known distance.
+    <strong>No rate limiting</strong> for reasonable use. All responses include CORS headers, so the API can be called directly from browser JavaScript. Data is cached for 1 hour per worker instance. Updated every Monday from ATNF, McGill, the XRBcats X-ray binary catalogues and the Magellanic Cloud HMXB catalogues, plus the Magnificent Seven, CCO and literature samples. The API serves the same table as <a href="catalog.html">The Catalog</a>, including objects without a known distance.
   </div>
 
   <div class="section-title">Endpoints</div>
@@ -293,7 +293,7 @@
         <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
         <tr><td>name</td><td>string</td><td>Exact NS_NAME value. URL-encode it: a literal <code>+</code> in a query string is read as a space, so <code>J0534+2200</code> must be sent as <code>J0534%2B2200</code> (Python <code>requests</code> does this for you when you pass <code>params=</code>).</td></tr>
       </table>
-      <button class="try-btn" onclick="tryEndpoint(this, '/object?name=J0534%2B2200')">Try it — /object?name=J0534%2B2200</button>
+      <button class="try-btn" onclick="tryEndpoint(this, '/object?name=J0534%2B2200')">Try it: /object?name=J0534%2B2200</button>
       <div class="response-box"></div>
     </div>
   </div>
@@ -327,9 +327,9 @@
     <div class="endpoint-body">
       <table class="params-table">
         <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-        <tr><td>type</td><td>string</td><td>Object type: pulsar, magnetar, candidate_magnetar, pulsar_outburst_2006, M7 isolated neutron star, central compact object (CCO).</td></tr>
-        <tr><td>catalog</td><td>string</td><td>Source catalog: ATNF, McGill, SIMBAD Magnificent Seven, SIMBAD CCOs.</td></tr>
-        <tr><td>galaxy</td><td>string</td><td>Galaxy: milky_way, lmc, smc. Only set for objects with a usable distance (the ones shown in the 3D visualizer); objects without a distance have <code>galaxy: null</code>.</td></tr>
+        <tr><td>type</td><td>string</td><td>Object type: pulsar, magnetar, candidate_magnetar, pulsar_outburst_2006, M7 isolated neutron star, central compact object (CCO), high-mass X-ray binary (NS), low-mass X-ray binary (NS), ULX pulsar, SN 1987A compact object (candidate).</td></tr>
+        <tr><td>catalog</td><td>string</td><td>Source catalog: ATNF, McGill, SIMBAD Magnificent Seven, SIMBAD CCOs, XRBcats HMXB, XRBcats LMXB, SMC HMXB (Haberl+2016), LMC HMXB (eRASS1), Literature.</td></tr>
+        <tr><td>galaxy</td><td>string</td><td>Galaxy: milky_way, lmc, smc, or the host galaxy name for ULX pulsars beyond the Magellanic Clouds (e.g. M82). Set for objects with a usable distance (the ones shown in the 3D visualizer) and for those ULX pulsars; otherwise <code>galaxy: null</code>.</td></tr>
         <tr><td>limit</td><td>int</td><td>Max results to return. Default: 100.</td></tr>
         <tr><td>offset</td><td>int</td><td>Pagination offset. Default: 0.</td></tr>
       </table>

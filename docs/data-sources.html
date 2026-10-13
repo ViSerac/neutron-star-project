@@ -167,6 +167,8 @@
   }
 
   .source-body p:last-child { margin-bottom: 0; }
+  .source-body p a { color: var(--cyan); text-decoration: none; }
+  .source-body p a:hover { text-decoration: underline; }
 
   .source-meta {
     display: grid;
@@ -427,7 +429,7 @@
         <div class="source-title">ATNF Pulsar Catalogue</div>
         <div class="source-subtitle">Australia Telescope National Facility · latest release, refreshed weekly</div>
       </div>
-      <div class="source-badge"><span data-stat="ATNF">4,217</span> pulsars</div>
+      <div class="source-badge"><span data-stat="ATNF">4,216</span> pulsars</div>
     </div>
     <div class="source-body">
       <div class="source-meta">
@@ -456,7 +458,7 @@
       </p>
       <div class="processing-note">
         <strong>Overlap note:</strong> ATNF also lists neutron stars that this project takes from other sources, usually under a different name (ATNF uses J-names, the other catalogs use historical names). To avoid duplicates these are removed from the ATNF dataset:
-        the seven Magnificent Seven members; the three CCOs with detected pulsations (Puppis A, 1E 1207.4-5209 and Kes 79); every magnetar (ATNF <code>TYPE = AXP</code>), which comes from McGill instead; and PSR J1846-0258, which McGill lists for its 2006 magnetar-like outburst.
+        the seven Magnificent Seven members; the three CCOs with detected pulsations (Puppis A, 1E 1207.4-5209 and Kes 79); every magnetar (ATNF <code>TYPE = AXP</code>), which comes from McGill instead; PSR J1846-0258, which McGill lists for its 2006 magnetar-like outburst; and the LMC X-ray pulsar 1A 0535-66, taken from the LMC HMXB catalogue.
         The ATNF period and period derivative of the M7 and of those three CCOs are kept and attached to their entries.
       </div>
       <div class="source-links">
@@ -546,7 +548,7 @@
         The Magnificent Seven (M7) are seven nearby, thermally-emitting, radio-quiet isolated neutron stars discovered by ROSAT. Their precise equatorial coordinates were retrieved from the SIMBAD Astronomical Database.
       </p>
       <p>
-        Distances are taken from the compilation in Table 1 of Motch et al. (2007), which lists them in parsecs (converted to kpc by dividing by 1000). For RBS 1223 the midpoint of the reported 76–670 pc range is used, and for RX J1605.3+3249 and RX J0420.0-5022 the published upper limits (410 and 340 pc).
+        Distances are taken from the compilation in Table 1 of Motch et al. (2007), which lists them in parsecs (converted to kpc by dividing by 1000). For RBS 1223 the midpoint of the reported 76 to 670 pc range is used, and for RX J1605.3+3249 and RX J0420.0-5022 the published upper limits (410 and 340 pc).
       </p>
       <p>
         Spin period and period derivative come from the ATNF catalogue. RX J1605.3+3249 is left without a period: the 6.88 s candidate listed by ATNF was not confirmed by later observations (Pires et al. 2019; Malacaria et al. 2019).
@@ -569,7 +571,7 @@
         <div class="source-title">Central Compact Objects (CCOs)</div>
         <div class="source-subtitle">SIMBAD Astronomical Database + Andrea De Luca (curator)</div>
       </div>
-      <div class="source-badge">8 objects</div>
+      <div class="source-badge">10 objects</div>
     </div>
     <div class="source-body">
       <div class="source-meta">
@@ -591,7 +593,7 @@
         </div>
       </div>
       <p>
-        The eight confirmed Central Compact Objects included in this project were identified from the list curated by Andrea De Luca. CCO coordinates were retrieved from SIMBAD, and distances are adopted from their associated supernova remnants.
+        Eight of the Central Compact Objects included in this project were identified from the list curated by Andrea De Luca. Two more were added later: XMMU J173203.3-344518 in HESS J1731-347 (2.5 kpc, Doroshenko et al. 2022) and CXOU J181852.0-150213 in G15.9+0.2 (8.5 kpc, Reynolds et al. 2006). CCO coordinates were retrieved from SIMBAD, and distances are adopted from their associated supernova remnants.
       </p>
       <p>
         CCOs are young neutron stars found at the geometric centers of supernova remnants, characterized by purely thermal X-ray emission and anomalously weak magnetic fields. Their distances are typically derived from kinematic or association-based measurements of the host remnant, carrying uncertainties of 20 to 40%.
@@ -603,6 +605,139 @@
         </a>
         <a class="src-link secondary" href="https://arxiv.org/pdf/1711.07210" target="_blank">De Luca 2017 (arXiv)</a>
         <a class="src-link secondary" href="https://simbad.u-strasbg.fr/simbad/" target="_blank">SIMBAD Database</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- XRBcats -->
+  <div class="source-card">
+    <div class="source-header">
+      <div>
+        <div class="source-title">XRBcats: Galactic X-ray Binaries</div>
+        <div class="source-subtitle">University of Tübingen · Neumann et al. (2023), Avakyan et al. (2023)</div>
+      </div>
+      <div class="source-badge">253 neutron stars</div>
+    </div>
+    <div class="source-body">
+      <div class="source-meta">
+        <div class="meta-item">
+          <div class="meta-label">Object Types</div>
+          <div class="meta-value">Accreting NS in HMXBs and LMXBs</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Parameters Used</div>
+          <div class="meta-value">Name, RA, Dec, XrayType, Ppulse, Dist</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Access Method</div>
+          <div class="meta-value">VizieR (J/A+A/677/A134, J/A+A/675/A199)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Distance Method</div>
+          <div class="meta-value">Gaia parallax and literature estimates</div>
+        </div>
+      </div>
+      <p>
+        XRBcats lists the known high-mass (169) and low-mass (349) X-ray binaries in the Galaxy. Only systems with direct evidence of a neutron star are included here: X-ray pulsations or a measured spin period, type I X-ray bursts or burst oscillations, cyclotron resonance lines, Z or atoll behaviour, a quiescent neutron star spectrum, or a radio pulsar. Black hole candidates, systems with an unknown compact object, and γ Cas analogues without detected X-ray pulsations are left out.
+      </p>
+      <p>
+        Systems that are already in the project under another name are not repeated. These are radio pulsars listed by ATNF (PSR B1259-63, PSR J0635+0533, and the transitional millisecond pulsars PSR J1023+0038, XSS J12270-4859, 1FGL J1417.7-4407, PSR J1723-2837 and IGR J18245-2452) and SGR 0755-2933 from McGill. Objects closer than 20 kpc and within 5 kpc of the Galactic plane are placed in the 3D view; the rest, including those without a distance estimate, appear only in <a href="catalog.html">The Catalog</a>.
+      </p>
+      <div class="source-links">
+        <a class="src-link" href="http://astro.uni-tuebingen.de/~xrbcat/" target="_blank">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          XRBcats
+        </a>
+        <a class="src-link secondary" href="https://ui.adsabs.harvard.edu/abs/2023A%26A...677A.134N" target="_blank">Neumann et al. 2023 (HMXB)</a>
+        <a class="src-link secondary" href="https://ui.adsabs.harvard.edu/abs/2023A%26A...675A.199A" target="_blank">Avakyan et al. 2023 (LMXB)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Magellanic Cloud HMXBs -->
+  <div class="source-card">
+    <div class="source-header">
+      <div>
+        <div class="source-title">X-ray Pulsars in the Magellanic Clouds</div>
+        <div class="source-subtitle">Haberl &amp; Sturm (2016) for the SMC · Kaltenbrunner et al. (2026) for the LMC</div>
+      </div>
+      <div class="source-badge">73 pulsars</div>
+    </div>
+    <div class="source-body">
+      <div class="source-meta">
+        <div class="meta-item">
+          <div class="meta-label">Object Type</div>
+          <div class="meta-value">Accreting NS in HMXBs (mostly Be/X-ray binaries)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Parameters Used</div>
+          <div class="meta-value">Position, Pspin, spin and optical ID flags</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Access Method</div>
+          <div class="meta-value">VizieR (J/A+A/586/A81, J/A+A/707/A225)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Distance Method</div>
+          <div class="meta-value">Mean galaxy distance</div>
+        </div>
+      </div>
+      <p>
+        Only high-mass X-ray binaries with a measured neutron star spin period are included. In the SMC catalogue (148 confirmed and candidate HMXBs) that gives 54 pulsars: periods the authors flag as uncertain are dropped, as are three pulsars known only from RXTE scans whose position is uncertain by about a degree, and SMC X-3, which is already listed as a ULX pulsar. Positions are those of the optical counterpart when it is confidently identified. The SMC catalogue has no name column, so names were matched once in SIMBAD (the SXP designation closest to the measured period).
+      </p>
+      <p>
+        The LMC catalogue comes from the first eROSITA all-sky survey (53 confirmed and candidate HMXBs) and gives 19 pulsars, with Gaia positions of the optical counterparts. Because it is flux limited, LMC pulsars that were faint during that survey are not included. The three likely Be/white dwarf systems in it have no spin period and are not included.
+      </p>
+      <p>
+        Every object is placed at the mean distance of its galaxy: 62.44 kpc for the SMC (Graczyk et al. 2020) and 49.59 kpc for the LMC (Pietrzyński et al. 2019). The depth of each galaxy along the line of sight is not resolved.
+      </p>
+      <div class="source-links">
+        <a class="src-link" href="https://ui.adsabs.harvard.edu/abs/2016A%26A...586A..81H" target="_blank">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Haberl &amp; Sturm 2016 (SMC)
+        </a>
+        <a class="src-link secondary" href="https://ui.adsabs.harvard.edu/abs/2026A%26A...707A.225K" target="_blank">Kaltenbrunner et al. 2026 (LMC)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Literature -->
+  <div class="source-card">
+    <div class="source-header">
+      <div>
+        <div class="source-title">Individual Objects from the Literature</div>
+        <div class="source-subtitle">SIMBAD positions + published distances</div>
+      </div>
+      <div class="source-badge">9 objects</div>
+    </div>
+    <div class="source-body">
+      <div class="source-meta">
+        <div class="meta-item">
+          <div class="meta-label">Object Types</div>
+          <div class="meta-value">ULX pulsars, SN 1987A compact object</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Coordinates</div>
+          <div class="meta-value">SIMBAD (J2000)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Distance Method</div>
+          <div class="meta-value">Host galaxy distance</div>
+        </div>
+      </div>
+      <p>
+        Ultraluminous X-ray (ULX) pulsars: M82 X-2, NGC 7793 P13, NGC 5907 ULX1, NGC 300 ULX1, NGC 1313 X-2 and M51 ULX-7, at 2 to 17 Mpc, appear only in <a href="catalog.html">The Catalog</a>, since they are far outside the 3D view. SMC X-3 and RX J0209.6-7427 in the Small Magellanic Cloud (62 kpc) are placed in the visualizer. The listed spin period is the one at discovery; these pulsars spin up quickly, so it changes between observations.
+      </p>
+      <p>
+        SN 1987A compact object: JWST spectra show emission lines ionised by a compact source at the centre of the remnant, most likely a neutron star (Fransson et al. 2024). It is marked as a candidate and placed in the Large Magellanic Cloud (51.4 kpc).
+      </p>
+      <div class="source-links">
+        <a class="src-link" href="https://simbad.u-strasbg.fr/simbad/" target="_blank">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          SIMBAD Database
+        </a>
+        <a class="src-link secondary" href="https://ui.adsabs.harvard.edu/abs/2014Natur.514..202B" target="_blank">Bachetti et al. 2014 (M82 X-2)</a>
+        <a class="src-link secondary" href="https://ui.adsabs.harvard.edu/abs/2024Sci...383..898F" target="_blank">Fransson et al. 2024 (SN 1987A)</a>
       </div>
     </div>
   </div>

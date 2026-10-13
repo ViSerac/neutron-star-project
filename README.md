@@ -11,10 +11,13 @@ An interactive 3D catalog visualizer for neutron stars, built with Python and Th
 The Neutron Star Project aggregates data from multiple astronomical catalogs and renders known neutron stars in a navigable three-dimensional map of the Milky Way and its neighboring galaxies. Objects are color-coded by type and can be filtered, searched, and selected to view detailed information including coordinates, distance, period, period derivative, and links to Wikipedia and SIMBAD.
 
 **Catalogs included:**
-- [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/) — ~4,200 pulsars with a usable distance (magnetars, the M7 and CCOs that ATNF also lists are taken from the sources below instead)
-- [McGill Magnetar Catalogue](https://www.physics.mcgill.ca/~pulsar/magnetar/main.html) — ~30 magnetars and candidates (~25 with a distance)
-- The Magnificent Seven — 7 isolated neutron stars (SIMBAD + Motch et al. 2007)
-- Confirmed CCOs — 8 central compact objects (SIMBAD + De Luca)
+- [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/): ~4,200 pulsars with a usable distance (magnetars, the M7 and CCOs that ATNF also lists are taken from the sources below instead)
+- [McGill Magnetar Catalogue](https://www.physics.mcgill.ca/~pulsar/magnetar/main.html): ~30 magnetars and candidates (~25 with a distance)
+- The Magnificent Seven: 7 isolated neutron stars (SIMBAD + Motch et al. 2007)
+- Confirmed CCOs: 10 central compact objects (SIMBAD + De Luca, plus HESS J1731-347 and G15.9+0.2)
+- [XRBcats](http://astro.uni-tuebingen.de/~xrbcat/): ~250 neutron stars in high- and low-mass X-ray binaries (Neumann et al. 2023, Avakyan et al. 2023)
+- Magellanic Cloud X-ray pulsars: 54 in the SMC (Haberl & Sturm 2016) and 19 in the LMC (eRASS1, Kaltenbrunner et al. 2026)
+- Literature: 8 ULX pulsars and the candidate neutron star in SN 1987A
 
 ---
 

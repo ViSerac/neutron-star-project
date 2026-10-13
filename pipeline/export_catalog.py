@@ -38,11 +38,20 @@ if __name__ == "__main__":
     df_m7_cco = pd.read_parquet(DATA_DIR / "m7_and_cco_full.parquet")
     df_m7_cco = df_m7_cco[["NS_NAME", "RAJ", "DECJ", "DIST", "P", "P0_ERR", "PDOT", "P1_ERR", "source_catalog", "type"]]
     df_m7_cco = df_m7_cco.rename(columns={"P0_ERR":"P_ERR","P1_ERR":"PDOT_ERR"})
-    df = pd.concat([df_atnf, df_mcgill, df_m7_cco], ignore_index=True)
+    df_xrb = pd.read_parquet(DATA_DIR / "xrb_raw.parquet")
+    df_xrb = df_xrb[["NS_NAME", "RAJ", "DECJ", "DIST", "P", "source_catalog", "type", "xray_type"]]
+    df_extra = pd.read_parquet(DATA_DIR / "extra_raw.parquet")
+    df_extra = df_extra[["NS_NAME", "RAJ", "DECJ", "DIST", "P", "source_catalog", "type", "galaxy"]]
+    df_extra = df_extra.rename(columns={"galaxy": "host_galaxy"})
+    df_mc = pd.read_parquet(DATA_DIR / "mc_hmxb_raw.parquet")
+    df_mc = df_mc[["NS_NAME", "RAJ", "DECJ", "DIST", "P", "source_catalog", "type"]]
+    df = pd.concat([df_atnf, df_mcgill, df_m7_cco, df_xrb, df_mc, df_extra], ignore_index=True)
 
-    # galaxy is only known for objects placed in 3D (those with a usable distance)
+    # galaxy is known for objects placed in 3D (those with a usable distance) and for
+    # extragalactic objects whose host is listed explicitly
     placed = pd.read_parquet(DATA_DIR / "NS_db_full.parquet")[["NS_NAME", "source_catalog", "galaxy"]]
     df = df.merge(placed, on=["NS_NAME", "source_catalog"], how="left")
+    df["galaxy"] = df["galaxy"].fillna(df.pop("host_galaxy"))
     records = [{k: clean(v) for k,v in row.items()} for row in df.to_dict(orient="records")]
     output = {
         "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d"),

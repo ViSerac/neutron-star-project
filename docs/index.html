@@ -721,6 +721,10 @@ const TYPE_CONFIG = {
   'pulsar_outburst_2006':         { color: 0xd4f542, label: 'Pulsar (2006 Outburst)' },
   'M7 isolated neutron star':     { color: 0x00d4ff, label: 'M7 Isolated NS' },
   'central compact object (CCO)': { color: 0xb06dff, label: 'Central Compact Object (CCO)' },
+  'high-mass X-ray binary (NS)':  { color: 0xf472b6, label: 'HMXB (accreting NS)' },
+  'low-mass X-ray binary (NS)':   { color: 0x34d399, label: 'LMXB (accreting NS)' },
+  'ULX pulsar':                   { color: 0xf5f5f5, label: 'ULX Pulsar' },
+  'SN 1987A compact object (candidate)': { color: 0x94a3b8, label: 'SN 1987A NS (candidate)' },
 };
 
 const GALAXY_ACTIVE = { milky_way: true, lmc: true, smc: true };
@@ -855,8 +859,12 @@ function buildTypeFilters() {
 
   // Static order reversed (rarest first, pulsars last)
   const staticOrder = [
+    'SN 1987A compact object (candidate)',
+    'ULX pulsar',
     'M7 isolated neutron star',
     'central compact object (CCO)',
+    'high-mass X-ray binary (NS)',
+    'low-mass X-ray binary (NS)',
     'candidate_magnetar',
     'pulsar_outburst_2006',
     'magnetar',
@@ -937,8 +945,10 @@ function applyFilters() {
 
 // ── LIST ─────────────────────────────────────────────────
 const TYPE_ORDER = [
-  'user_import', 'central compact object (CCO)', 'M7 isolated neutron star',
-  'pulsar_outburst_2006', 'candidate_magnetar', 'magnetar', 'pulsar'
+  'user_import', 'SN 1987A compact object (candidate)', 'ULX pulsar',
+  'central compact object (CCO)', 'M7 isolated neutron star',
+  'pulsar_outburst_2006', 'candidate_magnetar', 'magnetar',
+  'high-mass X-ray binary (NS)', 'low-mass X-ray binary (NS)', 'pulsar'
 ];
 
 function typeRank(t) {

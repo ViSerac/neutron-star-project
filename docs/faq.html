@@ -471,8 +471,36 @@
           <span style="color:#d4f542">■</span> Yellow-green Pulsar with 2006 magnetar-like outburst<br>
           <span style="color:#00d4ff">■</span> Cyan Magnificent Seven isolated neutron star<br>
           <span style="color:#b06dff">■</span> Purple Central Compact Object (CCO)<br>
+          <span style="color:#f472b6">■</span> Pink Neutron star in a high-mass X-ray binary (HMXB)<br>
+          <span style="color:#34d399">■</span> Green Neutron star in a low-mass X-ray binary (LMXB)<br>
+          <span style="color:#f5f5f5">■</span> White Ultraluminous X-ray (ULX) pulsar<br>
+          <span style="color:#94a3b8">■</span> Gray-blue Candidate neutron star in SN 1987A<br>
           <span style="color:#FFD700">■</span> Gold The Sun (reference point)
         </div>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What is an X-ray binary, and why are some neutron stars in one?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>An X-ray binary is a neutron star (or a black hole) orbiting a normal star close enough to pull gas from it. The gas heats up to millions of degrees as it falls onto the neutron star and shines brightly in X-rays.</p>
+        <p>In <strong>high-mass X-ray binaries</strong> the companion is a massive young star, often a fast-spinning Be star or a supergiant, and the neutron star usually shows up as an X-ray pulsar. In <strong>low-mass X-ray binaries</strong> the companion is a star lighter than the Sun; these neutron stars often produce thermonuclear X-ray bursts, and some spin hundreds of times per second. Millisecond radio pulsars are thought to be the descendants of these systems.</p>
+        <p>Only X-ray binaries with direct evidence of a neutron star are shown, such as X-ray pulsations, thermonuclear bursts or cyclotron lines. Systems that may host a black hole, or whose compact object is unknown, are left out.</p>
+        <p>The Small and Large Magellanic Clouds host many high-mass X-ray binaries, because both had bursts of star formation in the last few tens of millions of years. Their X-ray pulsars are shown in the visualizer inside each galaxy.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What is a ULX pulsar?
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Ultraluminous X-ray sources (ULXs) shine brighter than a neutron star should be able to by the usual accretion limit, so for years they were thought to be black holes. In 2014 pulsations were found in M82 X-2, proving that some of them are neutron stars accreting matter at extreme rates.</p>
+        <p>Most known ULX pulsars are in other galaxies millions of light-years away, too far to place on the 3D map; they are listed in <a href="catalog.html">The Catalog</a>. The two in the Small Magellanic Cloud (SMC X-3 and RX J0209.6-7427) do appear in the visualizer. The Milky Way's own ULX pulsar, Swift J0243.6+6124, is shown as a high-mass X-ray binary.</p>
       </div></div>
     </div>
 
@@ -524,7 +552,7 @@
       </div>
       <div class="faq-a"><div class="faq-a-inner">
         <p>M7 distances are taken from the compilation in Table 1 of <a href="https://arxiv.org/pdf/0712.0342" target="_blank">Motch et al. (2007)</a>, which lists them in parsecs; parallaxes are behind the values for RX J1856.5-3754 and RX J0720.4-3125. They are converted to kiloparsecs by dividing by 1000, which places all seven within about 400 pc of the Sun.</p>
-        <p>For RBS 1223 the midpoint of the reported 76–670 pc range was used, and for RX J1605.3+3249 and RX J0420.0-5022 the published upper limits. These distances carry substantial uncertainties and should be treated as approximate in the 3D visualization.</p>
+        <p>For RBS 1223 the midpoint of the reported 76 to 670 pc range was used, and for RX J1605.3+3249 and RX J0420.0-5022 the published upper limits. These distances carry substantial uncertainties and should be treated as approximate in the 3D visualization.</p>
       </div></div>
     </div>
 
@@ -556,8 +584,8 @@
         <div class="faq-icon">+</div>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        <p>The ATNF catalogue contains over 4,500 pulsars, but many lack measured distances. After applying <code>dropna</code> on <code>DIST</code>, <code>RAJ</code>, and <code>DECJ</code>, filtering out objects beyond 20 kpc or with |z| > 5 kpc, and removing the objects this project takes from other catalogs (the Magnificent Seven, magnetars and some CCOs, which ATNF also lists), <span data-stat="ATNF">4,217</span> pulsars remain.</p>
-        <p>The other <span data-stat="other">40</span> objects come from the McGill magnetar catalogue, the Magnificent Seven, and the confirmed CCO sample. The total of <span data-stat="total">4,257</span> objects represents all neutron stars in the combined catalog with sufficient astrometric information for 3D placement. Objects without a distance still appear in <a href="catalog.html">The Catalog</a> table.</p>
+        <p>The ATNF catalogue contains over 4,500 pulsars, but many lack measured distances. After applying <code>dropna</code> on <code>DIST</code>, <code>RAJ</code>, and <code>DECJ</code>, filtering out objects beyond 20 kpc or with |z| > 5 kpc, and removing the objects this project takes from other catalogs (the Magnificent Seven, magnetars and some CCOs, which ATNF also lists), <span data-stat="ATNF">4,216</span> pulsars remain.</p>
+        <p>The other <span data-stat="other">328</span> objects come from the McGill magnetar catalogue, the Magnificent Seven, the confirmed CCO sample, the XRBcats catalogues of X-ray binaries, the catalogues of X-ray pulsars in the Small and Large Magellanic Clouds, and a few individual objects from the literature. The total of <span data-stat="total">4,544</span> objects represents all neutron stars in the combined catalog with sufficient astrometric information for 3D placement. Objects without a distance still appear in <a href="catalog.html">The Catalog</a> table.</p>
       </div></div>
     </div>
 

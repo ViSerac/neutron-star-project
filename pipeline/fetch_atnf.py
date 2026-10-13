@@ -17,12 +17,14 @@ def fetch_atnf_data():
     m7_overlap = ["J0720-3125","J2143+0654","J1308+2127","J1856-3754","J1605+3249","J0806-4123","J0420-5022"]
     cco_overlap = ["J0821-4300","J1210-5226","J1852+0040"]
     mcgill_overlap = ["J1846-0258"]
+    # 1A 0535-66, taken from the LMC HMXB catalogue (mc_hmxb.py)
+    xrb_overlap = ["J0535-66"]
 
     timing_cols = ["NS_NAME", "P", "P0_ERR", "PDOT", "P1_ERR"]
     df[df["NS_NAME"].isin(m7_overlap + cco_overlap)][timing_cols].to_parquet(
         DATA_DIR / "atnf_overlap_timing.parquet", index=False)
 
-    df = df[~df["NS_NAME"].isin(m7_overlap + cco_overlap + mcgill_overlap)]
+    df = df[~df["NS_NAME"].isin(m7_overlap + cco_overlap + mcgill_overlap + xrb_overlap)]
 
     # ATNF tags magnetars as AXP under J-names; McGill lists the same objects
     # under their historical names, so name matching can't dedupe them.
