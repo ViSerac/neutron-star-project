@@ -1,5 +1,6 @@
 import io
 import re
+import urllib.error
 import urllib.request
 import numpy as np
 import pandas as pd
@@ -14,7 +15,14 @@ GALCEN = Galactocentric(
     z_sun=20.8 * u.pc,
 )
 
-VIZIER = "https://vizier.cds.unistra.fr/viz-bin/asu-tsv?-source={}&-out.all&-out.max=unlimited"
+# Main CDS server first, then the official VizieR mirrors (CfA, IDIA). The Strasbourg
+# server was taken offline during the CDS security incident of November 2026.
+VIZIER_HOSTS = [
+    "https://vizier.cds.unistra.fr",
+    "https://vizier.cfa.harvard.edu",
+    "https://vizier.idia.ac.za",
+]
+VIZIER_QUERY = "/viz-bin/asu-tsv?-source={}&-out.all&-out.max=unlimited"
 
 # XRBcats (Tuebingen). Only systems with direct evidence of a neutron star are kept:
 # X-ray pulsations, type I bursts / burst oscillations, cyclotron lines, Z/atoll
@@ -43,9 +51,22 @@ CATALOGS = {
 }
 
 
+def fetch_vizier_text(source):
+    errors = []
+    for host in VIZIER_HOSTS:
+        try:
+            with urllib.request.urlopen(host + VIZIER_QUERY.format(source), timeout=120) as res:
+                text = res.read().decode("utf-8")
+            if "#RESOURCE" in text:  # a real ASU-TSV answer, not an error page
+                return text
+            errors.append(f"{host}: unexpected response")
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+            errors.append(f"{host}: {e}")
+    raise RuntimeError(f"VizieR table {source} unavailable on every server:\n" + "\n".join(errors))
+
+
 def read_vizier_tsv(source):
-    with urllib.request.urlopen(VIZIER.format(source), timeout=120) as res:
-        text = res.read().decode("utf-8")
+    text = fetch_vizier_text(source)
     lines = [l for l in text.splitlines() if l.strip() and not l.startswith("#")]
     # line 0 = column names, 1 = units, 2 = dashes
     df = pd.read_csv(io.StringIO("\n".join([lines[0]] + lines[3:])), sep="\t", dtype=str)
